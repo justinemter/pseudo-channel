@@ -20,11 +20,11 @@ This script, like the one above uses crontab to both generate the daily schedule
 ```
 python pseudo_updatedb.py
 ```
-3. Edit the schedule.sh bash file to contain your daily schedule information. This needs to be run only once to tell the script what shows / movies it will be using when generating its daily schedule:
+3. Edit the schedule.sh bash file to define your daily schedule information (use my schedule.sh / boilerplate commands as a guide to how to input the schedule - it's pretty self-explanatory). The media title needs to match the media title in your Plex library (i.e. "the office" needs to be "the office (us)" if that's what it says in your library). This needs to be run only once to tell the script what shows / movies it will be using when generating its daily schedule:
 ```
 bash ./schedule.sh
 ```
-4. Setup a crontab to run `pseudo_generate_daily_scheduledb.py` everyday at say, midnight. This will generate a schedule for the day based on media inputed by the about bash script.
+4. Setup a crontab to run `pseudo_generate_daily_scheduledb.py` everyday at say, midnight. This will generate a schedule for the day based on media inputed by the above bash script.
 ```
 crontab -e
 0 0 * * * python /home/justin/this-repo-folder/pseudo_generate_daily_scheduledb.py
@@ -33,3 +33,5 @@ crontab -e
 ```
 * * * * * python /home/justin/this-repo-folder/[TODO]
 ```
+
+I'm excited to get this thing working. Cheers. :)
