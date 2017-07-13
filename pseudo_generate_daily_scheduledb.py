@@ -42,13 +42,23 @@ def update_shows_table_with_last_episode(showTitle, lastEpisodeTitle):
 	c.execute(sql1, (lastEpisodeTitle, showTitle, ))
 	conn.commit()
 
-def get_first_episode_title(tvshow):
-	print("Getting first episode of "+tvshow)
-	sql1 = "SELECT title, MIN(episodeNumber), MIN(seasonNumber) FROM episodes WHERE ( showTitle LIKE ?) COLLATE NOCASE"
+def get_first_episode(tvshow):
+	#print("Getting first episode of "+tvshow)
+	sql1 = "SELECT id, unix, mediaID, title, duration, MIN(episodeNumber), MIN(seasonNumber), showTitle FROM episodes WHERE ( showTitle = ?) COLLATE NOCASE"
 	c.execute(sql1, (tvshow, ))
 	datalist = list(c.fetchone())
 	if datalist > 0:
-		print("first episode of tvshow series: "+datalist[0])
+		#print("first episode of tvshow series: "+datalist[0])
+		return datalist
+	else:
+		print("No entry found in DB to add to schedule.")
+
+def get_episode_id(episodeTitle):
+	#print("Getting episode id of "+episodeTitle)
+	sql1 = "SELECT id FROM episodes WHERE ( title = ?) COLLATE NOCASE"
+	c.execute(sql1, (episodeTitle, ))
+	datalist = list(c.fetchone())
+	if datalist > 0:
 		return datalist[0]
 	else:
 		print("No entry found in DB to add to schedule.")
@@ -63,11 +73,49 @@ def generate_daily_schedule():
 		c.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (row[3], )) 
 		lastTitleList = list(c.fetchone())
 		if lastTitleList[0] == '':
-			first_episode_title = get_first_episode_title(row[3])
+
+			first_episode = get_first_episode(row[3])
+			first_episode_title = first_episode[3]
+
 			update_shows_table_with_last_episode(row[3], first_episode_title)
+
+			add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], 0, row[7])
+
 		else:
-			print("First episode already set in shows")
-			c.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (row[3], )) 
+			print("First episode already set in shows, advancing episodes forward")
+			#c.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (row[3], )) 
+			"""
+			If this isn't a first run, then grabbing the next episode by incrementing id
+			"""
+			print(str(get_episode_id(lastTitleList[0])))
+			sql="SELECT * FROM episodes WHERE ( id > "+str(get_episode_id(lastTitleList[0]))+" AND showTitle LIKE ? ) ORDER BY seasonNumber LIMIT 1 COLLATE NOCASE"
+			c.execute(sql, (row[3], )) 
+			try:
+				next_episode = list(c.fetchone())
+
+				if next_episode > 0:
+					print(next_episode[3])
+					update_shows_table_with_last_episode(row[3], next_episode[3])
+
+					add_daily_schedule_to_db(0, next_episode[3], next_episode[5], next_episode[6], row[3], 0, row[5], 0, row[7])
+				else:
+					print("Not grabbing next episode for some reason")
+			except Exception as e:
+				
+				'''
+				Let's assume that this error is always because we hit the end of the series and start over...
+				'''    
+
+				first_episode = get_first_episode(row[3])
+				first_episode_title = first_episode[3]
+
+				update_shows_table_with_last_episode(row[3], first_episode_title)
+
+				add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], 0, row[7])
+
+			    # raise e
+			
+
 		# if prev_row != '':
 		# 	print(prev_row)
 		# else:
@@ -75,3 +123,5 @@ def generate_daily_schedule():
 		prev_row = row
 
 generate_daily_schedule()
+
+#SELECT title, showTitle, episodeNumber, seasonNumber FROM episodes WHERE ( showTitle LIKE "seinfeld") ORDER BY seasonNumber COLLATE NOCASE
