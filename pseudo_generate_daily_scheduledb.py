@@ -64,63 +64,121 @@ def get_episode_id(episodeTitle):
 		print("No entry found in DB to add to schedule.")
 
 def generate_daily_schedule():
+	'''
+	*
+	* Everytime this function is run it drops the previous "scheduled_shows" table recreates it
+	*
+	'''
 	create_table()
-	c.execute("SELECT * FROM schedule ORDER BY datetime(startTimeUnix) ASC") 
+	'''
+	*
+	* Get all shows that have been entered into the "schedule" table ordered by the desired scheduled time
+	*
+	'''
+	c.execute("SELECT * FROM schedule ORDER BY datetime(startTimeUnix) ASC")
+
 	datalist = list(c.fetchall())
-	prev_row = ''
+
 	for row in datalist:
+
 		first_episode_title = ''
-		c.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (row[3], )) 
+		'''
+		*
+		* As a way of storing a "queue", I am storing the *next episode title in the "shows" table so I can 
+		* determine what has been previously scheduled for each show
+		*
+		'''
+		c.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (row[3], ))
+
 		lastTitleList = list(c.fetchone())
+		'''
+		*
+		* If the last episode stored in the "shows" table is empty, then this is probably a first run...
+		*
+		'''
 		if lastTitleList[0] == '':
-
+			'''
+			*
+			* Find the first episode of the series
+			*
+			'''
 			first_episode = get_first_episode(row[3])
+
 			first_episode_title = first_episode[3]
-
+			'''
+			*
+			* Add this episdoe title to the "shows" table for the queue functionality to work
+			*
+			'''
 			update_shows_table_with_last_episode(row[3], first_episode_title)
-
+			'''
+			*
+			* TODO: generate a reasonable startTime based on previous episode duration
+			*
+			'''
 			add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], 0, row[7])
-
+		'''
+		*
+		* The last episode stored in the "shows" table was not empty... get the next episode in the series
+		*
+		'''
 		else:
+
 			print("First episode already set in shows, advancing episodes forward")
-			#c.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (row[3], )) 
-			"""
-			If this isn't a first run, then grabbing the next episode by incrementing id
-			"""
+
 			print(str(get_episode_id(lastTitleList[0])))
+			"""
+			*
+			* If this isn't a first run, then grabbing the next episode by incrementing id
+			*
+			"""
 			sql="SELECT * FROM episodes WHERE ( id > "+str(get_episode_id(lastTitleList[0]))+" AND showTitle LIKE ? ) ORDER BY seasonNumber LIMIT 1 COLLATE NOCASE"
-			c.execute(sql, (row[3], )) 
+
+			c.execute(sql, (row[3], ))
+			'''
+			*
+			* Try and advance to the next episode in the series, if it errs then that means it reached the end...
+			*
+			'''
 			try:
+
 				next_episode = list(c.fetchone())
 
 				if next_episode > 0:
-					print(next_episode[3])
-					update_shows_table_with_last_episode(row[3], next_episode[3])
 
+					print(next_episode[3])
+
+					update_shows_table_with_last_episode(row[3], next_episode[3])
+					'''
+					*
+					* TODO: generate a reasonable startTime based on previous episode duration
+					*
+					'''
 					add_daily_schedule_to_db(0, next_episode[3], next_episode[5], next_episode[6], row[3], 0, row[5], 0, row[7])
 				else:
-					print("Not grabbing next episode for some reason")
-			except Exception as e:
-				
-				'''
-				Let's assume that this error is always because we hit the end of the series and start over...
-				'''    
 
+					print("Not grabbing next episode for some reason")
+
+			except Exception as e:
+				'''
+				*
+				* Let's assume that this error is always because we hit the end of the series and start over...
+				*
+				'''    
 				first_episode = get_first_episode(row[3])
+
 				first_episode_title = first_episode[3]
 
 				update_shows_table_with_last_episode(row[3], first_episode_title)
-
+				'''
+				*
+				* TODO: generate a reasonable startTime based on previous episode duration
+				*
+				'''
 				add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], 0, row[7])
 
 			    # raise e
-			
 
-		# if prev_row != '':
-		# 	print(prev_row)
-		# else:
-		# 	update_shows_table_with_last_episode()
-		prev_row = row
 
 generate_daily_schedule()
 
