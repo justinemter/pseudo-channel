@@ -19,6 +19,7 @@ import os, sys
 import string
 import argparse
 import datetime
+import calendar
 
 conn = sqlite3.connect('pseudo-tv.db')
 
@@ -48,6 +49,75 @@ def add_daily_schedule_to_db(mediaID, title, episodeNumber, seasonNumber, showTi
 	    conn.rollback()
 
 	    raise e
+
+'''
+*
+* Returns time difference in minutes
+*
+'''
+def time_diff(time1,time2):
+
+
+	'''
+	*
+	* Getting the offest by comparing both times from the unix epoch time and getting the difference.
+	*
+	'''
+	timeA = datetime.datetime.strptime(time1, "%H:%M")
+	timeB = datetime.datetime.strptime(time2, "%H:%M")
+	
+	timeAEpoch = calendar.timegm(timeA.timetuple())
+	timeBEpoch = calendar.timegm(timeB.timetuple())
+
+	tdelta = abs(timeAEpoch) - abs(timeBEpoch)
+
+	return int(tdelta/60)
+
+'''
+*
+* Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
+
+* Returns time - for new start time
+*
+'''
+def calculate_start_time_offset_from_prev_episode_endtime(prevEndTime, intendedStartTime):
+
+	time1 = prevEndTime.strftime('%H:%M')
+
+	# time2 = intendedStartTime.strftime('%H:%M')
+
+	timeB = datetime.datetime.strptime(intendedStartTime, '%Y-%m-%d %H:%M:%S').strftime('%H:%M')
+
+	print(timeB)
+
+	timeDiff = time_diff(time1, timeB)
+
+	print("timeDiff "+ str(timeDiff))
+
+	'''
+	*
+	* If time difference is negative, then we know there is overlap
+	*
+	'''
+	if timeDiff < 0:
+
+		print("There is overlap ")
+
+	elif timeDiff > 10:
+
+		print("Time gap is more than ten, let's start next media earlier than inended")
+
+	elif timeDiff > 20:
+
+		print("Time gap is more than 20 minutes, let's start next media earlier than inended")
+
+	elif timeDiff > 30:
+
+		print("Time gap is more than 30 minutes, let's start next media earlier than inended")
+
+	else:
+
+		print("Not sure what to do here")
 
 '''
 *
@@ -114,6 +184,13 @@ def get_episode_id(episodeTitle):
 		print("No entry found in DB to add to schedule.")
 
 def generate_daily_schedule():
+
+	'''
+	*
+	* prevEpisodeEndTime will be used when calculating current episodes start time
+	*
+	'''
+	prevEpisodeEndTime = None
 	'''
 	*
 	* Everytime this function is run it drops the previous "scheduled_shows" & table recreates it
@@ -155,6 +232,8 @@ def generate_daily_schedule():
 			first_episode = get_first_episode(row[3])
 
 			first_episode_title = first_episode[3]
+
+			print(first_episode_title)
 			'''
 			*
 			* Add this episdoe title to the "shows" table for the queue functionality to work
@@ -169,8 +248,11 @@ def generate_daily_schedule():
 			endTime = get_end_time_from_duration(row[5], first_episode[4]);
 
 			print("End time: " + str(endTime)); 
+			print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
 			add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], endTime, row[7])
+
+			prevEpisodeEndTime = endTime
 		
 		else:
 			'''
@@ -212,7 +294,28 @@ def generate_daily_schedule():
 
 					print("End time: " + str(endTime)); 
 
+					'''
+					*
+					* Getting the previous episodes end time to calculate offset
+					*
+					'''
+
+					newStartTime = ''
+
+					if prevEpisodeEndTime != None:
+
+						calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8])
+
+					else:
+
+						prevEpisodeEndTime = endTime
+
+					print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
+
 					add_daily_schedule_to_db(0, next_episode[3], next_episode[5], next_episode[6], row[3], 0, row[5], endTime, row[7])
+
+					prevEpisodeEndTime = endTime
+
 				else:
 
 					print("Not grabbing next episode for some reason")
@@ -227,6 +330,8 @@ def generate_daily_schedule():
 
 				first_episode_title = first_episode[3]
 
+				print(first_episode_title)
+
 				update_shows_table_with_last_episode(row[3], first_episode_title)
 				'''
 				*
@@ -239,7 +344,18 @@ def generate_daily_schedule():
 
 				print("End time: " + str(endTime)); 
 
+				if prevEpisodeEndTime != None:
+
+					calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8])
+
+				else:
+
+					prevEpisodeEndTime = endTime
+
+
 				add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], endTime, row[7])
+
+				prevEpisodeEndTime = endTime
 
 			    # raise e
 

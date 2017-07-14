@@ -4,7 +4,6 @@ from plexapi.server import PlexServer
 import sqlite3
 import time
 import os, sys
-#import Image
 import string
 import argparse
 import datetime
@@ -20,7 +19,7 @@ def add_schedule_to_db(mediaID, title, duration, startTime, endTime, dayOfWeek):
 	unix = int(time.time())
 	startTimeUnix = str(datetime.datetime.strptime(startTime, '%I:%M %p'))
 	try:
-		c.execute("INSERT INTO schedule (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix))
+		c.execute("INSERT OR REPLACE INTO schedule (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix))
 		conn.commit()
 		c.close()
 		conn.close()

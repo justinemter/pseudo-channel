@@ -30,3 +30,4 @@ python pseudo_channel.py -a "shows" -n "the office (us)" -t "4:30 PM" -d "weekda
 
 python pseudo_channel.py -a "shows" -n "friends" -t "5:00 PM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "friends" -t "5:30 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "friends" -t "5:40 PM" -d "weekdays"
