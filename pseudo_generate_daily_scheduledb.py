@@ -267,6 +267,8 @@ def generate_daily_schedule():
 			'''
 			endTime = get_end_time_from_duration(row[5], first_episode[4]);
 
+			newStartTime = row[5]
+
 			if prevEpisodeEndTime != None:
 
 				newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], first_episode[4], prevEpDuration)
