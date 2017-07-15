@@ -273,17 +273,15 @@ def generate_daily_schedule():
 
 				newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], first_episode[4], prevEpDuration)
 
-			else:
-
-				prevEpisodeEndTime = endTime
-
-				prevEpDuration = first_episode[4]
-
 			print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
 			startTimeUnix = datetime.datetime.strptime(newStartTime, '%I:%M %p')
 
 			add_daily_schedule_to_db(0, first_episode[3], first_episode[5], first_episode[6], row[3], first_episode[4], newStartTime, endTime, row[7], startTimeUnix)
+
+			prevEpisodeEndTime = endTime
+
+			prevEpDuration = first_episode[4]
 		
 		else:
 			'''
