@@ -13,6 +13,8 @@ This script, like the one above uses crontab to both generate the daily schedule
 - [ ] Add movie / commercial support. 
 
 ## How to use:
+For the controller, use a linux VM (Debian installed w/ minimal resources), or an old laptop w/ Ubunutu or a raspberry pi w/ Jessie...or something similar. Then download this repo to your users home folder and follow this guide:
+
 1. Install [python plex api](https://github.com/pkkid/python-plexapi)
 2. Edit the pseudo_config.py file to add your server URL / Plex token ([how to find it](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)).
 3. Run the database loader to gather the necessary information about your Plex library and generate local DB (run as many times as needed. May take a while.):
