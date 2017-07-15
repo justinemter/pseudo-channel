@@ -29,15 +29,15 @@ def create_table():
 
 	c.execute('DROP TABLE IF EXISTS daily_schedule')
 
-	c.execute('CREATE TABLE daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, dayOfWeek TEXT)')
+	c.execute('CREATE TABLE daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER)')
 
-def add_daily_schedule_to_db(mediaID, title, episodeNumber, seasonNumber, showTitle, duration, startTime, endTime, dayOfWeek):
+def add_daily_schedule_to_db(mediaID, title, episodeNumber, seasonNumber, showTitle, duration, startTime, endTime, dayOfWeek, startTimeUnix):
 
 	unix = int(time.time())
 
 	try:
 
-		c.execute("INSERT OR REPLACE INTO daily_schedule (unix, mediaID, title, episodeNumber, seasonNumber, showTitle, duration, startTime, endTime, dayOfWeek) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (unix, mediaID, title, episodeNumber, seasonNumber, showTitle, duration, startTime, endTime, dayOfWeek))
+		c.execute("INSERT OR REPLACE INTO daily_schedule (unix, mediaID, title, episodeNumber, seasonNumber, showTitle, duration, startTime, endTime, dayOfWeek, startTimeUnix) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (unix, mediaID, title, episodeNumber, seasonNumber, showTitle, duration, startTime, endTime, dayOfWeek, startTimeUnix))
 
 		conn.commit()
 
@@ -63,8 +63,8 @@ def time_diff(time1,time2):
 	* Getting the offest by comparing both times from the unix epoch time and getting the difference.
 	*
 	'''
-	timeA = datetime.datetime.strptime(time1, "%H:%M")
-	timeB = datetime.datetime.strptime(time2, "%H:%M")
+	timeA = datetime.datetime.strptime(time1, "%I:%M %p")
+	timeB = datetime.datetime.strptime(time2, "%I:%M %p")
 	
 	timeAEpoch = calendar.timegm(timeA.timetuple())
 	timeBEpoch = calendar.timegm(timeB.timetuple())
@@ -73,6 +73,11 @@ def time_diff(time1,time2):
 
 	return int(tdelta/60)
 
+
+def adjust_start_time_if_duration_is_too_short(duration):
+
+	print("")
+
 '''
 *
 * Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
@@ -80,44 +85,57 @@ def time_diff(time1,time2):
 * Returns time - for new start time
 *
 '''
-def calculate_start_time_offset_from_prev_episode_endtime(prevEndTime, intendedStartTime):
+def calculate_start_time_offset_from_prev_episode_endtime(prevEndTime, intendedStartTime, duration, prevEpDuration):
 
-	time1 = prevEndTime.strftime('%H:%M')
+	time1 = prevEndTime.strftime('%I:%M %p')
 
-	# time2 = intendedStartTime.strftime('%H:%M')
-
-	timeB = datetime.datetime.strptime(intendedStartTime, '%Y-%m-%d %H:%M:%S').strftime('%H:%M')
-
-	print(timeB)
+	timeB = datetime.datetime.strptime(intendedStartTime, '%Y-%m-%d %H:%M:%S').strftime('%I:%M %p')
 
 	timeDiff = time_diff(time1, timeB)
 
 	print("timeDiff "+ str(timeDiff))
+	print("startTimeUNIX: "+ str(intendedStartTime))
+
+	newTimeObj = datetime.datetime.strptime(intendedStartTime, "%Y-%m-%d %H:%M:%S")
+
+	newStartTime = datetime.datetime.strptime(intendedStartTime, '%Y-%m-%d %H:%M:%S')
 
 	'''
 	*
 	* If time difference is negative, then we know there is overlap
 	*
 	'''
-	if timeDiff < 0:
+	if timeDiff <= 0:
 
 		print("There is overlap ")
 
-	elif timeDiff > 10:
+
+		'''
+		*
+		* If timeDiff is not more than 15 minutes, or 30 minutes just adjust by 15 or 30. If more than adjust by the exact difference
+		*
+		'''
+		newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + 5))
+
+	elif timeDiff <= 5:
+
+		print("timeDiff is less than or equal to 5 minutes")
+
+	elif timeDiff > 5:
 
 		print("Time gap is more than ten, let's start next media earlier than inended")
 
-	elif timeDiff > 20:
+		# if prevEpDuration < 10
 
-		print("Time gap is more than 20 minutes, let's start next media earlier than inended")
-
-	elif timeDiff > 30:
-
-		print("Time gap is more than 30 minutes, let's start next media earlier than inended")
+		newStartTime = newTimeObj - datetime.timedelta(minutes=timeDiff-5)
 
 	else:
 
 		print("Not sure what to do here")
+
+		
+
+	return newStartTime.strftime('%I:%M %p')
 
 '''
 *
@@ -191,6 +209,8 @@ def generate_daily_schedule():
 	*
 	'''
 	prevEpisodeEndTime = None
+
+	prevEpDuration = None
 	'''
 	*
 	* Everytime this function is run it drops the previous "scheduled_shows" & table recreates it
@@ -247,12 +267,21 @@ def generate_daily_schedule():
 			'''
 			endTime = get_end_time_from_duration(row[5], first_episode[4]);
 
-			print("End time: " + str(endTime)); 
+			if prevEpisodeEndTime != None:
+
+				newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], first_episode[4], prevEpDuration)
+
+			else:
+
+				prevEpisodeEndTime = endTime
+
+				prevEpDuration = first_episode[4]
+
 			print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
-			add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], endTime, row[7])
+			startTimeUnix = datetime.datetime.strptime(newStartTime, '%I:%M %p')
 
-			prevEpisodeEndTime = endTime
+			add_daily_schedule_to_db(0, first_episode[3], first_episode[5], first_episode[6], row[3], first_episode[4], newStartTime, endTime, row[7], startTimeUnix)
 		
 		else:
 			'''
@@ -300,21 +329,27 @@ def generate_daily_schedule():
 					*
 					'''
 
-					newStartTime = ''
+					newStartTime = row[5]
 
 					if prevEpisodeEndTime != None:
 
-						calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8])
+						newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], next_episode[4], prevEpDuration)
 
 					else:
 
 						prevEpisodeEndTime = endTime
 
+						prevEpDuration = first_episode[4]
+
 					print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
-					add_daily_schedule_to_db(0, next_episode[3], next_episode[5], next_episode[6], row[3], 0, row[5], endTime, row[7])
+					startTimeUnix = datetime.datetime.strptime(newStartTime, '%I:%M %p')
+
+					add_daily_schedule_to_db(0, next_episode[3], next_episode[5], next_episode[6], row[3], next_episode[4], newStartTime, endTime, row[7], startTimeUnix)
 
 					prevEpisodeEndTime = endTime
+
+					prevEpDuration = next_episode[4]
 
 				else:
 
@@ -344,18 +379,28 @@ def generate_daily_schedule():
 
 				print("End time: " + str(endTime)); 
 
+				newStartTime = row[5]
+
 				if prevEpisodeEndTime != None:
 
-					calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8])
+					newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], first_episode[4], prevEpDuration)
 
 				else:
 
 					prevEpisodeEndTime = endTime
 
+					prevEpDuration = next_episode[4]
 
-				add_daily_schedule_to_db(0, first_episode_title, first_episode[5], first_episode[6], row[3], 0, row[5], endTime, row[7])
+				print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
+
+				startTimeUnix = datetime.datetime.strptime(newStartTime, '%I:%M %p')
+
+				add_daily_schedule_to_db(0, first_episode[3], first_episode[5], first_episode[6], row[3], first_episode[4], newStartTime, endTime, row[7], startTimeUnix)
+
 
 				prevEpisodeEndTime = endTime
+
+				prevEpDuration = next_episode[4]
 
 			    # raise e
 
