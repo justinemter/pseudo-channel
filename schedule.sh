@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "6:00 AM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "6:30 AM" -d "weekdays"
