@@ -21,12 +21,113 @@ import argparse
 import datetime
 import calendar
 import itertools
+from yattag import Doc
 
 from pseudo_config import *
 
 conn = sqlite3.connect('pseudo-tv.db')
 
 c = conn.cursor()
+
+'''
+*
+* Get HTML from Scheduled Content to save to file
+*
+'''
+def get_html_from_daily_schedule():
+
+    doc, tag, text, line = Doc(
+
+    ).ttl()
+
+    doc.asis('<!DOCTYPE html>')
+
+    with tag('html'):
+
+    	with tag('head'):
+
+			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
+
+        with tag('body'):
+
+        	with tag('div', klass='container mt-3'):
+
+				now = datetime.datetime.now()
+
+				time = now.strftime("%B %d, %Y")
+
+				with tag('div'):
+
+					with tag('div', klass='row'):
+
+						line('h1', "Daily Schedule", klass='col-12 pl-0')
+
+					with tag('div', klass='row'):
+
+						line('h3', time, klass='col-12 pl-0')
+
+	            # with tag('div', klass = 'description'):
+	            #     text(data['article']['description'])
+
+				with tag('div', klass='row'):
+
+					with tag('table', klass='col-12 table table-bordered table-hover'):
+
+						with tag('thead', klass='table-info'):
+							with tag('tr'):
+								with tag('th'):
+									text('#')
+								with tag('th'):
+									text('Series')
+								with tag('th'):
+									text('Title')
+								with tag('th'):
+									text('Start Time')
+
+						c.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTimeUnix) ASC")
+
+						datalist = list(c.fetchall())
+
+						numberIncrease = 0
+
+						for row in datalist:
+
+							numberIncrease += 1
+
+							with tag('tbody'):
+								with tag('tr'):
+									with tag('th', scope='row'):
+										text(numberIncrease)
+									with tag('td'):
+										text(row[6])
+									with tag('td'):
+										text(row[3])
+									with tag('td'):
+										text(row[8])
+
+    return doc.getvalue()
+
+def write_schedule_to_file(data):
+
+	now = datetime.datetime.now()
+
+	fileName = "pseudo-tv_todays-schedule.html"
+
+	writepath = './schedules/'
+
+	if not os.path.exists(writepath):
+
+		os.makedirs(writepath)
+
+	if os.path.exists(writepath+fileName):
+		
+		os.remove(writepath+fileName)
+
+	mode = 'a' if os.path.exists(writepath) else 'w'
+
+	with open(writepath+fileName, mode) as f:
+
+		f.write(data)
 
 def create_table():
 
@@ -270,6 +371,8 @@ def generate_daily_schedule():
 	'''
 	c.execute("SELECT * FROM schedule ORDER BY datetime(startTimeUnix) ASC")
 
+	datalistLengthMonitor = 0;
+
 	datalist = list(c.fetchall())
 
 	for row in datalist:
@@ -328,6 +431,12 @@ def generate_daily_schedule():
 			prevEpisodeEndTime = endTime
 
 			prevEpDuration = first_episode[4]
+
+			datalistLengthMonitor += 1
+
+			if datalistLengthMonitor >= len(datalist):
+
+				write_schedule_to_file(get_html_from_daily_schedule())
 		
 		else:
 			'''
@@ -397,6 +506,12 @@ def generate_daily_schedule():
 
 					prevEpDuration = next_episode[4]
 
+					datalistLengthMonitor += 1
+
+					if datalistLengthMonitor >= len(datalist):
+
+						write_schedule_to_file(get_html_from_daily_schedule())
+
 				else:
 
 					print("Not grabbing next episode for some reason")
@@ -450,7 +565,11 @@ def generate_daily_schedule():
 
 				prevEpDuration = next_episode[4]
 
-			    
+				datalistLengthMonitor += 1
+
+				if datalistLengthMonitor >= len(datalist):
+
+					write_schedule_to_file(get_html_from_daily_schedule())
 
 
 generate_daily_schedule()
