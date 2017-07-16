@@ -5,6 +5,8 @@ This project is inspired by the [Fake TV](https://medium.com/@Fake.TV/installati
 
 This script, like the one above uses crontab to both generate the daily schedule & check the current schedule every ~10 seconds to see when to trigger the next scheduled content (TV Show, Movie or Commercial).
 
+![Generated HTML schedule](http://imgur.com/a/MK9oX)
+
 ## Features So Far:
 
 - [x] Generate Daily Schedule of TV Show episodes based on user defined TV Shows.
