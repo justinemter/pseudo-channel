@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 baseurl = 'http://media.home:32400'
-token = 'the-token'
+token = 'the-token' # find your token using this guide: https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token
 
 '''
 *
