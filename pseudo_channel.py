@@ -15,10 +15,17 @@ plex = PlexServer(baseurl, token)
 conn = sqlite3.connect('pseudo-tv.db', timeout=10)
 c = conn.cursor()
 
+def create_table():
+
+	c.execute('DROP TABLE IF EXISTS schedule')
+
+	c.execute('CREATE TABLE IF NOT EXISTS schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER)')
+
 def add_schedule_to_db(mediaID, title, duration, startTime, endTime, dayOfWeek):
 	unix = int(time.time())
 	startTimeUnix = str(datetime.datetime.strptime(startTime, '%I:%M %p'))
 	try:
+
 		c.execute("INSERT OR REPLACE INTO schedule (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix))
 		conn.commit()
 		c.close()

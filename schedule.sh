@@ -5,6 +5,11 @@ python pseudo_channel.py -a "shows" -n "looney tunes" -t "6:30 AM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "7:00 AM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "7:30 AM" -d "weekdays"
 
+# python pseudo_channel.py -a "shows" -n "daria" -t "6:00 AM" -d "weekdays"
+# python pseudo_channel.py -a "shows" -n "daria" -t "6:30 AM" -d "weekdays"
+# python pseudo_channel.py -a "shows" -n "looney tunes" -t "7:00 AM" -d "weekdays"
+# python pseudo_channel.py -a "shows" -n "looney tunes" -t "7:30 AM" -d "weekdays"
+
 python pseudo_channel.py -a "shows" -n "Garfield & Friends" -t "8:00 AM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "Garfield & Friends" -t "8:30 AM" -d "weekdays"
 

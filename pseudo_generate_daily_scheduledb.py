@@ -20,6 +20,9 @@ import string
 import argparse
 import datetime
 import calendar
+import itertools
+
+from pseudo_config import *
 
 conn = sqlite3.connect('pseudo-tv.db')
 
@@ -105,29 +108,72 @@ def calculate_start_time_offset_from_prev_episode_endtime(prevEndTime, intendedS
 	* If time difference is negative, then we know there is overlap
 	*
 	'''
-	if timeDiff <= 0:
+	if timeDiff < 0:
 
 		print("There is overlap ")
 
+		'''
+		*
+		* If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+		*
+		'''
+		timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(overlapGap)))]
+		
+		print(timeset)
+
+		timeSetToUse = None
+
+		for time in timeset:
+
+			#print(time)
+			theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+
+			# print(theTimeSetInterval)
+
+			# print(prevEndTime)
+
+			if theTimeSetInterval >= prevEndTime:
+
+				print("Setting new time by interval... " + time)
+				print("made it!")
+
+				newStartTime = theTimeSetInterval
+
+				break
+
+			#newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + overlapGap))
+
+	elif (timeDiff >= 0) and (timeGap != -1):
 
 		'''
 		*
-		* If timeDiff is not more than 15 minutes, or 30 minutes just adjust by 15 or 30. If more than adjust by the exact difference
+		* If there this value is configured, then the timeGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
 		*
 		'''
-		newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + 5))
+		timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(timeGap)))]
+		
+		# print(timeset)
 
-	elif timeDiff <= 5:
+		timeSetToUse = None
 
-		print("timeDiff is less than or equal to 5 minutes")
+		for time in timeset:
 
-	elif timeDiff > 5:
+			#print(time)
+			theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-		print("Time gap is more than ten, let's start next media earlier than inended")
+			# print(theTimeSetInterval)
 
-		# if prevEpDuration < 10
+			# print(prevEndTime)
 
-		newStartTime = newTimeObj - datetime.timedelta(minutes=timeDiff-5)
+			if theTimeSetInterval >= prevEndTime:
+
+				print("Setting new time by interval... " + time)
+				print("made it!")
+
+				newStartTime = theTimeSetInterval
+
+				break
+
 
 	else:
 
@@ -339,7 +385,7 @@ def generate_daily_schedule():
 
 						prevEpisodeEndTime = endTime
 
-						prevEpDuration = first_episode[4]
+						prevEpDuration = next_episode[4]
 
 					print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
@@ -356,6 +402,8 @@ def generate_daily_schedule():
 					print("Not grabbing next episode for some reason")
 
 			except Exception as e:
+
+				#raise e
 				'''
 				*
 				* Let's assume that this error is always because we hit the end of the series and start over...
@@ -402,7 +450,7 @@ def generate_daily_schedule():
 
 				prevEpDuration = next_episode[4]
 
-			    # raise e
+			    
 
 
 generate_daily_schedule()
