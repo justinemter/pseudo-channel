@@ -18,7 +18,7 @@ This script, like the one above uses crontab to both generate the daily schedule
 ## How to use:
 For the controller, use a linux VM (Debian installed w/ minimal resources), or an old laptop w/ Ubuntu or a raspberry pi w/ Jessie...or something similar. You also may need to login to your Plex server and add the IP of the controller in Settings -> Server -> Advanced Settings -> Network, under "List of IP addresses and networks that are allowed without auth". Then download this repo to your users home folder and follow this guide:
 
-1. Install [python plex api](https://github.com/pkkid/python-plexapi)
+1. Install [python plex api](https://github.com/pkkid/python-plexapi) & the pip module: [yattag](http://www.yattag.org/) - the latter handles processing the html schedules(```sudo pip install yattag```).
 2. Move the "pseudo_config-sample.py" file to "pseudo_config.py" and edit it to add your server URL / Plex token ([how to find it](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)). Also add the client host to the "plexClients" variable. The default for a RasPlex client is "RasPlex".
 3. Run the database loader to gather the necessary information about your Plex library and generate local DB (run as many times as needed. May take a while.):
 ```
