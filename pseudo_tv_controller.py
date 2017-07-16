@@ -21,9 +21,6 @@ handler = logging.handlers.SysLogHandler(address = '/dev/log')
 
 my_logger.addHandler(handler)
 
-def showConnectedClients():
-	for client in plex.clients():
-    		print(client.title)
 
 def playMovie():
 	cars = plex.library.section('Movies').get('Dumb and Dumber')
@@ -36,14 +33,22 @@ def playMovie():
 *
 '''
 def play_media(mediaType, mediaParentTitle, mediaTitle):
-	media = plex.library.section(mediaType).get(mediaParentTitle).episodes()
-	client = plex.client("RasPlex")
-	last_episode = plex.library.section('TV Shows')
-	for part in media:
+
+	mediaItems = plex.library.section(mediaType).get(mediaParentTitle).episodes()
+
+	for item in mediaItems:
+
 		# print(part.title)
-		if part.title == mediaTitle:
-			client.playMedia(part)
-			break
+
+		if item.title == mediaTitle:
+
+			for client in plexClients:
+
+				clientItem = plex.client(client)
+
+				clientItem.playMedia(item)
+				
+				break
 
 '''
 *

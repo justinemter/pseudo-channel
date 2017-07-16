@@ -37,68 +37,6 @@ def add_schedule_to_db(mediaID, title, duration, startTime, endTime, dayOfWeek):
 		c.close()
 		conn.close()
 		raise e
-	
-
-def convertMillis(millis):
- 	seconds=(millis/1000)%60
- 	minutes=(millis/(1000*60))%60
- 	hours=(millis/(1000*60*60))%24
- 	return str(hours)+':'+str(minutes)+':'+str(seconds)
-
-# Example 8: Get a URL to stream a movie or show in another client
-def getMediaDuration():
-	movie = plex.library.section('Movies').get('Dumb and Dumber')
-	print('The movie is this long:')
-	print(convertMillis(movie.duration));
-
-def showConnectedClients():
-	for client in plex.clients():
-    		print(client.title)
-
-def playMovie():
-	cars = plex.library.section('Movies').get('Dumb and Dumber')
-	client = plex.client("RasPlex")
-	client.playMedia(cars)
-
-def stopMovie():
-	client = plex.client("RasPlex")
-	client.stop(mtype='video')
-
-def getIsPlayingMedia():
-	client = plex.client("RasPlex")
-	return client.isPlayingMedia(includePaused=False)
-
-def getEpisodeDuration():
-	movie = plex.library.section('TV Shows').get('Seinfeld')
-	print('The movie is this long:')
-	print(movie);
-	for show in movie:
-    		print(show.title)
-	
-# Example 7: List files for the latest episode of Friends.
-#episodes = plex.library.section('TV Shows').get('Friends').episodes()
-#for episode in episodes:
-#    print(episode.parentIndex)
-
-def getSections():
-	sections = plex.library.sections()
-	for section in sections:
-		print(section.title)
-		return section
-
-def getAllTVShows():
-	shows = plex.library.section('TV Shows').all()
-	for show in shows:
-		print(show.title)
-
-def getAllMedia():
-	sections = plex.library.sections()
-	for section in sections:
-		sectionMedia = plex.library.section(section.title).all()
-		for media in sectionMedia:
-			print(media.title)
-
-
 
 def get_end_time_from_duration(startTime, duration):
 	time = datetime.datetime.strptime(startTime, '%I:%M %p')
@@ -122,20 +60,70 @@ def add_schedule(media, name, time, day):
 		print("No entry found in DB to add to schedule.")
 
 
+def show_connected_clients():
+
+	for client in plex.clients():
+
+    		print(client.title)
+
+def play_show(mediaType, mediaParentTitle, mediaTitle):
+
+	mediaItems = plex.library.section(mediaType).get(mediaParentTitle).episodes()
+
+	for item in mediaItems:
+
+		# print(part.title)
+
+		if item.title == mediaTitle:
+
+			for client in plexClients:
+
+				clientItem = plex.client(client)
+
+				clientItem.playMedia(item)
+				
+				break
+
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-a', '--add', dest='add_variable', required=True)
-parser.add_argument('-n', '--name', dest='name_variable', required=True)
-parser.add_argument('-t', '--time', dest='time_variable', required=True)
-parser.add_argument('-d', '--day', dest='day_variable', required=True)
+parser.add_argument('-a', '--add', dest='add_variable')
+parser.add_argument('-n', '--name', dest='name_variable')
+parser.add_argument('-t', '--time', dest='time_variable')
+parser.add_argument('-d', '--day', dest='day_variable')
+
+'''
+* 
+* Play specific show: "python pseudo_channel.py -ps 'Garage Sale' -st 'The Office (US)' "
+
+* This is useful for debugging. Set your Plex clients in the config and try the above command to see if it works.
+*
+'''
+parser.add_argument('-ps', dest='play_show_variable')
+parser.add_argument('-st', dest='play_show_series_title_variable')
+
+'''
+* 
+* Show connected clients: "python pseudo_channel.py -sc"
+*
+'''
+parser.add_argument('-sc', action='store_true')
 
 globals().update(vars(parser.parse_args()))
 
+args = parser.parse_args()
 
 if add_variable:
+
 	add_schedule(add_variable, name_variable, time_variable, day_variable)
 
+if args.sc == True:
+	
+	show_connected_clients()
+
+if play_show_variable:
+
+	play_show("TV Shows", play_show_series_title_variable, play_show_variable)
 
 # python pseudo-channel.py -a "shows" -n "curb your enthusiasm" -t "7:30 PM" -d "weekdays"
 
