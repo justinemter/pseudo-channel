@@ -12,7 +12,7 @@ This script, like the one above uses crontab to both generate the daily schedule
 - [x] Generate Daily Schedule of TV Show episodes based on user defined TV Shows.
 - [x] Add a controller to query the local generated pseudo_tv.db to see when to trigger the next media - for use with crontab.
 - [x] Add episode duration checking & adjust daily generated schedule based on these results...
-- [x] Generate daily html schedule from schedule.
+- [x] Generate daily html schedule (saved in ./schedules directory). Can be served via webserver.
 - [ ] Add movie / commercial support. 
 
 ## How to use:
