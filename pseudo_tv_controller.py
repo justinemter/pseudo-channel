@@ -94,7 +94,19 @@ def get_html_from_daily_schedule(currentTime):
 							with tag('tbody'):
 								timeB = datetime.strptime(row[8], '%I:%M %p')
 
-								if currentTime.hour == timeB.hour:
+								if currentTime == None:
+
+									with tag('tr'):
+										with tag('th', scope='row'):
+											text(numberIncrease)
+										with tag('td'):
+											text(row[6])
+										with tag('td'):
+											text(row[3])
+										with tag('td'):
+											text(row[8])
+
+								elif currentTime.hour == timeB.hour:
 
 									if currentTime.minute == timeB.minute:
 
@@ -170,12 +182,36 @@ def play_media(mediaType, mediaParentTitle, mediaTitle):
 				
 				break
 
+
+def check_for_end_time():
+
+	currentTime = datetime.now()
+
+	c.execute("SELECT * FROM daily_schedule")
+
+	datalist = list(c.fetchall())
+	
+	for row in datalist:
+
+		endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
+
+		if currentTime.hour == endTime.hour:
+
+			if currentTime.minute == endTime.minute:
+
+				print("Ok end time found")
+
+				write_schedule_to_file(get_html_from_daily_schedule(None))
+
+				break
 '''
 *
 * Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API
 *
 '''
 def tv_controller():
+
+	datalistLengthMonitor = 0;
 
 	currentTime = datetime.now()
 
@@ -204,7 +240,11 @@ def tv_controller():
 
 				break
 
+		datalistLengthMonitor += 1
 
+		if datalistLengthMonitor >= len(datalist):
+
+			check_for_end_time()
 
 
 tv_controller()
