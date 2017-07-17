@@ -68,26 +68,26 @@ def get_html_from_daily_schedule(currentTime, bgImageURL):
 			doc.asis('<script>setTimeout(function() {location.reload();}, 5000);</script>')
 
 			if bgImageURL != None:
-				doc.asis('<style>html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}</style>')
+				doc.asis('<style>body{ background:transparant; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
 
         with tag('body'):
 
         	with tag('div', klass='container mt-3'):
 
-				with tag('div'):
-
-					with tag('div', klass='row'):
-
-						line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
-
-					with tag('div', klass='row'):
-
-						line('h3', time, klass='col-12 pl-1')
-
 	            # with tag('div', klass = 'description'):
 	            #     text(data['article']['description'])
 
-				with tag('div', klass='row'):
+				with tag('div', klass='row make-white'):
+
+					with tag('div'):
+
+					with tag('div'):
+
+						line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
+
+					with tag('div'):
+
+						line('h3', time, klass='col-12 pl-1')
 
 					with tag('table', klass='col-12 table table-bordered table-hover'):
 
