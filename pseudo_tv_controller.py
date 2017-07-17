@@ -95,6 +95,7 @@ def get_html_from_daily_schedule(currentTime):
 							numberIncrease += 1
 
 							with tag('tbody'):
+								
 								timeB = datetime.strptime(row[8], '%I:%M %p')
 
 								if currentTime == None:
@@ -109,9 +110,7 @@ def get_html_from_daily_schedule(currentTime):
 										with tag('td'):
 											text(row[8])
 
-								elif currentTime.hour == timeB.hour:
-
-									if currentTime.minute == timeB.minute:
+								elif currentTime.hour == timeB.hour and currentTime.minute == timeB.minute:
 
 										with tag('tr', klass='bg-info'):
 
