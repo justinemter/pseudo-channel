@@ -51,7 +51,7 @@ def get_html_from_daily_schedule(currentTime):
 				text(time + " - Daily Pseudo Schedule")
 
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-			doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
+			doc.asis('<script>setTimeout(function() {location.reload();}, 5000);</script>')
         with tag('body'):
 
         	with tag('div', klass='container mt-3'):
@@ -95,7 +95,7 @@ def get_html_from_daily_schedule(currentTime):
 							numberIncrease += 1
 
 							with tag('tbody'):
-								
+
 								timeB = datetime.strptime(row[8], '%I:%M %p')
 
 								if currentTime == None:

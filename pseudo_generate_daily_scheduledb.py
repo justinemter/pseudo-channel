@@ -39,7 +39,7 @@ def get_html_from_daily_schedule():
 	now = datetime.datetime.now()
 
 	time = now.strftime("%B %d, %Y")
-	
+
 	doc, tag, text, line = Doc(
 
     ).ttl()
@@ -52,10 +52,10 @@ def get_html_from_daily_schedule():
 
 			with tag('title'):
 
-				text(time + " Daily Pseudo Schedule")
+				text(time + " - Daily Pseudo Schedule")
 
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-			doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
+			doc.asis('<script>setTimeout(function() {location.reload();}, 5000);</script>')
 
         with tag('body'):
 
