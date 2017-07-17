@@ -160,8 +160,6 @@ def add_daily_schedule_to_db(mediaID, title, episodeNumber, seasonNumber, showTi
 *
 '''
 def time_diff(time1,time2):
-
-
 	'''
 	*
 	* Getting the offest by comparing both times from the unix epoch time and getting the difference.
@@ -177,10 +175,6 @@ def time_diff(time1,time2):
 
 	return int(tdelta/60)
 
-
-def adjust_start_time_if_duration_is_too_short(duration):
-
-	print("")
 
 '''
 *
@@ -409,18 +403,19 @@ def generate_daily_schedule():
 			*
 			'''
 			update_shows_table_with_last_episode(row[3], first_episode_title)
-			'''
-			*
-			* TODO: generate a reasonable startTime based on previous episode duration
-			*
-			'''
-			endTime = get_end_time_from_duration(row[5], first_episode[4]);
 
 			newStartTime = row[5]
 
 			if prevEpisodeEndTime != None:
 
 				newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], first_episode[4], prevEpDuration)
+
+			'''
+			*
+			* Generate a new end time from calculated new start time
+			*
+			'''
+			endTime = get_end_time_from_duration(newStartTime, first_episode[4]);
 
 			print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
@@ -469,12 +464,6 @@ def generate_daily_schedule():
 					print(next_episode[3])
 
 					update_shows_table_with_last_episode(row[3], next_episode[3])
-					'''
-					*
-					* TODO: generate a reasonable startTime based on previous episode duration
-					*
-					'''
-					endTime = get_end_time_from_duration(row[5], next_episode[4]);
 
 					print("End time: " + str(endTime)); 
 
@@ -490,11 +479,12 @@ def generate_daily_schedule():
 
 						newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], next_episode[4], prevEpDuration)
 
-					else:
-
-						prevEpisodeEndTime = endTime
-
-						prevEpDuration = next_episode[4]
+					'''
+					*
+					* Generate a new end time from calculated new start time
+					*
+					'''
+					endTime = get_end_time_from_duration(newStartTime, next_episode[4]);
 
 					print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 
@@ -531,16 +521,6 @@ def generate_daily_schedule():
 				print(first_episode_title)
 
 				update_shows_table_with_last_episode(row[3], first_episode_title)
-				'''
-				*
-				* TODO: generate a reasonable startTime based on previous episode duration
-				*
-				'''
-				#print(row[5])
-				#print(first_episode[4])
-				endTime = get_end_time_from_duration(row[5], first_episode[4]);
-
-				print("End time: " + str(endTime)); 
 
 				newStartTime = row[5]
 
@@ -548,11 +528,12 @@ def generate_daily_schedule():
 
 					newStartTime = calculate_start_time_offset_from_prev_episode_endtime(prevEpisodeEndTime, row[8], first_episode[4], prevEpDuration)
 
-				else:
-
-					prevEpisodeEndTime = endTime
-
-					prevEpDuration = next_episode[4]
+				'''
+				*
+				* Generate a new end time from calculated new start time
+				*
+				'''
+				endTime = get_end_time_from_duration(newStartTime, first_episode[4]);
 
 				print("prevEpisodeEndTime: " + str(prevEpisodeEndTime)); 
 

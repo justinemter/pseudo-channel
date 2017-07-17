@@ -40,3 +40,6 @@ python pseudo_channel.py -a "shows" -n "daria" -t "7:30 PM" -d "weekdays"
 
 python pseudo_channel.py -a "shows" -n "Futurama" -t "8:00 PM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "Futurama" -t "8:30 PM" -d "weekdays"
+
+python pseudo_channel.py -a "shows" -n "Saved by the Bell" -t "9:00 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Saved by the Bell" -t "9:30 PM" -d "weekdays"
