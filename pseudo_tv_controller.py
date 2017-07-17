@@ -32,36 +32,39 @@ my_logger.addHandler(handler)
 '''
 def get_html_from_daily_schedule(currentTime):
 
-    doc, tag, text, line = Doc(
+	now = datetime.now()
+
+	time = now.strftime("%B %d, %Y")
+
+	doc, tag, text, line = Doc(
 
     ).ttl()
 
-    doc.asis('<!DOCTYPE html>')
+	doc.asis('<!DOCTYPE html>')
 
-    with tag('html'):
+	with tag('html'):
 
-    	with tag('head'):
+		with tag('head'):
 
-			doc.asis('<meta http-equiv="refresh" content="30" />')
+			with tag('title'):
+
+				text(time + " - Daily Pseudo Schedule")
+
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-
+			doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
         with tag('body'):
 
         	with tag('div', klass='container mt-3'):
-
-				now = datetime.now()
-
-				time = now.strftime("%B %d, %Y")
 
 				with tag('div'):
 
 					with tag('div', klass='row'):
 
-						line('h1', "Daily Schedule", klass='col-12 pl-0')
+						line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
 
 					with tag('div', klass='row'):
 
-						line('h3', time, klass='col-12 pl-0')
+						line('h3', time, klass='col-12 pl-1')
 
 	            # with tag('div', klass = 'description'):
 	            #     text(data['article']['description'])
@@ -134,7 +137,7 @@ def get_html_from_daily_schedule(currentTime):
 											text(row[8])
 
 
-    return doc.getvalue()
+	return doc.getvalue()
 
 def write_schedule_to_file(data):
 
@@ -190,7 +193,7 @@ def check_for_end_time():
 	c.execute("SELECT * FROM daily_schedule")
 
 	datalist = list(c.fetchall())
-	
+
 	for row in datalist:
 
 		endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')

@@ -36,35 +36,40 @@ c = conn.cursor()
 '''
 def get_html_from_daily_schedule():
 
-    doc, tag, text, line = Doc(
+	now = datetime.datetime.now()
+
+	time = now.strftime("%B %d, %Y")
+	
+	doc, tag, text, line = Doc(
 
     ).ttl()
 
-    doc.asis('<!DOCTYPE html>')
+	doc.asis('<!DOCTYPE html>')
 
-    with tag('html'):
+	with tag('html'):
 
-    	with tag('head'):
+		with tag('head'):
+
+			with tag('title'):
+
+				text(time + " Daily Pseudo Schedule")
 
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
+			doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
 
         with tag('body'):
 
         	with tag('div', klass='container mt-3'):
 
-				now = datetime.datetime.now()
-
-				time = now.strftime("%B %d, %Y")
-
 				with tag('div'):
 
 					with tag('div', klass='row'):
 
-						line('h1', "Daily Schedule", klass='col-12 pl-0')
+						line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
 
 					with tag('div', klass='row'):
 
-						line('h3', time, klass='col-12 pl-0')
+						line('h3', time, klass='col-12 pl-1')
 
 	            # with tag('div', klass = 'description'):
 	            #     text(data['article']['description'])
@@ -105,7 +110,7 @@ def get_html_from_daily_schedule():
 									with tag('td'):
 										text(row[8])
 
-    return doc.getvalue()
+	return doc.getvalue()
 
 def write_schedule_to_file(data):
 
@@ -185,9 +190,9 @@ def time_diff(time1,time2):
 '''
 def calculate_start_time_offset_from_prev_episode_endtime(prevEndTime, intendedStartTime, duration, prevEpDuration):
 
-	time1 = prevEndTime.strftime('%I:%M %p')
+	time1 = prevEndTime.strftime('%-I:%M %p')
 
-	timeB = datetime.datetime.strptime(intendedStartTime, '%Y-%m-%d %H:%M:%S').strftime('%I:%M %p')
+	timeB = datetime.datetime.strptime(intendedStartTime, '%Y-%m-%d %H:%M:%S').strftime('%-I:%M %p')
 
 	timeDiff = time_diff(time1, timeB)
 
@@ -276,7 +281,7 @@ def calculate_start_time_offset_from_prev_episode_endtime(prevEndTime, intendedS
 
 		
 
-	return newStartTime.strftime('%I:%M %p')
+	return newStartTime.strftime('%-I:%M %p')
 
 '''
 *
