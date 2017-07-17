@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+## 
+##
+## This is a bash script to run in order to update the "schedule" table in the 
+## ..."pseudo-tv.db". It's best to only have to set this once and forget it. If you
+## ...want to make edits / rerun this, I recommed deleting the data in the "schedule" table
+## ...or just deleting the local "pseudo-tv.db" and starting the process again. So basically, 
+## ...when you are ready to schedule your autonomous channel, start by ironing out your show times here.
+## When you are satisfied with the general layout of your repeating schedule, then move forward with 
+## ...the other steps. 
+##
+## Currently as of 07/17/2017 only the "-n" & "-t" flags work & only work for TV Shows. If you 
+## are looking forward to being able to take advantage of "movies" / days of the week & commerical injection, 
+## ...I should have that working very soon. Enjoy. 
+##
+##
+
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "6:00 AM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "6:30 AM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "looney tunes" -t "7:00 AM" -d "weekdays"

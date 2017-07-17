@@ -1,5 +1,22 @@
 #!/usr/bin/python
 
+'''
+*
+* This script is to be run every ~minute or so to check the "now" time from the schedule media time. 
+* When there is a match (i.e. now() time == startTime of scheduled content), then trigger play and
+* ...generate the html schedule / save it to "./schedules" dir.
+*
+* 
+
+Below is my recommended "crontab" setting to trigger this script every minute:
+
+"crontab -e"
+
+"* * * * * cd /home/justin/pseudo-channel/ && /usr/bin/python /home/justin/pseudo-channel/pseudo_tv_controller.py"
+
+*
+'''
+
 from plexapi.server import PlexServer
 from datetime import datetime
 import sqlite3
@@ -24,11 +41,26 @@ handler = logging.handlers.SysLogHandler(address = '/dev/log')
 
 my_logger.addHandler(handler)
 
-
+'''
+*
+* Get the keys / values of any python object for debugginh - helper
+* @param obj: any object
+* @return null
+*
+'''
 def dump(obj):
+
   for attr in dir(obj):
+
     print "obj.%s = %s" % (attr, getattr(obj, attr))
 
+'''
+*
+* Get the full image url (including plex token) from the local db.
+* @param seriesTitle: case-unsensitive string of the series title
+* @return string: full path of to the show image
+*
+'''
 def get_show_photo(seriesTitle):
 
 	c.execute("SELECT fullImageURL FROM shows WHERE title = ? COLLATE NOCASE", (seriesTitle, ))
@@ -44,7 +76,11 @@ def get_show_photo(seriesTitle):
 
 '''
 *
-* Get HTML from Scheduled Content to save to file
+* Get the generated html for the .html file that is the schedule. 
+* ...This is used whenever a show starts or stops in order to add and remove various styles.
+* @param currentTime: datetime object 
+* @param bgImageURL: str of the image used for the background
+* @return string: the generated html content
 *
 '''
 def get_html_from_daily_schedule(currentTime, bgImageURL):
@@ -76,9 +112,6 @@ def get_html_from_daily_schedule(currentTime, bgImageURL):
         with tag('body'):
 
         	with tag('div', klass='container mt-3'):
-
-	            # with tag('div', klass = 'description'):
-	            #     text(data['article']['description'])
 
 				with tag('div', klass='row make-white'):
 
@@ -159,6 +192,13 @@ def get_html_from_daily_schedule(currentTime, bgImageURL):
 
 	return doc.getvalue()
 
+'''
+*
+* Create 'schedules' dir & write the generated html to .html file.
+* @param data: html string
+* @return null
+*
+'''
 def write_schedule_to_file(data):
 
 	now = datetime.now()
@@ -184,7 +224,11 @@ def write_schedule_to_file(data):
 
 '''
 *
-* Play Media
+* Trigger "playMedia()" on the Python Plex API for specified media.
+* @param mediaType: str: "TV Shows"
+* @param mediaParentTitle: str: "Seinfeld"
+* @param mediaTitle: str: "The Soup Nazi"
+* @return null
 *
 '''
 def play_media(mediaType, mediaParentTitle, mediaTitle):
@@ -205,7 +249,14 @@ def play_media(mediaType, mediaParentTitle, mediaTitle):
 				
 				break
 
-
+'''
+*
+* If tv_controller() does not find a "startTime" for scheduled media, search for an "endTime" match for now time.
+* ...This is usefule for clearing the generated html schedule when media ends and there is a gap before the next media.
+* @param null
+* @return null
+*
+'''
 def check_for_end_time():
 
 	currentTime = datetime.now()
@@ -230,6 +281,8 @@ def check_for_end_time():
 '''
 *
 * Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API
+* @param null
+* @return null
 *
 '''
 def tv_controller():
@@ -273,10 +326,3 @@ def tv_controller():
 tv_controller()
 
 # print(get_show_photo("the office"))
-
-# get_media_photo()
-
-#showConnectedClients()
-
-#playMovie()
-#play_media("TV Shows", "The Office (US)", "Garage Sale")

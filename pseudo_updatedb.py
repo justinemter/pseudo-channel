@@ -15,6 +15,14 @@ plex = PlexServer(baseurl, token)
 conn = sqlite3.connect('pseudo-tv.db')
 c = conn.cursor()
 
+'''
+*
+* Create the tables in the "pseudo-tv.db" that will be used for pseudo-channel. Notice the SQL command below says, "CREATE TABLE IF NOT EXISTS". This is useful to be able and run this as many times as possible to update & not overwrite tables. However if anything feels goofy, best thing to do is just delete the "pseudo-tv.db" and start over. 
+* @use Run: "python ./pseudo_updatedb.py"
+* @param null
+* @return null
+*
+'''
 def create_tables():
 	c.execute('CREATE TABLE IF NOT EXISTS movies(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
 	c.execute('CREATE TABLE IF NOT EXISTS shows(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, lastEpisodeTitle TEXT, fullImageURL TEXT)')
@@ -82,6 +90,13 @@ def add_schedule_to_db(mediaID, title, duration, startTime, endTime, dayOfWeek):
 	    conn.rollback()
 	    raise e
 
+'''
+*
+* Connecting to the Plex library via the Python Plex API and gather the necessary information about your library / storing it all in a local "pseudo-tv.db" database.
+* @param null
+* @return null
+*
+'''
 def update_db_with_media():
 
 	sections = plex.library.sections()
