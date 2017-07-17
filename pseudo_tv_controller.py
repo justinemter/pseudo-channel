@@ -68,7 +68,7 @@ def get_html_from_daily_schedule(currentTime, bgImageURL):
 			doc.asis('<script>setTimeout(function() {location.reload();}, 5000);</script>')
 
 			if bgImageURL != None:
-				doc.asis('<style>body{ background:transparant; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
+				doc.asis('<style>body{ background:transparant!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
 
         with tag('body'):
 
