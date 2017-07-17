@@ -3,7 +3,9 @@
 from plexapi.server import PlexServer
 from datetime import datetime
 import sqlite3
-from HTMLParser import HTMLParser
+
+from yattag import Doc
+import os, sys
 
 import logging
 import logging.handlers
@@ -46,7 +48,7 @@ def get_html_from_daily_schedule(currentTime):
 
         	with tag('div', klass='container mt-3'):
 
-				now = datetime.datetime.now()
+				now = datetime.now()
 
 				time = now.strftime("%B %d, %Y")
 
@@ -89,35 +91,41 @@ def get_html_from_daily_schedule(currentTime):
 							numberIncrease += 1
 
 							with tag('tbody'):
-								with tag('tr'):
-									with tag('th', scope='row'):
-										text(numberIncrease)
-									with tag('td'):
-										text(row[6])
-									with tag('td'):
-										text(row[3])
+								timeB = datetime.strptime(row[8], '%I:%M %p')
 
-									timeB = datetime.strptime(row[8], '%I:%M %p')
+								if currentTime.hour == timeB.hour:
 
-									if currentTime.hour == timeB.hour:
+									if currentTime.minute == timeB.minute:
+										
+										with tag('tr', klass='bg-info'):
 
-										if currentTime.minute == timeB.minute:
-								
-											with tag('td', klass='bg-info'):
-
+											with tag('th', scope='row'):
+												text(numberIncrease)
+											with tag('td'):
+												text(row[6])
+											with tag('td'):
+												text(row[3])
+											with tag('td'):
 												text(row[8])
 
-									else:
+								else:
 
+									with tag('tr'):
+										with tag('th', scope='row'):
+											text(numberIncrease)
 										with tag('td'):
-
+											text(row[6])
+										with tag('td'):
+											text(row[3])
+										with tag('td'):
 											text(row[8])
+
 
     return doc.getvalue()
 
 def write_schedule_to_file(data):
 
-	now = datetime.datetime.now()
+	now = datetime.now()
 
 	fileName = "pseudo-tv_todays-schedule.html"
 
