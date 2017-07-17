@@ -29,13 +29,16 @@ def dump(obj):
   for attr in dir(obj):
     print "obj.%s = %s" % (attr, getattr(obj, attr))
 
-def get_media_photo(sectionTitle, seriesTitle):
+def get_show_photo(seriesTitle):
 
-	last_episode = plex.library.section(sectionTitle).get(seriesTitle)
+	c.execute("SELECT fullImageURL FROM shows WHERE title = ? COLLATE NOCASE", (seriesTitle, ))
 
-	backgroundImgURL = baseurl+last_episode.art+"?X-Plex-Token="+token
+	datalist = list(c.fetchone())
 
-	print(baseurl+last_episode.art+"?X-Plex-Token="+token)
+	backgroundImgURL = ''
+
+	if len(datalist):
+		backgroundImgURL = datalist[0]
 
 	return backgroundImgURL
 
@@ -254,7 +257,7 @@ def tv_controller():
 
 				play_media("TV Shows", row[6], row[3])
 
-				write_schedule_to_file(get_html_from_daily_schedule(timeB, get_media_photo('TV Shows', row[6])))
+				write_schedule_to_file(get_html_from_daily_schedule(timeB, get_show_photo(row[6])))
 
 				my_logger.debug('Trying to play: ' + row[3])
 
@@ -268,6 +271,8 @@ def tv_controller():
 
 
 tv_controller()
+
+# print(get_show_photo("the office"))
 
 # get_media_photo()
 

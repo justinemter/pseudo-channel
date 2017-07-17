@@ -17,7 +17,7 @@ c = conn.cursor()
 
 def create_tables():
 	c.execute('CREATE TABLE IF NOT EXISTS movies(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
-	c.execute('CREATE TABLE IF NOT EXISTS shows(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, lastEpisodeTitle TEXT)')
+	c.execute('CREATE TABLE IF NOT EXISTS shows(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, lastEpisodeTitle TEXT, fullImageURL TEXT)')
 	c.execute('CREATE TABLE IF NOT EXISTS episodes(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT)')
 	c.execute('CREATE TABLE IF NOT EXISTS commercials(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
 	c.execute('CREATE TABLE IF NOT EXISTS schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER)')
@@ -38,10 +38,10 @@ def add_movies_to_db(mediaID, title, duration):
 	    conn.rollback()
 	    raise e
 
-def add_shows_to_db(mediaID, title, duration, lastEpisodeTitle):
+def add_shows_to_db(mediaID, title, duration, lastEpisodeTitle, fullImageURL):
 	unix = int(time.time())
 	try:
-		c.execute("INSERT OR REPLACE INTO shows (unix, mediaID, title, duration, lastEpisodeTitle) VALUES (?, ?, ?, ?, ?)", (unix, mediaID, title, duration, lastEpisodeTitle))
+		c.execute("INSERT OR REPLACE INTO shows (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL) VALUES (?, ?, ?, ?, ?, ?)", (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL))
 		conn.commit()
 	# Catch the exception
 	except Exception as e:
@@ -83,29 +83,60 @@ def add_schedule_to_db(mediaID, title, duration, startTime, endTime, dayOfWeek):
 	    raise e
 
 def update_db_with_media():
+
 	sections = plex.library.sections()
+
 	for section in sections:
+
 		if section.title == "Movies":
+
 			sectionMedia = plex.library.section(section.title).all()
+
 			for media in sectionMedia:
+
 				add_movies_to_db(1, media.title, media.duration)
+
 		elif section.title == "TV Shows":
+
 			sectionMedia = plex.library.section(section.title).all()
+
 			for media in sectionMedia:
-				add_shows_to_db(2, media.title, media.duration, '')
+
+				backgroundImagePath = plex.library.section(section.title).get(media.title)
+
+				backgroundImgURL = ''
+
+				if isinstance(backgroundImagePath.art, str):
+
+					backgroundImgURL = baseurl+backgroundImagePath.art+"?X-Plex-Token="+token
+
+				add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
+
 				#add all episodes of each tv show to episodes table
 				episodes = plex.library.section(section.title).get(media.title).episodes()
+
 				for episode in episodes:
+
 					duration = episode.duration
+
 					if duration:
+
 						add_episodes_to_db(4, episode.title, duration, episode.index, episode.parentIndex, media.title)
+
 					else:
+
 						add_episodes_to_db(4, episode.title, 0, episode.index, episode.parentIndex, media.title)
+
 		elif section.title == "Commercials":
+
 			sectionMedia = plex.library.section(section.title).all()
+
 			for media in sectionMedia:
+
 				add_commercials_to_db(3, media.title, media.duration)
+
 	c.close()
+
 	conn.close()
 
 def update_db_with_media_test():
