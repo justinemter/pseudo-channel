@@ -81,13 +81,13 @@ def get_html_from_daily_schedule(currentTime, bgImageURL):
 
 					with tag('div'):
 
-					with tag('div'):
+						with tag('div'):
 
-						line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
+							line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
 
-					with tag('div'):
+						with tag('div'):
 
-						line('h3', time, klass='col-12 pl-1')
+							line('h3', time, klass='col-12 pl-1')
 
 					with tag('table', klass='col-12 table table-bordered table-hover'):
 
