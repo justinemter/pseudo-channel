@@ -59,6 +59,18 @@ def add_schedule(media, name, time, day):
 	else:
 		print("No entry found in DB to add to schedule.")
 
+def remove_all_scheduled_items():
+
+	sql = "DELETE FROM schedule WHERE id > -1"
+
+	c.execute(sql1)
+
+	conn.commit()
+
+	c.close()
+	
+	conn.close()
+
 
 def show_connected_clients():
 
