@@ -40,6 +40,6 @@ crontab -e
 
 * * * * * cd /home/justin/pseudo-channel/ && /usr/bin/python /home/justin/pseudo-channel/pseudo_tv_controller.py
 ```
-7. Pop some popcorn. 
+7. Pop some popcorn. Also check the daily schedule in the daily generated ./schedules directory. Run a html server there: ```cd ./schedules && sudo screen -d -m python2 -m SimpleHTTPServer 777``` - note: I am using the 'screen' utility to run the server in the background. Now just navigate to http://ip-to-your-controller:777/pseudo-tv_todays-schedule.html. That server should run until you specifically stop it or restart the controller. There is your daily schedule. 
 
 Commercial / movie support & enabling / disabling various features pending. 
