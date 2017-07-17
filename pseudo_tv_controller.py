@@ -65,10 +65,10 @@ def get_html_from_daily_schedule(currentTime, bgImageURL):
 				text(time + " - Daily Pseudo Schedule")
 
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-			doc.asis('<script>setTimeout(function() {location.reload();}, 5000);</script>')
+			doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
 
 			if bgImageURL != None:
-				doc.asis('<style>body{ background:transparant!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
+				doc.asis('<style>body{ background:transparent!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
 
         with tag('body'):
 
