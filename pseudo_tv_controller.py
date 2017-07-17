@@ -25,12 +25,26 @@ handler = logging.handlers.SysLogHandler(address = '/dev/log')
 my_logger.addHandler(handler)
 
 
+def dump(obj):
+  for attr in dir(obj):
+    print "obj.%s = %s" % (attr, getattr(obj, attr))
+
+def get_media_photo(sectionTitle, seriesTitle):
+
+	last_episode = plex.library.section(sectionTitle).get(seriesTitle)
+
+	backgroundImgURL = baseurl+last_episode.art+"?X-Plex-Token="+token
+
+	print(baseurl+last_episode.art+"?X-Plex-Token="+token)
+
+	return backgroundImgURL
+
 '''
 *
 * Get HTML from Scheduled Content to save to file
 *
 '''
-def get_html_from_daily_schedule(currentTime):
+def get_html_from_daily_schedule(currentTime, bgImageURL):
 
 	now = datetime.now()
 
@@ -52,6 +66,10 @@ def get_html_from_daily_schedule(currentTime):
 
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
 			doc.asis('<script>setTimeout(function() {location.reload();}, 5000);</script>')
+
+			if bgImageURL != None:
+				doc.asis('<style>html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}</style>')
+
         with tag('body'):
 
         	with tag('div', klass='container mt-3'):
@@ -203,7 +221,7 @@ def check_for_end_time():
 
 				print("Ok end time found")
 
-				write_schedule_to_file(get_html_from_daily_schedule(None))
+				write_schedule_to_file(get_html_from_daily_schedule(None, None))
 
 				break
 '''
@@ -236,7 +254,7 @@ def tv_controller():
 
 				play_media("TV Shows", row[6], row[3])
 
-				write_schedule_to_file(get_html_from_daily_schedule(timeB))
+				write_schedule_to_file(get_html_from_daily_schedule(timeB, get_media_photo('TV Shows', row[6])))
 
 				my_logger.debug('Trying to play: ' + row[3])
 
@@ -250,6 +268,8 @@ def tv_controller():
 
 
 tv_controller()
+
+# get_media_photo()
 
 #showConnectedClients()
 
