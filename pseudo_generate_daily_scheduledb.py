@@ -470,7 +470,7 @@ def generate_daily_schedule():
 
 					update_shows_table_with_last_episode(row[3], next_episode[3])
 
-					print("End time: " + str(endTime)); 
+					prevEpDuration = next_episode[4]
 
 					'''
 					*
@@ -499,8 +499,6 @@ def generate_daily_schedule():
 
 					prevEpisodeEndTime = endTime
 
-					prevEpDuration = next_episode[4]
-
 					datalistLengthMonitor += 1
 
 					if datalistLengthMonitor >= len(datalist):
@@ -513,7 +511,8 @@ def generate_daily_schedule():
 
 			except Exception as e:
 
-				#raise e
+				# raise e
+				
 				'''
 				*
 				* Let's assume that this error is always because we hit the end of the series and start over...
@@ -522,6 +521,8 @@ def generate_daily_schedule():
 				first_episode = get_first_episode(row[3])
 
 				first_episode_title = first_episode[3]
+
+				prevEpDuration = next_episode[4]
 
 				print(first_episode_title)
 
@@ -548,8 +549,6 @@ def generate_daily_schedule():
 
 
 				prevEpisodeEndTime = endTime
-
-				prevEpDuration = next_episode[4]
 
 				datalistLengthMonitor += 1
 
