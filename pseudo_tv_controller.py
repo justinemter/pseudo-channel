@@ -42,6 +42,7 @@ def get_html_from_daily_schedule(currentTime):
 
     	with tag('head'):
 
+			doc.asis('<meta http-equiv="refresh" content="30" />')
 			doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
 
         with tag('body'):
@@ -96,7 +97,7 @@ def get_html_from_daily_schedule(currentTime):
 								if currentTime.hour == timeB.hour:
 
 									if currentTime.minute == timeB.minute:
-										
+
 										with tag('tr', klass='bg-info'):
 
 											with tag('th', scope='row'):
