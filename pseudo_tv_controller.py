@@ -2,7 +2,7 @@
 
 '''
 *
-* This script is to be run every ~minute or so to check the "now" time from the schedule media time. 
+* This script is to be run every ~minute or so to check the "now" time against the scheduled media time. 
 * When there is a match (i.e. now() time == startTime of scheduled content), then trigger play and
 * ...generate the html schedule / save it to "./schedules" dir.
 *
@@ -252,7 +252,7 @@ def play_media(mediaType, mediaParentTitle, mediaTitle):
 '''
 *
 * If tv_controller() does not find a "startTime" for scheduled media, search for an "endTime" match for now time.
-* ...This is usefule for clearing the generated html schedule when media ends and there is a gap before the next media.
+* ...This is useful for clearing the generated html schedule when media ends and there is a gap before the next media.
 * @param null
 * @return null
 *

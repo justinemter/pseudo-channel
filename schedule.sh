@@ -52,10 +52,26 @@ python pseudo_channel.py -a "shows" -n "seinfeld" -t "6:00 PM" -d "weekdays"
 python pseudo_channel.py -a "shows" -n "seinfeld" -t "6:30 PM" -d "weekdays"
 
 python pseudo_channel.py -a "shows" -n "daria" -t "7:00 PM" -d "weekdays"
-python pseudo_channel.py -a "shows" -n "daria" -t "7:30 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "daria" -t "7:10 PM" -d "weekdays"
 
-python pseudo_channel.py -a "shows" -n "Futurama" -t "8:00 PM" -d "weekdays"
-python pseudo_channel.py -a "shows" -n "Futurama" -t "8:30 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Futurama" -t "7:20 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Futurama" -t "7:30 PM" -d "weekdays"
 
-python pseudo_channel.py -a "shows" -n "Saved by the Bell" -t "9:00 PM" -d "weekdays"
-python pseudo_channel.py -a "shows" -n "Saved by the Bell" -t "9:30 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Saved by the Bell" -t "7:50 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Saved by the Bell" -t "8:30 PM" -d "weekdays"
+
+python pseudo_channel.py -a "shows" -n "new girl" -t "8:45 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "new girl" -t "8:50 PM" -d "weekdays"
+
+python pseudo_channel.py -a "shows" -n "the trip" -t "9:35 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "the trip" -t "9:45 PM" -d "weekdays"
+
+python pseudo_channel.py -a "shows" -n "the wire" -t "10:00 PM" -d "weekdays"
+
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "10:15 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "10:25 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "10:35 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "10:55 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "11:00 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "11:10 PM" -d "weekdays"
+python pseudo_channel.py -a "shows" -n "Parker Lewis Can't Lose" -t "11:20 PM" -d "weekdays"
