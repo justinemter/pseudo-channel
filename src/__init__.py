@@ -5,3 +5,4 @@ from Movie import Movie
 from Media import Media
 from Music import Music
 from Video import Video
+from PseudoDailyScheduleController import PseudoDailyScheduleController
