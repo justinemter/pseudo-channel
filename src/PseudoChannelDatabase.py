@@ -54,7 +54,8 @@ class PseudoChannelDatabase():
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
 				  'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
 				  'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
-				  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, dayOfWeek TEXT)')
+				  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
+				  'dayOfWeek TEXT, sectionType TEXT)')
 
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
 				  'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)')
@@ -98,6 +99,14 @@ class PseudoChannelDatabase():
 	def remove_all_scheduled_items(self):
 
 		sql = "DELETE FROM schedule WHERE id > -1"
+
+		self.cursor.execute(sql)
+
+		self.conn.commit()
+
+	def remove_all_daily_scheduled_items(self):
+
+		sql = "DELETE FROM daily_schedule WHERE id > -1"
 
 		self.cursor.execute(sql)
 
@@ -189,26 +198,69 @@ class PseudoChannelDatabase():
 		    self.conn.rollback()
 		    raise e
 
-	def add_daily_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek):
+	def add_daily_schedule_to_db(
+			self,
+			mediaID, 
+			title, 
+			episodeNumber, 
+			seasonNumber, 
+			showTitle, 
+			duration, 
+			startTime, 
+			endTime, 
+			dayOfWeek, 
+			sectionType
+			):
+
 		unix = int(time.time())
-		startTimeUnix = str(datetime.datetime.strptime(startTime, '%I:%M %p'))
+
 		try:
 
-			self.cursor.execute("INSERT OR REPLACE INTO schedule "
-					  "(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix) "
-					  "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-					  (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix))
+			self.cursor.execute("INSERT OR REPLACE INTO daily_schedule "
+					  "(unix, mediaID, title, episodeNumber, seasonNumber, "
+					  "showTitle, duration, startTime, endTime, dayOfWeek, sectionType) "
+					  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+					  (
+					  	unix, 
+					  	mediaID, 
+					  	title, 
+					  	episodeNumber, 
+					  	seasonNumber, 
+					  	showTitle, 
+					  	duration, 
+					  	startTime, 
+					  	endTime, 
+					  	dayOfWeek, 
+					  	sectionType
+					  	))
+
 			self.conn.commit()
-			self.cursor.close()
-			self.conn.close()
+
 		# Catch the exception
 		except Exception as e:
-		    # Roll back any change if something goes wrong
-			self.conn.rollback()
-			self.cursor.close()
-			self.conn.close()
-			raise e
 
+		    # Roll back any change if something goes wrong
+
+		    self.conn.rollback()
+
+		    raise e
+
+	def add_media_to_daily_schedule(self, media):
+
+		print "Adding media to db", media.title, media.start_time
+
+		self.add_daily_schedule_to_db(
+				0,
+				media.title,
+				media.episode_number if media.__class__.__name__ == "Episode" else 0,
+				media.season_number if media.__class__.__name__ == "Episode" else 0,
+				media.show_series_title if media.__class__.__name__ == "Episode" else '',
+				media.duration,
+				media.start_time,
+				media.end_time,
+				media.day_of_week,
+				media.section_type
+			)
 
 	"""Database functions.
 

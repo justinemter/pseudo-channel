@@ -27,7 +27,9 @@ class Media(object):
 			natural_end_time, 
 			duration, 
 			day_of_week,
-			is_strict_time
+			is_strict_time,
+			time_shift, 
+			overlap_max
 			):
 
 		self.section_type = section_type
@@ -37,6 +39,8 @@ class Media(object):
 		self.duration = duration
 		self.day_of_week = day_of_week
 		self.is_strict_time = is_strict_time
+		self.time_shift = time_shift
+		self.overlap_max = overlap_max
 
 		self.start_time = natural_start_time
 		self.end_time = natural_end_time

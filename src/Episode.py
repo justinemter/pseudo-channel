@@ -26,6 +26,8 @@ class Episode(Media):
 			duration, 
 			day_of_week,
 			is_strict_time,
+			time_shift, 
+			overlap_max,
 			show_series_title, 
 			episode_number, 
 			season_number
@@ -38,7 +40,9 @@ class Episode(Media):
 				natural_end_time, 
 				duration, 
 				day_of_week,
-				is_strict_time
+				is_strict_time,
+				time_shift, 
+				overlap_max
 				)
 
 		self.show_series_title = show_series_title

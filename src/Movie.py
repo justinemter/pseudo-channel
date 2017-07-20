@@ -22,7 +22,9 @@ class Movie(Media):
 			natural_end_time, 
 			duration, 
 			day_of_week,
-			is_strict_time
+			is_strict_time,
+			time_shift, 
+			overlap_max
 			):
 
 		super(Movie, self).__init__( 
@@ -32,5 +34,7 @@ class Movie(Media):
 				natural_end_time, 
 				duration, 
 				day_of_week,
-				is_strict_time
+				is_strict_time,
+				time_shift, 
+				overlap_max
 				)

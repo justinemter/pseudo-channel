@@ -12,6 +12,8 @@ from plexapi.server import PlexServer
 
 import sys
 import datetime
+import calendar
+import itertools
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
@@ -20,6 +22,12 @@ class PseudoChannel():
 	PLEX = PlexServer(baseurl, token)
 
 	MEDIA = []
+
+	TIME_GAP = 15
+
+	OVERLAP_GAP = 15
+
+	OVERLAP_MAX = 30
 
 	def __init__(self):
 
@@ -232,6 +240,135 @@ class PseudoChannel():
 	* Returns time 
 	*
 	'''
+	'''
+	*
+	* Returns time difference in minutes
+	*
+	'''
+	def time_diff(self, time1,time2):
+		'''
+		*
+		* Getting the offest by comparing both times from the unix epoch time and getting the difference.
+		*
+		'''
+		timeA = datetime.datetime.strptime(time1, "%I:%M %p")
+		timeB = datetime.datetime.strptime(time2, "%I:%M %p")
+		
+		timeAEpoch = calendar.timegm(timeA.timetuple())
+		timeBEpoch = calendar.timegm(timeB.timetuple())
+
+		tdelta = abs(timeAEpoch) - abs(timeBEpoch)
+
+		return int(tdelta/60)
+
+
+	'''
+	*
+	* Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
+
+	* Returns time - for new start time
+	*
+	'''
+	def calculate_start_time(self, prevEndTime, intendedStartTime, timeGap, overlapMax):
+
+		self.TIME_GAP = timeGap
+
+		self.OVERLAP_MAX = overlapMax
+
+		time1 = datetime.datetime.strptime(prevEndTime, '%I:%M %p').strftime('%-I:%M %p')
+
+		timeB = intendedStartTime.strftime('%-I:%M %p')
+
+		timeDiff = self.time_diff(time1, timeB)
+
+		print("timeDiff "+ str(timeDiff))
+		print("startTimeUNIX: "+ str(intendedStartTime))
+
+		newTimeObj = intendedStartTime.strftime('%-I:%M %p')
+
+		newStartTime = intendedStartTime.strftime('%-I:%M %p')
+
+		'''
+		*
+		* If time difference is negative, then we know there is overlap
+		*
+		'''
+		if timeDiff < 0:
+
+			print("There is overlap ")
+
+			'''
+			*
+			* If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+			*
+			'''
+			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
+			
+			print(timeset)
+
+			timeSetToUse = None
+
+			for time in timeset:
+
+				#print(time)
+				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+
+				# print(theTimeSetInterval)
+
+				# print(prevEndTime)
+
+				if theTimeSetInterval >= prevEndTime:
+
+					print("Setting new time by interval... " + time)
+					print("made it!")
+
+					newStartTime = theTimeSetInterval
+
+					break
+
+				#newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + overlapGap))
+
+		elif (timeDiff >= 0) and (self.TIME_GAP != -1):
+
+			'''
+			*
+			* If there this value is configured, then the timeGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+			*
+			'''
+			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
+			
+			# print(timeset)
+
+			timeSetToUse = None
+
+			for time in timeset:
+
+				#print(time)
+				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+
+				tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M %p').strftime('%H:%M')
+
+				formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
+
+				# print(theTimeSetInterval)
+
+				# print(prevEndTime)
+
+				if theTimeSetInterval >= formatted_time_two:
+
+					print("Setting new time by interval... " + time)
+					print("made it!")
+
+					newStartTime = theTimeSetInterval
+
+					break
+
+		else:
+
+			print("Not sure what to do here")
+
+		return newStartTime.strftime('%-I:%M %p')
+
 	def get_end_time_from_duration(self, startTime, duration):
 
 		time = datetime.datetime.strptime(startTime, '%I:%M %p')
@@ -248,13 +385,15 @@ class PseudoChannel():
 
 		schedule = self.db.get_schedule()
 
+		schedule_advance_watcher = 0
+
 		for entry in schedule:
+
+			schedule_advance_watcher += 1
 
 			section = entry[9]
 
 			if section == "TV Shows":
-
-				print "getting", entry[3]
 
 				next_episode = self.db.get_next_episode(entry[3])
 
@@ -267,19 +406,21 @@ class PseudoChannel():
 						self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
 						next_episode[4], # duration
 						entry[7], # day_of_week
-						False, # is_strict_time
+						entry[10], # is_strict_time
+						entry[11], # time_shift
+						entry[12], # overlap_max
 						entry[3], # show_series_title
 						next_episode[5], # episode_number
 						next_episode[6] # season_number
 						)
+
+					self.MEDIA.append(episode)
 
 				else:
 
 					print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
 
 				#print(episode)
-
-				self.MEDIA.append(episode)
 
 			elif section == "Movies":
 
@@ -294,7 +435,9 @@ class PseudoChannel():
 					self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
 					the_movie[4], # duration
 					entry[7], # day_of_week
-					False, # is_strict_time
+					entry[10], # is_strict_time
+					entry[11], # time_shift
+					entry[12] # overlap_max
 					)
 
 					#print(movie.natural_end_time)
@@ -318,7 +461,9 @@ class PseudoChannel():
 					self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
 					the_music[4], # duration
 					entry[7], # day_of_week
-					False, # is_strict_time
+					entry[10], # is_strict_time
+					entry[11], # time_shift
+					entry[12] # overlap_max
 					)
 
 					#print(music.natural_end_time)
@@ -342,7 +487,9 @@ class PseudoChannel():
 					self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
 					the_video[4], # duration
 					entry[7], # day_of_week
-					False, # is_strict_time
+					entry[10], # is_strict_time
+					entry[11], # time_shift
+					entry[12] # overlap_max
 					)
 
 					#print(music.natural_end_time)
@@ -357,22 +504,71 @@ class PseudoChannel():
 
 				pass
 
+			"""If we reached the end of the schedule we are ready to kick off the daily_schedule
+
+			"""
+			if schedule_advance_watcher >= len(schedule):
+
+				previous_episode = None
+
+				self.db.remove_all_daily_scheduled_items()
+
+				for entry in self.MEDIA:
+
+					#print entry.natural_end_time
+
+					if previous_episode != None:
+
+						previous_episode = entry
+
+						natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
+
+						natural_end_time = entry.natural_end_time
+
+						if entry.is_strict_time.lower() == "true":
+
+							print "Using strict-time: {}".format(entry.title)
+
+							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+							self.db.add_media_to_daily_schedule(entry)
+
+						else:
+
+							print "NOT strict-time. {}".format(entry.title)
+
+							new_starttime = self.calculate_start_time(
+								entry.natural_start_time, 
+								entry.end_time, 
+								previous_episode.time_shift, 
+								previous_episode.overlap_max
+							)
+
+							print new_starttime
+
+							entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+
+							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+							self.db.add_media_to_daily_schedule(entry)
+
+					else:
+
+						self.db.add_media_to_daily_schedule(entry)
+
+						previous_episode = entry
+
 if __name__ == '__main__':
 
 	pseudo_channel = PseudoChannel()
 
-	pseudo_channel.update_db()
+	#pseudo_channel.db.create_tables()
 
-	pseudo_channel.update_schedule()
+	#pseudo_channel.update_db()
+
+	#pseudo_channel.update_schedule()
 
 	pseudo_channel.generate_daily_schedule()
 
-	"""for item in pseudo_channel.MEDIA:
 
-		if item.day_of_week == "saturdays":
-
-			print(item.title)"""
-			#pass
-		
-	#pseudo_channel.update_db()
 
