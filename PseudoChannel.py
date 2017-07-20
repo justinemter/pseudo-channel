@@ -23,12 +23,6 @@ class PseudoChannel():
 
 	MEDIA = []
 
-	TIME_GAP = 15
-
-	OVERLAP_GAP = 15
-
-	OVERLAP_MAX = 30
-
 	def __init__(self):
 
 		self.db = PseudoChannelDatabase("pseudo-channel.db")
@@ -71,7 +65,7 @@ class PseudoChannel():
 
 	def update_db(self):
 
-		print("Updating Local Database")
+		print("#### Updating Local Database")
 
 		self.db.create_tables()
 
@@ -83,20 +77,38 @@ class PseudoChannel():
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				self.print_progress(0, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+				self.print_progress(
+						0, 
+						len(sectionMedia), 
+						prefix = 'Progress '+section.title+":", 
+						suffix = 'Complete', 
+						bar_length = 50
+					)
 
 				for i, media in enumerate(sectionMedia):
 
 					self.db.add_movies_to_db(1, media.title, media.duration)
 
-					self.print_progress(i + 1, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+					self.print_progress(
+							i + 1, 
+							len(sectionMedia), 
+							prefix = 'Progress '+section.title+":", 
+							suffix = 'Complete', 
+							bar_length = 50
+						)
 
 
 			elif section.title == "TV Shows":
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				self.print_progress(0, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+				self.print_progress(
+						0, 
+						len(sectionMedia), 
+						prefix = 'Progress '+section.title+":", 
+						suffix = 'Complete', 
+						bar_length = 50
+					)
 
 				for i, media in enumerate(sectionMedia):
 
@@ -110,7 +122,13 @@ class PseudoChannel():
 
 					self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
 
-					self.print_progress(i + 1, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+					self.print_progress(
+							i + 1, 
+							len(sectionMedia),
+							prefix = 'Progress '+section.title+":", 
+							suffix = 'Complete', 
+							bar_length = 50
+						)
 
 					#add all episodes of each tv show to episodes table
 					episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
@@ -121,23 +139,49 @@ class PseudoChannel():
 
 						if duration:
 
-							self.db.add_episodes_to_db(4, episode.title, duration, episode.index, episode.parentIndex, media.title)
+							self.db.add_episodes_to_db(
+									4, 
+									episode.title, 
+									duration, 
+									episode.index, 
+									episode.parentIndex, 
+									media.title
+								)
 
 						else:
 
-							self.db.add_episodes_to_db(4, episode.title, 0, episode.index, episode.parentIndex, media.title)
+							self.db.add_episodes_to_db(
+									4, 
+									episode.title, 
+									0, 
+									episode.index, 
+									episode.parentIndex, 
+									media.title
+								)
 
 			elif section.title == "Commercials":
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				self.print_progress(0, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+				self.print_progress(
+						0, 
+						len(sectionMedia), 
+						prefix = 'Progress '+section.title+":", 
+						suffix = 'Complete', 
+						bar_length = 50
+					)
 
 				for i, media in enumerate(sectionMedia):
 
 					self.db.add_commercials_to_db(3, media.title, media.duration)
 
-					self.print_progress(i + 1, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+					self.print_progress(
+							i + 1, 
+							len(sectionMedia), 
+							prefix = 'Progress '+section.title+":", 
+							suffix = 'Complete', 
+							bar_length = 50
+						)
 
 	def update_schedule(self):
 
@@ -273,20 +317,24 @@ class PseudoChannel():
 
 		self.TIME_GAP = timeGap
 
+		self.OVERLAP_GAP = timeGap
+
 		self.OVERLAP_MAX = overlapMax
 
-		time1 = datetime.datetime.strptime(prevEndTime, '%I:%M %p').strftime('%-I:%M %p')
+		time1 = prevEndTime.strftime('%-I:%M %p')
 
-		timeB = intendedStartTime.strftime('%-I:%M %p')
+		timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M %p').strftime('%-I:%M %p')
+
+		print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
 
 		timeDiff = self.time_diff(time1, timeB)
 
-		print("timeDiff "+ str(timeDiff))
-		print("startTimeUNIX: "+ str(intendedStartTime))
+		"""print("timeDiff "+ str(timeDiff))
+		print("startTimeUNIX: "+ str(intendedStartTime))"""
 
-		newTimeObj = intendedStartTime.strftime('%-I:%M %p')
+		newTimeObj = timeB
 
-		newStartTime = intendedStartTime.strftime('%-I:%M %p')
+		newStartTime = timeB
 
 		'''
 		*
@@ -294,9 +342,6 @@ class PseudoChannel():
 		*
 		'''
 		if timeDiff < 0:
-
-			print("There is overlap ")
-
 			'''
 			*
 			* If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
@@ -304,7 +349,7 @@ class PseudoChannel():
 			'''
 			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
 			
-			print(timeset)
+			#print(timeset)
 
 			timeSetToUse = None
 
@@ -319,8 +364,7 @@ class PseudoChannel():
 
 				if theTimeSetInterval >= prevEndTime:
 
-					print("Setting new time by interval... " + time)
-					print("made it!")
+					print "++++ There is overlap. Setting new time-interval:", theTimeSetInterval
 
 					newStartTime = theTimeSetInterval
 
@@ -339,25 +383,17 @@ class PseudoChannel():
 			
 			# print(timeset)
 
-			timeSetToUse = None
-
 			for time in timeset:
 
-				#print(time)
 				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
 				tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M %p').strftime('%H:%M')
 
 				formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
 
-				# print(theTimeSetInterval)
-
-				# print(prevEndTime)
-
 				if theTimeSetInterval >= formatted_time_two:
 
-					print("Setting new time by interval... " + time)
-					print("made it!")
+					print "++++ Setting new time-interval:", theTimeSetInterval
 
 					newStartTime = theTimeSetInterval
 
@@ -381,7 +417,7 @@ class PseudoChannel():
 
 	def generate_daily_schedule(self):
 
-		print("Generating Daily Schedule")
+		print("#### Generating Daily Schedule")
 
 		schedule = self.db.get_schedule()
 
@@ -519,38 +555,40 @@ class PseudoChannel():
 
 					if previous_episode != None:
 
-						previous_episode = entry
-
 						natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
 
 						natural_end_time = entry.natural_end_time
 
 						if entry.is_strict_time.lower() == "true":
 
-							print "Using strict-time: {}".format(entry.title)
+							print "++++ Strict-time: {}".format(entry.title)
 
 							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
 
 							self.db.add_media_to_daily_schedule(entry)
 
+							previous_episode = entry
+
 						else:
 
-							print "NOT strict-time. {}".format(entry.title)
+							print "++++ NOT strict-time: {}".format(entry.title)
 
 							new_starttime = self.calculate_start_time(
-								entry.natural_start_time, 
-								entry.end_time, 
+								previous_episode.end_time,
+								entry.natural_start_time,  
 								previous_episode.time_shift, 
 								previous_episode.overlap_max
 							)
 
-							print new_starttime
+							print "++++ New start time:", new_starttime
 
 							entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
 
 							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
 
 							self.db.add_media_to_daily_schedule(entry)
+
+							previous_episode = entry
 
 					else:
 
@@ -566,7 +604,7 @@ if __name__ == '__main__':
 
 	#pseudo_channel.update_db()
 
-	#pseudo_channel.update_schedule()
+	pseudo_channel.update_schedule()
 
 	pseudo_channel.generate_daily_schedule()
 

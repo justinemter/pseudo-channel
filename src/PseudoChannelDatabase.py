@@ -247,7 +247,7 @@ class PseudoChannelDatabase():
 
 	def add_media_to_daily_schedule(self, media):
 
-		print "Adding media to db", media.title, media.start_time
+		print "#### Adding media to db", media.title, media.start_time
 
 		self.add_daily_schedule_to_db(
 				0,
