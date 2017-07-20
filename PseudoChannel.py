@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from src import PseudoChannelDatabase
 from src import Movie
 from src import Commercial
@@ -8,6 +10,7 @@ from pseudo_config import *
 
 from plexapi.server import PlexServer
 
+import sys
 import datetime
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
@@ -35,6 +38,29 @@ class PseudoChannel():
 		generate_daily_schedule(): Generates daily schedule based on the "schedule" table.
 	"""
 
+	# Print iterations progress
+	def print_progress(self, iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+	    """
+	    Call in a loop to create terminal progress bar
+	    @params:
+	        iteration   - Required  : current iteration (Int)
+	        total       - Required  : total iterations (Int)
+	        prefix      - Optional  : prefix string (Str)
+	        suffix      - Optional  : suffix string (Str)
+	        decimals    - Optional  : positive number of decimals in percent complete (Int)
+	        bar_length  - Optional  : character length of bar (Int)
+	    """
+	    str_format = "{0:." + str(decimals) + "f}"
+	    percents = str_format.format(100 * (iteration / float(total)))
+	    filled_length = int(round(bar_length * iteration / float(total)))
+	    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+	    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+
+	    if iteration == total:
+	        sys.stdout.write('\n')
+	    sys.stdout.flush()
+
 	def update_db(self):
 
 		print("Updating Local Database")
@@ -49,15 +75,22 @@ class PseudoChannel():
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				for media in sectionMedia:
+				self.print_progress(0, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+
+				for i, media in enumerate(sectionMedia):
 
 					self.db.add_movies_to_db(1, media.title, media.duration)
+
+					self.print_progress(i + 1, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+
 
 			elif section.title == "TV Shows":
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				for media in sectionMedia:
+				self.print_progress(0, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+
+				for i, media in enumerate(sectionMedia):
 
 					backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
 
@@ -68,6 +101,8 @@ class PseudoChannel():
 						backgroundImgURL = baseurl+backgroundImagePath.art+"?X-Plex-Token="+token
 
 					self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
+
+					self.print_progress(i + 1, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
 
 					#add all episodes of each tv show to episodes table
 					episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
@@ -88,11 +123,19 @@ class PseudoChannel():
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				for media in sectionMedia:
+				self.print_progress(0, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+
+				for i, media in enumerate(sectionMedia):
 
 					self.db.add_commercials_to_db(3, media.title, media.duration)
 
+					self.print_progress(i + 1, len(sectionMedia), prefix = 'Progress '+section.title+":", suffix = 'Complete', bar_length = 50)
+
 	def update_schedule(self):
+
+		self.db.create_tables()
+
+		self.db.remove_all_scheduled_items()
 
 		scheduled_days_list = [
 			"mondays",
@@ -122,23 +165,45 @@ class PseudoChannel():
 
 			if child.tag in scheduled_days_list:
 
-				print child.find( "time" )
-
 				for time in child.iter("time"):
 
 					for key, value in section_dict.items():
 
 						if time.attrib['type'] == key or time.attrib['type'] in value:
 
-							print time.tag, time.text, time.attrib['title']
-
 							title = time.attrib['title']
 
 							natural_start_time = time.text
 
+							natural_end_time = 0
+
 							section = key
 
+							day_of_week = child.tag
+
 							strict_time = time.attrib['strict-time']
+
+							time_shift = time.attrib['time-shift']
+
+							overlap_max = time.attrib['overlap-max']
+
+							start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
+
+							print "Adding: ", time.tag, section, time.text, time.attrib['title']
+
+							self.db.add_schedule_to_db(
+								0, # mediaID
+								title, # title
+								0, # duration
+								natural_start_time, # startTime
+								natural_end_time, # endTime
+								day_of_week, # dayOfWeek
+								start_time_unix, # startTimeUnix
+								section, # section
+								strict_time, # strictTime
+								time_shift, # timeShift
+								overlap_max, # overlapMax
+							)
 
 	def drop_db(self):
 
@@ -188,6 +253,8 @@ class PseudoChannel():
 			section = entry[9]
 
 			if section == "TV Shows":
+
+				print "getting", entry[3]
 
 				next_episode = self.db.get_next_episode(entry[3])
 
@@ -294,9 +361,11 @@ if __name__ == '__main__':
 
 	pseudo_channel = PseudoChannel()
 
+	pseudo_channel.update_db()
+
 	pseudo_channel.update_schedule()
 
-	#pseudo_channel.generate_daily_schedule()
+	pseudo_channel.generate_daily_schedule()
 
 	"""for item in pseudo_channel.MEDIA:
 

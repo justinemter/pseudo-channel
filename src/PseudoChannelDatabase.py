@@ -48,7 +48,8 @@ class PseudoChannelDatabase():
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
 				  'schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
 				  'mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, '
-				  'endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER), section TEXT)')
+				  'endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER, section TEXT, '
+				  'strictTime TEXT, timeShift TEXT, overlapMax TEXT)')
 
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
 				  'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
@@ -56,7 +57,7 @@ class PseudoChannelDatabase():
 				  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, dayOfWeek TEXT)')
 
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT')
+				  'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)')
 
 		#index
 		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_episode_title ON episodes (title);')
@@ -69,13 +70,15 @@ class PseudoChannelDatabase():
 
 		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_commercial_title ON commercials (title);')
 
+		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_settings_version ON app_settings (version);')
+
 		"""Setting Basic Settings
 		
 		"""
 		try:
 			self.cursor.execute("INSERT OR REPLACE INTO app_settings "
 					  "(version) VALUES (?)", 
-					  ("0.1"))
+					  ("0.1",))
 
 			self.conn.commit()
 		# Catch the exception
@@ -92,17 +95,13 @@ class PseudoChannelDatabase():
 
 		pass
 
-	def remove_all_scheduled_items():
+	def remove_all_scheduled_items(self):
 
 		sql = "DELETE FROM schedule WHERE id > -1"
 
 		self.cursor.execute(sql)
 
 		self.conn.commit()
-
-		self.cursor.close()
-		
-		self.conn.close()
 
 	"""Database functions.
 
@@ -176,12 +175,13 @@ class PseudoChannelDatabase():
 		    self.conn.rollback()
 		    raise e
 
-	def add_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek, section):
+	def add_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax):
 		unix = int(time.time())
 		try:
-			self.cursor.execute("INSERT INTO schedule "
-				"(unix, mediaID, title, duration, startTime, endTime, dayOfWeek) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
-				(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, section))
+			self.cursor.execute("INSERT OR REPLACE INTO  schedule "
+				"(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax) "
+				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+				(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax))
 			self.conn.commit()
 		# Catch the exception
 		except Exception as e:
@@ -268,7 +268,7 @@ class PseudoChannelDatabase():
 
 	def update_shows_table_with_last_episode(self, showTitle, lastEpisodeTitle):
 
-		sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title = ?"
+		sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title LIKE ? COLLATE NOCASE"
 
 		self.cursor.execute(sql1, (lastEpisodeTitle, showTitle, ))
 
@@ -277,21 +277,13 @@ class PseudoChannelDatabase():
 	def get_first_episode(self, tvshow):
 
 		sql = ("SELECT id, unix, mediaID, title, duration, MIN(episodeNumber), MIN(seasonNumber), "
-				"showTitle FROM episodes WHERE ( showTitle = ?) COLLATE NOCASE")
+				"showTitle FROM episodes WHERE ( showTitle LIKE ?) COLLATE NOCASE")
 
 		self.cursor.execute(sql, (tvshow, ))
 
-		datalist = list(self.cursor.fetchone())
+		first_episode = self.cursor.fetchone()
 
-		if datalist > 0:
-			
-			return datalist
-
-		else:
-
-			print("No entry found in DB to add to schedule.")
-
-			return None
+		return first_episode
 
 	'''
 	*
@@ -300,21 +292,13 @@ class PseudoChannelDatabase():
 	'''
 	def get_episode_id(self, episodeTitle):
 
-		sql = "SELECT id FROM episodes WHERE ( title = ?) COLLATE NOCASE"
+		sql = "SELECT id FROM episodes WHERE ( title LIKE ?) COLLATE NOCASE"
 
 		self.cursor.execute(sql, (episodeTitle, ))
 
-		datalist = list(self.cursor.fetchone())
+		episode_id = self.cursor.fetchone()
 
-		if datalist > 0:
-
-			return datalist[0]
-
-		else:
-
-			print("No entry found in DB to add to schedule.")
-
-			return None
+		return episode_id
 
 	def get_next_episode(self, series):
 
@@ -325,15 +309,15 @@ class PseudoChannelDatabase():
 		* determine what has been previously scheduled for each show
 		*
 		'''
-		self.cursor.execute("SELECT lastEpisodeTitle FROM shows WHERE title = ?", (series, ))
+		self.cursor.execute("SELECT lastEpisodeTitle FROM shows WHERE title LIKE ?  COLLATE NOCASE", (series, ))
 
-		last_title_list = list(self.cursor.fetchone())
+		last_title_list = self.cursor.fetchone()
 		'''
 		*
 		* If the last episode stored in the "shows" table is empty, then this is probably a first run...
 		*
 		'''
-		if last_title_list[0] == '':
+		if last_title_list and last_title_list[0] == '':
 
 			'''
 			*
@@ -354,7 +338,7 @@ class PseudoChannelDatabase():
 
 			return first_episode
 
-		else:
+		elif last_title_list:
 			'''
 			*
 			* The last episode stored in the "shows" table was not empty... get the next episode in the series
@@ -369,8 +353,7 @@ class PseudoChannelDatabase():
 			* If this isn't a first run, then grabbing the next episode by incrementing id
 			*
 			"""
-			sql = ("SELECT * FROM episodes WHERE ( id > "
-				   +str(self.get_episode_id(last_title_list[0]))+
+			sql = ("SELECT * FROM episodes WHERE ( id > "+str(self.get_episode_id(last_title_list[0])[0])+
 				   " AND showTitle LIKE ? ) ORDER BY seasonNumber LIMIT 1 COLLATE NOCASE")
 
 			self.cursor.execute(sql, (series, ))
