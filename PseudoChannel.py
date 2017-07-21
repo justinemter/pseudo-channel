@@ -6,6 +6,7 @@ from src import Commercial
 from src import Episode
 from src import Music
 from src import Video
+from src import PseudoDailyScheduleController
 from pseudo_config import *
 
 from plexapi.server import PlexServer
@@ -17,6 +18,8 @@ import itertools
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
+from time import sleep
+
 class PseudoChannel():
 
 	PLEX = PlexServer(baseurl, token)
@@ -26,6 +29,8 @@ class PseudoChannel():
 	def __init__(self):
 
 		self.db = PseudoChannelDatabase("pseudo-channel.db")
+
+		self.controller = PseudoDailyScheduleController()
 
 	"""Database functions.
 
@@ -595,9 +600,19 @@ if __name__ == '__main__':
 
 	#pseudo_channel.update_db()
 
-	pseudo_channel.update_schedule()
+	#pseudo_channel.update_schedule()
 
-	pseudo_channel.generate_daily_schedule()
+	#pseudo_channel.generate_daily_schedule()
+
+	try:
+		print "++++ Running TV Controller"
+		while True:
+			pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
+			t = datetime.datetime.utcnow()
+			sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+			sleep(sleeptime)
+	except KeyboardInterrupt, e:
+	    pass
 
 
 

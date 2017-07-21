@@ -286,7 +286,11 @@ class PseudoChannelDatabase():
 
 	def get_daily_schedule(self):
 
-		return None
+		self.cursor.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTime) ASC")
+
+		datalist = list(self.cursor.fetchall())
+
+		return datalist
 
 	def get_movie(self, title):
 

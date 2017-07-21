@@ -18,6 +18,8 @@ class PseudoDailyScheduleController():
 
 	TOKEN = token
 
+	PLEX_CLIENTS = plexClients
+
 	def __init__(self):
 
 		self.my_logger = logging.getLogger('MyLogger')
@@ -55,7 +57,7 @@ class PseudoDailyScheduleController():
 	* @return string: the generated html content
 	*
 	'''
-	def get_html_from_daily_schedule(self, currentTime, bgImageURL):
+	def get_html_from_daily_schedule(self, currentTime, bgImageURL, datalist):
 
 		now = datetime.now()
 
@@ -109,10 +111,6 @@ class PseudoDailyScheduleController():
 										text('Title')
 									with tag('th'):
 										text('Start Time')
-
-							c.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTimeUnix) ASC")
-
-							datalist = list(c.fetchall())
 
 							numberIncrease = 0
 
@@ -204,7 +202,7 @@ class PseudoDailyScheduleController():
 	'''
 	def play_media(self, mediaType, mediaParentTitle, mediaTitle):
 
-		mediaItems = plex.library.section(mediaType).get(mediaParentTitle).episodes()
+		mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
 
 		for item in mediaItems:
 
@@ -212,9 +210,9 @@ class PseudoDailyScheduleController():
 
 			if item.title == mediaTitle:
 
-				for client in plexClients:
+				for client in self.PLEX_CLIENTS:
 
-					clientItem = plex.client(client)
+					clientItem = self.PLEX.client(client)
 
 					clientItem.playMedia(item)
 					
@@ -238,6 +236,7 @@ class PseudoDailyScheduleController():
 		"""
 		for row in datalist:
 
+
 			endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
 
 			if currentTime.hour == endTime.hour:
@@ -246,7 +245,7 @@ class PseudoDailyScheduleController():
 
 					print("Ok end time found")
 
-					self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None))
+					self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
 
 					break
 	'''
@@ -266,7 +265,7 @@ class PseudoDailyScheduleController():
 
 		datalist = list(c.fetchall())"""
 
-		my_logger.debug('TV Controller')
+		self.my_logger.debug('TV Controller')
 
 		for row in datalist:
 
@@ -281,7 +280,15 @@ class PseudoDailyScheduleController():
 
 					self.play_media("TV Shows", row[6], row[3])
 
-					self.write_schedule_to_file(self.get_html_from_daily_schedule(timeB, self.get_show_photo(row[11], row[6])))
+					self.write_schedule_to_file(
+						self.get_html_from_daily_schedule(
+							timeB, 
+							self.get_show_photo(
+								row[11], 
+								row[6]), 
+								datalist
+							)
+					)
 
 					self.my_logger.debug('Trying to play: ' + row[3])
 
@@ -291,4 +298,4 @@ class PseudoDailyScheduleController():
 
 			if datalistLengthMonitor >= len(datalist):
 
-				self.check_for_end_time()
+				self.check_for_end_time(datalist)
