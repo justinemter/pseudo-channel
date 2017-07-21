@@ -13,8 +13,10 @@ from plexapi.server import PlexServer
 
 import sys
 import datetime
+from datetime import time
 import calendar
 import itertools
+import argparse
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
@@ -600,19 +602,80 @@ if __name__ == '__main__':
 
 	#pseudo_channel.update_db()
 
-	pseudo_channel.update_schedule()
+	#pseudo_channel.update_schedule()
 
-	pseudo_channel.generate_daily_schedule()
+	#pseudo_channel.generate_daily_schedule()
 
-	try:
-		print "++++ Running TV Controller"
-		while True:
-			pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
-			t = datetime.datetime.utcnow()
-			sleeptime = 60 - (t.second + t.microsecond/1000000.0)
-			sleep(sleeptime)
-	except KeyboardInterrupt, e:
-	    pass
+	parser = argparse.ArgumentParser(
+    	description="Pseudo Channel for Plex. Update pseduo_config.py & pseudo_schedule.xml before this step.",
+    	usage="PseudoChannel.py [-u] update local db with plex db [-xml] update db with xml schedule data [-g] generate daily schedule [-r] run the app"
+    )
+
+	parser.add_argument('-u', action='store_true')
+	parser.add_argument('-xml', action='store_true')
+	parser.add_argument('-g', action='store_true')
+	parser.add_argument('-r', action='store_true')
+
+	'''
+	* 
+	* Show connected clients: "python PseudoChannel.py -u -xml -g -r"
+	*
+	'''
+	parser.add_argument('-sc', action='store_true')
+
+	globals().update(vars(parser.parse_args()))
+
+	args = parser.parse_args()
+
+	print(args)
+
+	if args.u:
+
+		pseudo_channel.update_db()
+
+	if args.xml:
+
+		pseudo_channel.update_schedule()
+
+	if args.g:
+
+		pseudo_channel.generate_daily_schedule()
+
+	if args.r:
+
+		try:
+
+			print "++++ Running TV Controller"
+			
+			"""Every minute on the minute check the DB startTimes of all media to 
+			   determine whether or not to play. Also, check the now_time to
+			   see if it's midnight (or 23.59), if so then generate a new daily_schedule
+				
+			"""
+			while True:
+
+				now = datetime.datetime.now()
+
+				now_time = now.time()
+
+				if now_time == time(23,59):
+
+					pseudo_channel.generate_daily_schedule()
+
+				pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
+
+				t = datetime.datetime.utcnow()
+
+				sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+
+				sleep(sleeptime)
+
+		except KeyboardInterrupt, e:
+
+		    pass
+		
+
+
 
 
 
