@@ -16,3 +16,31 @@ This project is inspired by the [Fake TV](https://medium.com/@Fake.TV/installati
 - [ ] List of features from reddit. 
 
 If interested in this project, check back very soon when the beta is up. It's close and a tiny bit more user friendly. :)
+
+## How to Use:
+
+1. Download the [Python Plex API](https://github.com/pkkid/python-plexapi) & their dependencies.
+
+2. Download this repository & edit the `pseudo_config.py` / `the pseudo_schedule.xml` to your liking. Find your Plex token [here](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)
+
+3. Run the `PseudoChannel.py` file with the following flags:
+
+```bash
+% python PseudoChannel.py -u -xml -g -r
+```
+
+The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`. The `-xml` flag will update the newly created local db with your schedule from the xml file. The `-g` file will generate the daily schedule (for today). Finally, the `-r` file will run a while loop checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59. The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
+
+To run the app in a 'poor-mans-daemon-mode', run this:
+
+```bash
+% sudo screen -d -m python PseudoChannel.py -r
+```
+
+...the previous command will keep the clock / app running in the background via the screen utility - kinda like a daemon process. 
+
+Stay tuned for a polished version / bug fixes / features and commercial injection. 
+
+
+
+
