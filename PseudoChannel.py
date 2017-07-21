@@ -77,14 +77,6 @@ class PseudoChannel():
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				self.print_progress(
-						0, 
-						len(sectionMedia), 
-						prefix = 'Progress '+section.title+":", 
-						suffix = 'Complete', 
-						bar_length = 50
-					)
-
 				for i, media in enumerate(sectionMedia):
 
 					self.db.add_movies_to_db(1, media.title, media.duration)
@@ -92,23 +84,15 @@ class PseudoChannel():
 					self.print_progress(
 							i + 1, 
 							len(sectionMedia), 
-							prefix = 'Progress '+section.title+":", 
+							prefix = 'Progress '+section.title+":     ", 
 							suffix = 'Complete', 
-							bar_length = 50
+							bar_length = 40
 						)
 
 
 			elif section.title == "TV Shows":
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
-
-				self.print_progress(
-						0, 
-						len(sectionMedia), 
-						prefix = 'Progress '+section.title+":", 
-						suffix = 'Complete', 
-						bar_length = 50
-					)
 
 				for i, media in enumerate(sectionMedia):
 
@@ -125,9 +109,9 @@ class PseudoChannel():
 					self.print_progress(
 							i + 1, 
 							len(sectionMedia),
-							prefix = 'Progress '+section.title+":", 
+							prefix = 'Progress '+section.title+":   ", 
 							suffix = 'Complete', 
-							bar_length = 50
+							bar_length = 40
 						)
 
 					#add all episodes of each tv show to episodes table
@@ -163,25 +147,19 @@ class PseudoChannel():
 
 				sectionMedia = self.PLEX.library.section(section.title).all()
 
-				self.print_progress(
-						0, 
-						len(sectionMedia), 
-						prefix = 'Progress '+section.title+":", 
-						suffix = 'Complete', 
-						bar_length = 50
-					)
+				media_length = len(sectionMedia)
 
 				for i, media in enumerate(sectionMedia):
 
 					self.db.add_commercials_to_db(3, media.title, media.duration)
 
 					self.print_progress(
-							i + 1, 
-							len(sectionMedia), 
-							prefix = 'Progress '+section.title+":", 
-							suffix = 'Complete', 
-							bar_length = 50
-						)
+						i + 1, 
+						media_length, 
+						prefix = 'Progress '+section.title+":", 
+						suffix = 'Complete', 
+						bar_length = 40
+					)
 
 	def update_schedule(self):
 
@@ -431,7 +409,13 @@ class PseudoChannel():
 
 			if section == "TV Shows":
 
-				next_episode = self.db.get_next_episode(entry[3])
+				if entry[3] == "random":
+
+					next_episode = self.db.get_random_episode()
+
+				else:
+
+					next_episode = self.db.get_next_episode(entry[3])
 
 				if next_episode != None:
 				
@@ -460,7 +444,14 @@ class PseudoChannel():
 
 			elif section == "Movies":
 
-				the_movie = self.db.get_movie(entry[3])
+				if entry[3] == "random":
+
+					the_movie = self.db.get_random_movie()
+					print("here")
+
+				else:
+
+					the_movie = self.db.get_movie(entry[3])
 
 				if the_movie != None:
 

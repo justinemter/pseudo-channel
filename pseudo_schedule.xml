@@ -56,5 +56,7 @@
 		<time title="the trip" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 PM</time>
   		<time title="the trip" type="series" strict-time="false" time-shift="5" overlap-max="">9:00 PM</time>
   		<time title="the wire" type="series" strict-time="false" time-shift="5" overlap-max="">9:30 PM</time>
+
+  		<time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">10:00 PM</time>
   	</weekdays>
 </schedule>

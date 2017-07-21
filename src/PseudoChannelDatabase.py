@@ -352,6 +352,22 @@ class PseudoChannelDatabase():
 
 		return episode_id
 
+	def get_random_episode(self):
+
+		sql = "SELECT * FROM episodes WHERE id IN (SELECT id FROM episodes ORDER BY RANDOM() LIMIT 1)"
+
+		self.cursor.execute(sql)
+
+		return self.cursor.fetchone()
+
+	def get_random_movie(self):
+
+		sql = "SELECT * FROM movies WHERE id IN (SELECT id FROM movies ORDER BY RANDOM() LIMIT 1)"
+
+		self.cursor.execute(sql)
+
+		return self.cursor.fetchone()
+
 	def get_next_episode(self, series):
 
 		#print(series)

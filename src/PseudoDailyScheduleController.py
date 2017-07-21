@@ -1,10 +1,31 @@
+from plexapi.server import PlexServer
+from datetime import datetime
+import sqlite3
 
+from yattag import Doc
+import os, sys
+
+import logging
+import logging.handlers
+
+from pseudo_config import *
 
 class PseudoDailyScheduleController():
 
+	PLEX = PlexServer(baseurl, token)
+
+	BASE_URL = baseurl
+
+	TOKEN = token
+
 	def __init__(self):
 
-		pass
+		self.my_logger = logging.getLogger('MyLogger')
+		self.my_logger.setLevel(logging.DEBUG)
+
+		self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
+
+		self.my_logger.addHandler(self.handler)
 
 	'''
 	*
@@ -13,16 +34,15 @@ class PseudoDailyScheduleController():
 	* @return string: full path of to the show image
 	*
 	'''
-	def get_show_photo(self, seriesTitle):
+	def get_show_photo(self, section, title):
 
-		c.execute("SELECT fullImageURL FROM shows WHERE title = ? COLLATE NOCASE", (seriesTitle, ))
-
-		datalist = list(c.fetchone())
+		backgroundImagePath = self.PLEX.library.section(section).get(title)
 
 		backgroundImgURL = ''
 
-		if len(datalist):
-			backgroundImgURL = datalist[0]
+		if isinstance(backgroundImagePath.art, str):
+
+			backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
 
 		return backgroundImgURL
 
@@ -226,7 +246,7 @@ class PseudoDailyScheduleController():
 
 					print("Ok end time found")
 
-					write_schedule_to_file(get_html_from_daily_schedule(None, None))
+					self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None))
 
 					break
 	'''
@@ -259,11 +279,11 @@ class PseudoDailyScheduleController():
 					print("Starting Epsisode: " + row[3])
 					print(row)
 
-					play_media("TV Shows", row[6], row[3])
+					self.play_media("TV Shows", row[6], row[3])
 
-					write_schedule_to_file(get_html_from_daily_schedule(timeB, get_show_photo(row[6])))
+					self.write_schedule_to_file(self.get_html_from_daily_schedule(timeB, self.get_show_photo(row[11], row[6])))
 
-					my_logger.debug('Trying to play: ' + row[3])
+					self.my_logger.debug('Trying to play: ' + row[3])
 
 					break
 
@@ -271,4 +291,4 @@ class PseudoDailyScheduleController():
 
 			if datalistLengthMonitor >= len(datalist):
 
-				check_for_end_time()
+				self.check_for_end_time()
