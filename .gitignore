@@ -7,3 +7,4 @@ pseudo-tv.db-journal
 *.pyc 
 old/
 pseudo-channel.db
+*.db-journal

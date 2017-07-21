@@ -38,11 +38,19 @@ class PseudoDailyScheduleController():
 	'''
 	def get_show_photo(self, section, title):
 
-		backgroundImagePath = self.PLEX.library.section(section).get(title)
+		backgroundImagePath = None
 
 		backgroundImgURL = ''
 
-		if isinstance(backgroundImagePath.art, str):
+		try:
+
+			backgroundImagePath = self.PLEX.library.section(section).get(title)
+
+		except:
+
+			return backgroundImgURL
+
+		if backgroundImagePath != None and isinstance(backgroundImagePath.art, str):
 
 			backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
 
@@ -218,7 +226,7 @@ class PseudoDailyScheduleController():
 
 						clientItem.playMedia(item)
 						
-				break
+					break
 
 		elif mediaType == "Movies":
 
@@ -303,12 +311,13 @@ class PseudoDailyScheduleController():
 
 					self.write_schedule_to_file(
 						self.get_html_from_daily_schedule(
-							timeB, 
+							timeB,
 							self.get_show_photo(
 								row[11], 
-								row[3]), 
-								datalist
-							)
+								row[3]
+							),
+							datalist
+						)
 					)
 
 					self.my_logger.debug('Trying to play: ' + row[3])
