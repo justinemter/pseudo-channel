@@ -4,7 +4,9 @@
 	<tuesdays></tuesdays>
 	<wednesdays></wednesdays>
 	<thursdays></thursdays>
-	<fridays></fridays>
+	<fridays>
+    <time title="Looney Tunes" type="series" strict-time="true" time-shift="1" overlap-max="">12:25 PM</time> 
+  </fridays>
 	<saturdays></saturdays>
 	<sundays></sundays>
 	<weekends></weekends>

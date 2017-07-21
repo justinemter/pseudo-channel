@@ -32,7 +32,7 @@ class PseudoChannel():
 
 		self.db = PseudoChannelDatabase("pseudo-channel.db")
 
-		self.controller = PseudoDailyScheduleController()
+		self.controller = PseudoDailyScheduleController(baseurl, token, plexClients)
 
 	"""Database functions.
 

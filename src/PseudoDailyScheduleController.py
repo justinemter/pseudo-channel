@@ -8,19 +8,17 @@ import os, sys
 import logging
 import logging.handlers
 
-from pseudo_config import *
-
 class PseudoDailyScheduleController():
 
-	PLEX = PlexServer(baseurl, token)
+	def __init__(self, server, token, clients):
 
-	BASE_URL = baseurl
+		self.PLEX = PlexServer(server, token)
 
-	TOKEN = token
+		self.BASE_URL = server
 
-	PLEX_CLIENTS = plexClients
+		self.TOKEN = token
 
-	def __init__(self):
+		self.PLEX_CLIENTS = clients
 
 		self.my_logger = logging.getLogger('MyLogger')
 		self.my_logger.setLevel(logging.DEBUG)
@@ -114,6 +112,8 @@ class PseudoDailyScheduleController():
 									with tag('th'):
 										text('#')
 									with tag('th'):
+										text('Type')
+									with tag('th'):
 										text('Series')
 									with tag('th'):
 										text('Title')
@@ -136,6 +136,8 @@ class PseudoDailyScheduleController():
 											with tag('th', scope='row'):
 												text(numberIncrease)
 											with tag('td'):
+												text(row[11])
+											with tag('td'):
 												text(row[6])
 											with tag('td'):
 												text(row[3])
@@ -149,6 +151,8 @@ class PseudoDailyScheduleController():
 												with tag('th', scope='row'):
 													text(numberIncrease)
 												with tag('td'):
+													text(row[11])
+												with tag('td'):
 													text(row[6])
 												with tag('td'):
 													text(row[3])
@@ -160,6 +164,8 @@ class PseudoDailyScheduleController():
 										with tag('tr'):
 											with tag('th', scope='row'):
 												text(numberIncrease)
+											with tag('td'):
+												text(row[11])
 											with tag('td'):
 												text(row[6])
 											with tag('td'):
