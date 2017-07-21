@@ -11,7 +11,8 @@ This project is inspired by the [Fake TV](https://medium.com/@Fake.TV/installati
 - [x] Add a controller to query the local generated pseudo_tv.db to see when to trigger the next media.
 - [x] Add episode duration checking & adjust daily generated schedule based on these results...
 - [x] Generate daily html schedule (saved in ./schedules directory). Can be served via webserver.
-- [ ] Add commercial support. 
+- [ ] Add "commercial injection" to fill up gaps between content. 
 - [ ] Bug fixes
+- [ ] List of features from reddit. 
 
 If interested in this project, check back very soon when the beta is up. It's close and a tiny bit more user friendly. :)
