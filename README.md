@@ -17,9 +17,11 @@ This project is inspired by the [Fake TV](https://medium.com/@Fake.TV/installati
 
 If interested in this project, check back very soon when the beta is up. It's close and a tiny bit more user friendly. :)
 
-## How to Use:
+## How to Use (in the case someone stumbles across this and wants to try it before its polished):
 
-1. Download the [Python Plex API](https://github.com/pkkid/python-plexapi) & their dependencies.
+- The instructions below are all for configuring the "controller" device (i.e. a laptop or raspberry pi running linux). The "client" device should be a Raspberry Pi running Rasplex hooked up to your TV via HDMI - although I'm sure other devices work great too (never tried). 
+
+1. Download the [Python Plex API](https://github.com/pkkid/python-plexapi) & their dependencies. Also get [yattag](http://www.yattag.org/). All these dependencies can be installed via pip.
 
 2. Download this repository & edit the `pseudo_config.py` / `the pseudo_schedule.xml` to your liking. Find your Plex token [here](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)
 
