@@ -600,9 +600,9 @@ if __name__ == '__main__':
 
 	#pseudo_channel.update_db()
 
-	#pseudo_channel.update_schedule()
+	pseudo_channel.update_schedule()
 
-	#pseudo_channel.generate_daily_schedule()
+	pseudo_channel.generate_daily_schedule()
 
 	try:
 		print "++++ Running TV Controller"

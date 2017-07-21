@@ -202,22 +202,38 @@ class PseudoDailyScheduleController():
 	'''
 	def play_media(self, mediaType, mediaParentTitle, mediaTitle):
 
-		mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
+		if mediaType == "TV Shows":
 
-		for item in mediaItems:
+			mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
+
+			for item in mediaItems:
 
 			# print(part.title)
 
-			if item.title == mediaTitle:
+				if item.title == mediaTitle:
 
-				for client in self.PLEX_CLIENTS:
+					for client in self.PLEX_CLIENTS:
+
+						clientItem = self.PLEX.client(client)
+
+						clientItem.playMedia(item)
+						
+				break
+
+		elif mediaType == "Movies":
+
+			movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+
+			for client in self.PLEX_CLIENTS:
 
 					clientItem = self.PLEX.client(client)
 
-					clientItem.playMedia(item)
-					
-					break
+					clientItem.playMedia(movie)
 
+		else:
+
+			print("Not sure how to play {}".format(mediaType))
+		
 	'''
 	*
 	* If tv_controller() does not find a "startTime" for scheduled media, search for an "endTime" match for now time.
@@ -236,8 +252,13 @@ class PseudoDailyScheduleController():
 		"""
 		for row in datalist:
 
+			try:
+				
+				endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
 
-			endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
+			except ValueError:
+
+				endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S')
 
 			if currentTime.hour == endTime.hour:
 
@@ -278,14 +299,14 @@ class PseudoDailyScheduleController():
 					print("Starting Epsisode: " + row[3])
 					print(row)
 
-					self.play_media("TV Shows", row[6], row[3])
+					self.play_media(row[11], row[6], row[3])
 
 					self.write_schedule_to_file(
 						self.get_html_from_daily_schedule(
 							timeB, 
 							self.get_show_photo(
 								row[11], 
-								row[6]), 
+								row[3]), 
 								datalist
 							)
 					)
