@@ -33,11 +33,12 @@ If interested in this project, check back very soon when the beta is up. It's cl
 
 The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`. The `-xml` flag will update the newly created local db with your schedule from the xml file. The `-g` file will generate the daily schedule (for today). Finally, the `-r` file will run a while loop checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59. The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
 
-To run the app in a 'poor-mans-daemon-mode', run this:
+To run the app in a 'poor-mans-daemon-mode' using [screen](https://www.gnu.org/software/screen/manual/screen.html), run this:
 
 ```bash
-% sudo screen -d -m python PseudoChannel.py -r
+% screen -d -m bash -c 'python PseudoChannel.py -r; exec sh'
 ```
+[cli flag info](https://explainshell.com/explain?cmd=screen+-d+-m)
 
 ...the previous command will keep the clock / app running in the background via the screen utility - kinda like a daemon process. 
 
