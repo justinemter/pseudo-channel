@@ -168,24 +168,6 @@ class PseudoChannel():
 						bar_length = 40
 					)
 
-	def interpret_time_input(self, inputtime):
-
-		try:
-
-			return datetime.datetime.strptime(inputtime, '%I:%M %p').strftime('%I:%M %p')
-
-		except ValueError:
-
-			pass
-
-		try:
-			print "here"
-			return datetime.datetime.strptime(inputtime, '%H:%M').strftime('%I:%M %p')
-
-		except ValueError:
-
-			pass
-
 	def update_schedule(self):
 
 		self.db.create_tables()
@@ -220,15 +202,15 @@ class PseudoChannel():
 
 			if child.tag in scheduled_days_list:
 
-				for time_entry in child.iter("time"):
+				for time in child.iter("time"):
 
 					for key, value in section_dict.items():
 
-						if time_entry.attrib['type'] == key or time_entry.attrib['type'] in value:
+						if time.attrib['type'] == key or time.attrib['type'] in value:
 
-							title = time_entry.attrib['title']
+							title = time.attrib['title']
 
-							natural_start_time = time_entry.text
+							natural_start_time = time.text
 
 							natural_end_time = 0
 
@@ -236,17 +218,15 @@ class PseudoChannel():
 
 							day_of_week = child.tag
 
-							strict_time = time_entry.attrib['strict-time']
+							strict_time = time.attrib['strict-time']
 
-							time_shift = time_entry.attrib['time-shift']
+							time_shift = time.attrib['time-shift']
 
-							overlap_max = time_entry.attrib['overlap-max']
+							overlap_max = time.attrib['overlap-max']
 
-							#start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
+							start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
 
-							start_time_unix = self.interpret_time_input(time_entry.text)
-
-							print "Adding: ", time_entry.tag, section, time_entry.text, time_entry.attrib['title']
+							print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
 							self.db.add_schedule_to_db(
 								0, # mediaID
@@ -426,6 +406,18 @@ class PseudoChannel():
 
 		schedule = self.db.get_schedule()
 
+		weekday_dict = {
+			"0" : ["mondays", "weekdays", "everyday"],
+			"1" : ["tuesdays", "weekdays", "everyday"],
+			"2" : ["wednesdays", "weekdays", "everyday"],
+			"3" : ["thursdays", "weekdays", "everyday"],
+			"4" : ["fridays", "weekdays", "everyday"],
+			"5" : ["saturdays", "weekends", "everyday"],
+			"6" : ["sundays", "weekends", "everyday"],
+		}
+
+		weekno = datetime.datetime.today().weekday()
+
 		schedule_advance_watcher = 0
 
 		for entry in schedule:
@@ -434,184 +426,194 @@ class PseudoChannel():
 
 			section = entry[9]
 
-			if section == "TV Shows":
+			for key, val in weekday_dict.iteritems():
 
-				if entry[3] == "random":
+				try: 
 
-					next_episode = self.db.get_random_episode()
+					if str(entry[7]) in str(val) and int(weekno) == int(key):
 
-				else:
+						if section == "TV Shows":
 
-					next_episode = self.db.get_next_episode(entry[3])
+							if entry[3] == "random":
 
-				if next_episode != None:
-				
-					episode = Episode(
-						section, # section_type
-						next_episode[3], # title
-						entry[5], # natural_start_time
-						self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
-						next_episode[4], # duration
-						entry[7], # day_of_week
-						entry[10], # is_strict_time
-						entry[11], # time_shift
-						entry[12], # overlap_max
-						entry[3], # show_series_title
-						next_episode[5], # episode_number
-						next_episode[6] # season_number
-						)
+								next_episode = self.db.get_random_episode()
 
-					self.MEDIA.append(episode)
+							else:
 
-				else:
+								next_episode = self.db.get_next_episode(entry[3])
 
-					print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
+							if next_episode != None:
+							
+								episode = Episode(
+									section, # section_type
+									next_episode[3], # title
+									entry[5], # natural_start_time
+									self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
+									next_episode[4], # duration
+									entry[7], # day_of_week
+									entry[10], # is_strict_time
+									entry[11], # time_shift
+									entry[12], # overlap_max
+									entry[3], # show_series_title
+									next_episode[5], # episode_number
+									next_episode[6] # season_number
+									)
 
-				#print(episode)
+								self.MEDIA.append(episode)
 
-			elif section == "Movies":
+							else:
 
-				if entry[3] == "random":
+								print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
 
-					the_movie = self.db.get_random_movie()
+							#print(episode)
 
-				else:
+						elif section == "Movies":
 
-					the_movie = self.db.get_movie(entry[3])
+							if entry[3] == "random":
 
-				if the_movie != None:
+								the_movie = self.db.get_random_movie()
 
-					movie = Movie(
-					section, # section_type
-					the_movie[3], # title
-					entry[5], # natural_start_time
-					self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
-					the_movie[4], # duration
-					entry[7], # day_of_week
-					entry[10], # is_strict_time
-					entry[11], # time_shift
-					entry[12] # overlap_max
-					)
+							else:
 
-					#print(movie.natural_end_time)
+								the_movie = self.db.get_movie(entry[3])
 
-					self.MEDIA.append(movie)
+							if the_movie != None:
 
-				else:
+								movie = Movie(
+								section, # section_type
+								the_movie[3], # title
+								entry[5], # natural_start_time
+								self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
+								the_movie[4], # duration
+								entry[7], # day_of_week
+								entry[10], # is_strict_time
+								entry[11], # time_shift
+								entry[12] # overlap_max
+								)
 
-					print("Cannot find Movie, {} in the local db".format(entry[3]))
+								#print(movie.natural_end_time)
 
-			elif section == "Music":
+								self.MEDIA.append(movie)
 
-				the_music = self.db.get_music(entry[3])
+							else:
 
-				if the_music != None:
+								print("Cannot find Movie, {} in the local db".format(entry[3]))
 
-					music = Music(
-					section, # section_type
-					the_music[3], # title
-					entry[5], # natural_start_time
-					self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
-					the_music[4], # duration
-					entry[7], # day_of_week
-					entry[10], # is_strict_time
-					entry[11], # time_shift
-					entry[12] # overlap_max
-					)
+						elif section == "Music":
 
-					#print(music.natural_end_time)
+							the_music = self.db.get_music(entry[3])
 
-					self.MEDIA.append(music)
+							if the_music != None:
 
-				else:
+								music = Music(
+								section, # section_type
+								the_music[3], # title
+								entry[5], # natural_start_time
+								self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
+								the_music[4], # duration
+								entry[7], # day_of_week
+								entry[10], # is_strict_time
+								entry[11], # time_shift
+								entry[12] # overlap_max
+								)
 
-					print("Cannot find Music, {} in the local db".format(entry[3]))
+								#print(music.natural_end_time)
 
-			elif section == "Video":
+								self.MEDIA.append(music)
 
-				the_video = self.db.get_video(entry[3])
+							else:
 
-				if the_music != None:
+								print("Cannot find Music, {} in the local db".format(entry[3]))
 
-					video = Video(
-					section, # section_type
-					the_video[3], # title
-					entry[5], # natural_start_time
-					self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
-					the_video[4], # duration
-					entry[7], # day_of_week
-					entry[10], # is_strict_time
-					entry[11], # time_shift
-					entry[12] # overlap_max
-					)
+						elif section == "Video":
 
-					#print(music.natural_end_time)
+							the_video = self.db.get_video(entry[3])
 
-					self.MEDIA.append(video)
+							if the_music != None:
 
-				else:
+								video = Video(
+								section, # section_type
+								the_video[3], # title
+								entry[5], # natural_start_time
+								self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
+								the_video[4], # duration
+								entry[7], # day_of_week
+								entry[10], # is_strict_time
+								entry[11], # time_shift
+								entry[12] # overlap_max
+								)
 
-					print("Cannot find Video, {} in the local db".format(entry[3]))
+								#print(music.natural_end_time)
 
-			else:
+								self.MEDIA.append(video)
 
-				pass
+							else:
 
-			"""If we reached the end of the schedule we are ready to kick off the daily_schedule
-
-			"""
-			if schedule_advance_watcher >= len(schedule):
-
-				previous_episode = None
-
-				self.db.remove_all_daily_scheduled_items()
-
-				for entry in self.MEDIA:
-
-					#print entry.natural_end_time
-
-					if previous_episode != None:
-
-						natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
-
-						natural_end_time = entry.natural_end_time
-
-						if entry.is_strict_time.lower() == "true":
-
-							print "++++ Strict-time: {}".format(entry.title)
-
-							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
-
-							self.db.add_media_to_daily_schedule(entry)
-
-							previous_episode = entry
+								print("Cannot find Video, {} in the local db".format(entry[3]))
 
 						else:
 
-							print "++++ NOT strict-time: {}".format(entry.title)
+							pass
 
-							new_starttime = self.calculate_start_time(
-								previous_episode.end_time,
-								entry.natural_start_time,  
-								previous_episode.time_shift, 
-								previous_episode.overlap_max
-							)
+						"""If we reached the end of the schedule we are ready to kick off the daily_schedule
 
-							print "++++ New start time:", new_starttime
+						"""
+						if schedule_advance_watcher >= len(schedule):
 
-							entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+							previous_episode = None
 
-							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+							self.db.remove_all_daily_scheduled_items()
 
-							self.db.add_media_to_daily_schedule(entry)
+							for entry in self.MEDIA:
 
-							previous_episode = entry
+								#print entry.natural_end_time
 
-					else:
+								if previous_episode != None:
 
-						self.db.add_media_to_daily_schedule(entry)
+									natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
 
-						previous_episode = entry
+									natural_end_time = entry.natural_end_time
+
+									if entry.is_strict_time.lower() == "true":
+
+										print "++++ Strict-time: {}".format(entry.title)
+
+										entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+										self.db.add_media_to_daily_schedule(entry)
+
+										previous_episode = entry
+
+									else:
+
+										print "++++ NOT strict-time: {}".format(entry.title)
+
+										new_starttime = self.calculate_start_time(
+											previous_episode.end_time,
+											entry.natural_start_time,  
+											previous_episode.time_shift, 
+											previous_episode.overlap_max
+										)
+
+										print "++++ New start time:", new_starttime
+
+										entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+
+										entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+										self.db.add_media_to_daily_schedule(entry)
+
+										previous_episode = entry
+
+								else:
+
+									self.db.add_media_to_daily_schedule(entry)
+
+									previous_episode = entry
+
+				except TypeError as e:
+				
+					pass	
 
 if __name__ == '__main__':
 

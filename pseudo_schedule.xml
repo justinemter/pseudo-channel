@@ -30,10 +30,17 @@
     <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">10:06 PM</time>
     <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">11:06 PM</time>
 
+    <time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">11:30 PM</time>
+
   </saturdays>
 	<sundays></sundays>
 	<weekends></weekends>
-	<everyday></everyday>
+	<everyday>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">6:00 AM</time>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">6:30 AM</time>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">7:00 AM</time>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">7:30 AM</time> 
+  </everyday>
   	<weekdays>
   		<default title="Seinfeld" type="series" ></default>
   		<time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">6:00 AM</time>
@@ -76,10 +83,8 @@
   		<time title="new girl" type="series" strict-time="false" time-shift="5" overlap-max="">7:00 PM</time>
   		<time title="new girl" type="series" strict-time="false" time-shift="5" overlap-max="">7:30 PM</time>
 
-  		<time title="random" type="movie" strict-time="true" time-shift="5" overlap-max="">7:16 PM</time>
   		
-		<time title="the trip" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 PM</time>
+		  <time title="the trip" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 PM</time>
   		<time title="the trip" type="series" strict-time="false" time-shift="5" overlap-max="">9:00 PM</time>
-  		<time title="the wire" type="series" strict-time="false" time-shift="5" overlap-max="">23:00</time>
   	</weekdays>
 </schedule>
