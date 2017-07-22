@@ -168,6 +168,24 @@ class PseudoChannel():
 						bar_length = 40
 					)
 
+	def interpret_time_input(self, input):
+
+		try:
+
+			return datetime.datetime.strptime(time.text, '%I:%M %p')
+
+		except:
+
+			pass
+
+		try:
+
+			return datetime.datetime.strptime(time.text, '%H:%M')
+
+		except:
+
+			pass
+
 	def update_schedule(self):
 
 		self.db.create_tables()
@@ -224,7 +242,9 @@ class PseudoChannel():
 
 							overlap_max = time.attrib['overlap-max']
 
-							start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
+							#start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
+
+							start_time_unix = self.interpret_time_input(time.text)
 
 							print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
@@ -454,8 +474,7 @@ class PseudoChannel():
 				if entry[3] == "random":
 
 					the_movie = self.db.get_random_movie()
-					print("here")
-
+					
 				else:
 
 					the_movie = self.db.get_movie(entry[3])
