@@ -21,7 +21,7 @@ class PseudoChannelDatabase():
 
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
 				  'movies(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
+				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, lastPlayedDate TEXT)')
 
 		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
 				  'videos(id INTEGER PRIMARY KEY AUTOINCREMENT, '

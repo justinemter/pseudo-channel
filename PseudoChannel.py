@@ -23,6 +23,9 @@ from time import sleep
 
 import pseudo_config as config
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 class PseudoChannel():
 
 	PLEX = PlexServer(config.baseurl, config.token)
@@ -195,7 +198,7 @@ class PseudoChannel():
 		]
 
 		section_dict = {
-			"TV Shows" : ["series", "shows", "tv", "episodes", "tv shows"],
+			"TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
 			"Movies"   : ["movie", "movies", "films", "film"],
 			"Videos"   : ["video", "videos", "vid"],
 			"Music"    : ["music", "songs", "song", "tune", "tunes"]
@@ -605,7 +608,7 @@ class PseudoChannel():
 
 						if entry.is_strict_time.lower() == "true":
 
-							print "++++ Strict-time: {}".format(entry.title)
+							print "++++ Strict-time: {}".format(str(entry.title))
 
 							entry.end_time = self.get_end_time_from_duration(
 									self.translate_time(entry.start_time), 
