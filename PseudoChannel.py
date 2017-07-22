@@ -210,7 +210,7 @@ class PseudoChannel():
 
 							title = time.attrib['title']
 
-							natural_start_time = time.text
+							natural_start_time = self.translate_time(time.text)
 
 							natural_end_time = 0
 
@@ -224,7 +224,7 @@ class PseudoChannel():
 
 							overlap_max = time.attrib['overlap-max']
 
-							start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
+							start_time_unix = self.translate_time(time.text)
 
 							print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
@@ -274,6 +274,25 @@ class PseudoChannel():
 	* Returns time difference in minutes
 	*
 	'''
+
+	def translate_time(self, timestr):
+
+		try:
+
+			return datetime.datetime.strptime(timestr, "%I:%M %p").strftime("%-I:%M %p")
+
+		except ValueError as e:
+
+			pass
+
+		try:
+
+			return datetime.datetime.strptime(timestr, "%H:%M").strftime("%-I:%M %p")
+
+		except ValueError as e:
+
+			pass
+
 	def time_diff(self, time1,time2):
 		'''
 		*
@@ -361,7 +380,8 @@ class PseudoChannel():
 
 			'''
 			*
-			* If there this value is configured, then the timeGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+			* If there this value is configured, then the timeGap var in config will determine the next increment. 
+			* If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
 			*
 			'''
 			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
@@ -555,65 +575,70 @@ class PseudoChannel():
 
 							pass
 
-						"""If we reached the end of the schedule we are ready to kick off the daily_schedule
-
-						"""
-						if schedule_advance_watcher >= len(schedule):
-
-							previous_episode = None
-
-							self.db.remove_all_daily_scheduled_items()
-
-							for entry in self.MEDIA:
-
-								#print entry.natural_end_time
-
-								if previous_episode != None:
-
-									natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
-
-									natural_end_time = entry.natural_end_time
-
-									if entry.is_strict_time.lower() == "true":
-
-										print "++++ Strict-time: {}".format(entry.title)
-
-										entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
-
-										self.db.add_media_to_daily_schedule(entry)
-
-										previous_episode = entry
-
-									else:
-
-										print "++++ NOT strict-time: {}".format(entry.title)
-
-										new_starttime = self.calculate_start_time(
-											previous_episode.end_time,
-											entry.natural_start_time,  
-											previous_episode.time_shift, 
-											previous_episode.overlap_max
-										)
-
-										print "++++ New start time:", new_starttime
-
-										entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
-
-										entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
-
-										self.db.add_media_to_daily_schedule(entry)
-
-										previous_episode = entry
-
-								else:
-
-									self.db.add_media_to_daily_schedule(entry)
-
-									previous_episode = entry
-
 				except TypeError as e:
 				
-					pass	
+					raise TypeError('Not sure why but got a TypeError')
+
+			"""If we reached the end of the scheduled items for today, add them to the daily schedule
+
+			"""
+			if schedule_advance_watcher >= len(schedule):
+
+				print "+++++ Finished processing time entries, recreating daily_schedule"
+
+				previous_episode = None
+
+				self.db.remove_all_daily_scheduled_items()
+
+				for entry in self.MEDIA:
+
+					#print entry.natural_end_time
+
+					if previous_episode != None:
+
+						natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
+
+						natural_end_time = entry.natural_end_time
+
+						if entry.is_strict_time.lower() == "true":
+
+							print "++++ Strict-time: {}".format(entry.title)
+
+							entry.end_time = self.get_end_time_from_duration(
+									self.translate_time(entry.start_time), 
+									entry.duration
+								)
+
+							self.db.add_media_to_daily_schedule(entry)
+
+							previous_episode = entry
+
+						else:
+
+							print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+
+							new_starttime = self.calculate_start_time(
+								previous_episode.end_time,
+								entry.natural_start_time,  
+								previous_episode.time_shift, 
+								previous_episode.overlap_max
+							)
+
+							print "++++ New start time:", new_starttime
+
+							entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+
+							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+							self.db.add_media_to_daily_schedule(entry)
+
+							previous_episode = entry
+
+					else:
+
+						self.db.add_media_to_daily_schedule(entry)
+
+						previous_episode = entry
 
 if __name__ == '__main__':
 

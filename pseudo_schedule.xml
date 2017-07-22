@@ -26,11 +26,11 @@
     <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">2:00 PM</time>
     <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">4:06 PM</time>
     <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">6:06 PM</time>
-    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">8:06 PM</time>
-    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">10:06 PM</time>
-    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">11:06 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">20:06</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">22:06</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">23:06</time>
 
-    <time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">11:30 PM</time>
+    <time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">23:30</time>
 
   </saturdays>
 	<sundays></sundays>
