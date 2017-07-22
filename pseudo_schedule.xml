@@ -5,9 +5,32 @@
 	<wednesdays></wednesdays>
 	<thursdays></thursdays>
 	<fridays>
-    <time title="Looney Tunes" type="series" strict-time="true" time-shift="1" overlap-max="">12:25 PM</time> 
+    <time title="Looney Tunes" type="series" strict-time="true" time-shift="1" overlap-max="">12:30 AM</time> 
   </fridays>
-	<saturdays></saturdays>
+	<saturdays>
+   
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">6:00 AM</time>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">6:30 AM</time>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">7:00 AM</time>
+    <time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">7:30 AM</time>
+
+    <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">8:00 AM</time>
+    <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 AM</time>
+    <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">9:00 AM</time>
+    <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">9:30 AM</time>
+
+    <time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">10:00 AM</time>
+    <time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">10:30 AM</time>
+
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">11:06 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">2:00 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">4:06 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">6:06 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">8:06 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">10:06 PM</time>
+    <time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="">11:06 PM</time>
+
+  </saturdays>
 	<sundays></sundays>
 	<weekends></weekends>
 	<everyday></everyday>
@@ -19,9 +42,9 @@
 		<time title="Looney Tunes" type="series" strict-time="false" time-shift="1" overlap-max="">7:30 AM</time>
 
   		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">8:00 AM</time>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 AM</time>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">9:00 AM</time>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">9:30 AM</time>
+		  <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 AM</time>
+		  <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">9:00 AM</time>
+		  <time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" overlap-max="">9:30 AM</time>
 
   		<time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">10:00 AM</time>
   		<time title="talespin" type="series" strict-time="false" time-shift="5" overlap-max="">10:30 AM</time>

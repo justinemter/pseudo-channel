@@ -320,7 +320,7 @@ class PseudoDailyScheduleController():
 							timeB,
 							self.get_show_photo(
 								row[11], 
-								row[3]
+								row[6] if row[11] == "TV Shows" else row[3]
 							),
 							datalist
 						)
