@@ -168,21 +168,21 @@ class PseudoChannel():
 						bar_length = 40
 					)
 
-	def interpret_time_input(self, input):
+	def interpret_time_input(self, inputtime):
 
 		try:
 
-			return datetime.datetime.strptime(time.text, '%I:%M %p')
+			return datetime.datetime.strptime(inputtime, '%I:%M %p').strftime('%I:%M %p')
 
-		except:
+		except ValueError:
 
 			pass
 
 		try:
+			print "here"
+			return datetime.datetime.strptime(inputtime, '%H:%M').strftime('%I:%M %p')
 
-			return datetime.datetime.strptime(time.text, '%H:%M')
-
-		except:
+		except ValueError:
 
 			pass
 
@@ -220,15 +220,15 @@ class PseudoChannel():
 
 			if child.tag in scheduled_days_list:
 
-				for time in child.iter("time"):
+				for time_entry in child.iter("time"):
 
 					for key, value in section_dict.items():
 
-						if time.attrib['type'] == key or time.attrib['type'] in value:
+						if time_entry.attrib['type'] == key or time_entry.attrib['type'] in value:
 
-							title = time.attrib['title']
+							title = time_entry.attrib['title']
 
-							natural_start_time = time.text
+							natural_start_time = time_entry.text
 
 							natural_end_time = 0
 
@@ -236,17 +236,17 @@ class PseudoChannel():
 
 							day_of_week = child.tag
 
-							strict_time = time.attrib['strict-time']
+							strict_time = time_entry.attrib['strict-time']
 
-							time_shift = time.attrib['time-shift']
+							time_shift = time_entry.attrib['time-shift']
 
-							overlap_max = time.attrib['overlap-max']
+							overlap_max = time_entry.attrib['overlap-max']
 
 							#start_time_unix = datetime.datetime.strptime(time.text, '%I:%M %p')
 
-							start_time_unix = self.interpret_time_input(time.text)
+							start_time_unix = self.interpret_time_input(time_entry.text)
 
-							print "Adding: ", time.tag, section, time.text, time.attrib['title']
+							print "Adding: ", time_entry.tag, section, time_entry.text, time_entry.attrib['title']
 
 							self.db.add_schedule_to_db(
 								0, # mediaID
@@ -474,7 +474,7 @@ class PseudoChannel():
 				if entry[3] == "random":
 
 					the_movie = self.db.get_random_movie()
-					
+
 				else:
 
 					the_movie = self.db.get_movie(entry[3])
