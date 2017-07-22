@@ -6,8 +6,6 @@
 	
 	2) add this line to the newly created file:
 
-<<<<<<< HEAD
-=======
 	token = 'your plex token'
 
 	3) Edit the "basurl" variable below to point to your Plex server
@@ -30,15 +28,12 @@ import plex_token as plex_token
 baseurl = 'http://media.home:32400'
 token = plex_token.token
 
->>>>>>> develop
 '''
 *
 * List of plex clients to use (add multiple clients to control multiple TV's)
 *
 '''
 plexClients = ['RasPlex']
-<<<<<<< HEAD
-=======
 
 plexLibraries = {
 	"TV Shows" : ["TV Shows"],
@@ -46,4 +41,3 @@ plexLibraries = {
 	"Music"    : ["Music"],
 	"Commercials" : ["Commercials"],
 }
->>>>>>> develop
