@@ -7,7 +7,6 @@ from src import Episode
 from src import Music
 from src import Video
 from src import PseudoDailyScheduleController
-from pseudo_config import *
 
 from plexapi.server import PlexServer
 
@@ -22,9 +21,11 @@ import xml.etree.ElementTree as ET
 
 from time import sleep
 
+import pseudo_config as config
+
 class PseudoChannel():
 
-	PLEX = PlexServer(baseurl, token)
+	PLEX = PlexServer(config.baseurl, config.token)
 
 	MEDIA = []
 
@@ -32,7 +33,7 @@ class PseudoChannel():
 
 		self.db = PseudoChannelDatabase("pseudo-channel.db")
 
-		self.controller = PseudoDailyScheduleController(baseurl, token, plexClients)
+		self.controller = PseudoDailyScheduleController(config.baseurl, config.token, config.plexClients)
 
 	"""Database functions.
 
@@ -76,97 +77,103 @@ class PseudoChannel():
 
 		self.db.create_tables()
 
+		libs_dict = config.plexLibraries
+
 		sections = self.PLEX.library.sections()
 
 		for section in sections:
 
-			if section.title == "Movies":
+			for correct_lib_name, user_lib_name in libs_dict.items():
 
-				sectionMedia = self.PLEX.library.section(section.title).all()
+				if section.title.lower() in [x.lower() for x in user_lib_name]:
 
-				for i, media in enumerate(sectionMedia):
+					if correct_lib_name == "Movies":
 
-					self.db.add_movies_to_db(1, media.title, media.duration)
+						sectionMedia = self.PLEX.library.section(section.title).all()
 
-					self.print_progress(
-							i + 1, 
-							len(sectionMedia), 
-							prefix = 'Progress '+section.title+":     ", 
-							suffix = 'Complete', 
-							bar_length = 40
-						)
+						for i, media in enumerate(sectionMedia):
 
+							self.db.add_movies_to_db(1, media.title, media.duration)
 
-			elif section.title == "TV Shows":
-
-				sectionMedia = self.PLEX.library.section(section.title).all()
-
-				for i, media in enumerate(sectionMedia):
-
-					backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
-
-					backgroundImgURL = ''
-
-					if isinstance(backgroundImagePath.art, str):
-
-						backgroundImgURL = baseurl+backgroundImagePath.art+"?X-Plex-Token="+token
-
-					self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
-
-					self.print_progress(
-							i + 1, 
-							len(sectionMedia),
-							prefix = 'Progress '+section.title+":   ", 
-							suffix = 'Complete', 
-							bar_length = 40
-						)
-
-					#add all episodes of each tv show to episodes table
-					episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
-
-					for episode in episodes:
-
-						duration = episode.duration
-
-						if duration:
-
-							self.db.add_episodes_to_db(
-									4, 
-									episode.title, 
-									duration, 
-									episode.index, 
-									episode.parentIndex, 
-									media.title
+							self.print_progress(
+									i + 1, 
+									len(sectionMedia), 
+									prefix = 'Progress '+section.title+":     ", 
+									suffix = 'Complete', 
+									bar_length = 40
 								)
 
-						else:
 
-							self.db.add_episodes_to_db(
-									4, 
-									episode.title, 
-									0, 
-									episode.index, 
-									episode.parentIndex, 
-									media.title
+					elif correct_lib_name == "TV Shows":
+
+						sectionMedia = self.PLEX.library.section(section.title).all()
+
+						for i, media in enumerate(sectionMedia):
+
+							backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
+
+							backgroundImgURL = ''
+
+							if isinstance(backgroundImagePath.art, str):
+
+								backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
+
+							self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
+
+							self.print_progress(
+									i + 1, 
+									len(sectionMedia),
+									prefix = 'Progress '+section.title+":   ", 
+									suffix = 'Complete', 
+									bar_length = 40
 								)
 
-			elif section.title == "Commercials":
+							#add all episodes of each tv show to episodes table
+							episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
 
-				sectionMedia = self.PLEX.library.section(section.title).all()
+							for episode in episodes:
 
-				media_length = len(sectionMedia)
+								duration = episode.duration
 
-				for i, media in enumerate(sectionMedia):
+								if duration:
 
-					self.db.add_commercials_to_db(3, media.title, media.duration)
+									self.db.add_episodes_to_db(
+											4, 
+											episode.title, 
+											duration, 
+											episode.index, 
+											episode.parentIndex, 
+											media.title
+										)
 
-					self.print_progress(
-						i + 1, 
-						media_length, 
-						prefix = 'Progress '+section.title+":", 
-						suffix = 'Complete', 
-						bar_length = 40
-					)
+								else:
+
+									self.db.add_episodes_to_db(
+											4, 
+											episode.title, 
+											0, 
+											episode.index, 
+											episode.parentIndex, 
+											media.title
+										)
+
+					elif correct_lib_name == "Commercials":
+
+						sectionMedia = self.PLEX.library.section(section.title).all()
+
+						media_length = len(sectionMedia)
+
+						for i, media in enumerate(sectionMedia):
+
+							self.db.add_commercials_to_db(3, media.title, media.duration)
+
+							self.print_progress(
+								i + 1, 
+								media_length, 
+								prefix = 'Progress '+section.title+":", 
+								suffix = 'Complete', 
+								bar_length = 40
+							)
 
 	def update_schedule(self):
 

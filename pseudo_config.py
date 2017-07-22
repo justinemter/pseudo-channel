@@ -1,7 +1,32 @@
 #!/usr/bin/python
+"""
+	1) Create a file outside of this proj dir called "plex_token.py":
+
+	touch ../plex_token.py
+	
+	2) add this line to the newly created file:
+
+	token = 'your plex token'
+
+	3) Edit the "basurl" variable below to point to your Plex server
+
+	4) Edit the "plexClients" variable to include the name of your plex client(s) this app will control.
+
+	5) Edit the "plexLibraries" variable to remap your specific library names to the app specific names. 
+	...for instance, if your Plex "Movies" are located in your Plex library as "Films", update that
+	line so it looks like: 
+
+	"Movies" : ["Films"],
+	
+"""
+
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# import ../plex_token.py
+import plex_token as plex_token
 
 baseurl = 'http://media.home:32400'
-token = 'token'
+token = plex_token.token
 
 '''
 *
@@ -10,20 +35,9 @@ token = 'token'
 '''
 plexClients = ['RasPlex']
 
-'''
-*
-* The increment value between scheduled shows. Let's say you want to reposition all shows to have a clean start time divisable by 15 (i.e. 12:30 or 12:45). Use the value "-1" to disregard.
-* 
-*
-'''
-timeGap = 15
-
-
-timeBetweenShows = -1
-
-'''
-*
-* If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour. If it is set to 30, then it will find the next 30 minute interval past the hour to place the episode. Useful for keeping clean schedules.
-*
-'''
-overlapGap = 15
+plexLibraries = {
+	"TV Shows" : ["TV Shows"],
+	"Movies"   : ["Movies"],
+	"Music"    : ["Music"],
+	"Commercials" : ["Commercials"],
+}
