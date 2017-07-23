@@ -667,7 +667,7 @@ class PseudoChannel():
 
     def exit_app(self):
 
-        print "Exiting Pseudo TV & cleaning up."
+        print " - Exiting Pseudo TV & cleaning up."
 
         for i in self.MEDIA:
 
