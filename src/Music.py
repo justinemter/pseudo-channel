@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+
 from Media import Media
 
 class Music(Media):
 
-	"""Inherits Media.
+    """Inherits Media.
 
     Attributes:
         section_type: The type of library this is (i.e. "TV Shows")
@@ -14,27 +16,27 @@ class Music(Media):
         is_strict_time: If strict time, then anchor to "natural_start_time"
     """
 
-	def __init__(
-			self, 
-			section_type, 
-			title, 
-			natural_start_time, 
-			natural_end_time, 
-			duration, 
-			day_of_week,
-			is_strict_time,
-			time_shift, 
-			overlap_max
-			):
+    def __init__(
+            self, 
+            section_type, 
+            title, 
+            natural_start_time, 
+            natural_end_time, 
+            duration, 
+            day_of_week,
+            is_strict_time,
+            time_shift, 
+            overlap_max
+            ):
 
-		super(Music, self).__init__( 
-				section_type, 
-				title, 
-				natural_start_time, 
-				natural_end_time, 
-				duration, 
-				day_of_week,
-				is_strict_time,
-				time_shift, 
-				overlap_max
-				)
+        super(Music, self).__init__( 
+                section_type, 
+                title, 
+                natural_start_time, 
+                natural_end_time, 
+                duration, 
+                day_of_week,
+                is_strict_time,
+                time_shift, 
+                overlap_max
+                )

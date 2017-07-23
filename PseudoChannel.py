@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from src import PseudoChannelDatabase
@@ -28,704 +29,763 @@ sys.setdefaultencoding('utf-8')
 
 class PseudoChannel():
 
-	PLEX = PlexServer(config.baseurl, config.token)
+    PLEX = PlexServer(config.baseurl, config.token)
+    MEDIA = []
 
-	MEDIA = []
+    def __init__(self):
 
-	def __init__(self):
+        self.db = PseudoChannelDatabase("pseudo-channel.db")
 
-		self.db = PseudoChannelDatabase("pseudo-channel.db")
+        self.controller = PseudoDailyScheduleController(config.baseurl, config.token, config.plexClients)
 
-		self.controller = PseudoDailyScheduleController(config.baseurl, config.token, config.plexClients)
+    """Database functions.
 
-	"""Database functions.
+        update_db(): Grab the media from the Plex DB and store it in the local pseudo-channel.db.
 
-		update_db(): Grab the media from the Plex DB and store it in the local pseudo-channel.db.
+        drop_db(): Drop the local database. Fresh start. 
 
-		drop_db(): Drop the local database. Fresh start. 
+        update_schedule(): Update schedule with user defined times.
 
-		update_schedule(): Update schedule with user defined times.
+        drop_schedule(): Drop the user defined schedule table. 
 
-		drop_schedule(): Drop the user defined schedule table. 
+        generate_daily_schedule(): Generates daily schedule based on the "schedule" table.
+    """
 
-		generate_daily_schedule(): Generates daily schedule based on the "schedule" table.
-	"""
+    # Print iterations progress
+    def print_progress(self, iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+        """
+        Call in a loop to create terminal progress bar
+        @params:
+            iteration   - Required  : current iteration (Int)
+            total       - Required  : total iterations (Int)
+            prefix      - Optional  : prefix string (Str)
+            suffix      - Optional  : suffix string (Str)
+            decimals    - Optional  : positive number of decimals in percent complete (Int)
+            bar_length  - Optional  : character length of bar (Int)
+        """
+        str_format = "{0:." + str(decimals) + "f}"
+        percents = str_format.format(100 * (iteration / float(total)))
+        filled_length = int(round(bar_length * iteration / float(total)))
+        bar = '█' * filled_length + '-' * (bar_length - filled_length)
 
-	# Print iterations progress
-	def print_progress(self, iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
-	    """
-	    Call in a loop to create terminal progress bar
-	    @params:
-	        iteration   - Required  : current iteration (Int)
-	        total       - Required  : total iterations (Int)
-	        prefix      - Optional  : prefix string (Str)
-	        suffix      - Optional  : suffix string (Str)
-	        decimals    - Optional  : positive number of decimals in percent complete (Int)
-	        bar_length  - Optional  : character length of bar (Int)
-	    """
-	    str_format = "{0:." + str(decimals) + "f}"
-	    percents = str_format.format(100 * (iteration / float(total)))
-	    filled_length = int(round(bar_length * iteration / float(total)))
-	    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+        sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
 
-	    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+        if iteration == total:
+            sys.stdout.write('\n')
+        sys.stdout.flush()
 
-	    if iteration == total:
-	        sys.stdout.write('\n')
-	    sys.stdout.flush()
+    def update_db(self):
 
-	def update_db(self):
+        print("#### Updating Local Database")
 
-		print("#### Updating Local Database")
+        self.db.create_tables()
 
-		self.db.create_tables()
+        libs_dict = config.plexLibraries
 
-		libs_dict = config.plexLibraries
+        sections = self.PLEX.library.sections()
 
-		sections = self.PLEX.library.sections()
+        for section in sections:
 
-		for section in sections:
+            for correct_lib_name, user_lib_name in libs_dict.items():
 
-			for correct_lib_name, user_lib_name in libs_dict.items():
+                if section.title.lower() in [x.lower() for x in user_lib_name]:
 
-				if section.title.lower() in [x.lower() for x in user_lib_name]:
+                    if correct_lib_name == "Movies":
 
-					if correct_lib_name == "Movies":
+                        sectionMedia = self.PLEX.library.section(section.title).all()
 
-						sectionMedia = self.PLEX.library.section(section.title).all()
+                        for i, media in enumerate(sectionMedia):
 
-						for i, media in enumerate(sectionMedia):
+                            self.db.add_movies_to_db(1, media.title, media.duration)
 
-							self.db.add_movies_to_db(1, media.title, media.duration)
+                            self.print_progress(
+                                    i + 1, 
+                                    len(sectionMedia), 
+                                    prefix = 'Progress '+section.title+":     ", 
+                                    suffix = 'Complete', 
+                                    bar_length = 40
+                                )
 
-							self.print_progress(
-									i + 1, 
-									len(sectionMedia), 
-									prefix = 'Progress '+section.title+":     ", 
-									suffix = 'Complete', 
-									bar_length = 40
-								)
 
+                    elif correct_lib_name == "TV Shows":
 
-					elif correct_lib_name == "TV Shows":
+                        sectionMedia = self.PLEX.library.section(section.title).all()
 
-						sectionMedia = self.PLEX.library.section(section.title).all()
+                        for i, media in enumerate(sectionMedia):
 
-						for i, media in enumerate(sectionMedia):
+                            backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
 
-							backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
+                            backgroundImgURL = ''
 
-							backgroundImgURL = ''
+                            if isinstance(backgroundImagePath.art, str):
 
-							if isinstance(backgroundImagePath.art, str):
+                                backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
 
-								backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
+                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
 
-							self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
+                            self.print_progress(
+                                    i + 1, 
+                                    len(sectionMedia),
+                                    prefix = 'Progress '+section.title+":   ", 
+                                    suffix = 'Complete', 
+                                    bar_length = 40
+                                )
 
-							self.print_progress(
-									i + 1, 
-									len(sectionMedia),
-									prefix = 'Progress '+section.title+":   ", 
-									suffix = 'Complete', 
-									bar_length = 40
-								)
+                            #add all episodes of each tv show to episodes table
+                            episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
 
-							#add all episodes of each tv show to episodes table
-							episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
+                            for episode in episodes:
 
-							for episode in episodes:
+                                duration = episode.duration
 
-								duration = episode.duration
+                                if duration:
 
-								if duration:
+                                    self.db.add_episodes_to_db(
+                                            4, 
+                                            episode.title, 
+                                            duration, 
+                                            episode.index, 
+                                            episode.parentIndex, 
+                                            media.title
+                                        )
 
-									self.db.add_episodes_to_db(
-											4, 
-											episode.title, 
-											duration, 
-											episode.index, 
-											episode.parentIndex, 
-											media.title
-										)
+                                else:
 
-								else:
+                                    self.db.add_episodes_to_db(
+                                            4, 
+                                            episode.title, 
+                                            0, 
+                                            episode.index, 
+                                            episode.parentIndex, 
+                                            media.title
+                                        )
 
-									self.db.add_episodes_to_db(
-											4, 
-											episode.title, 
-											0, 
-											episode.index, 
-											episode.parentIndex, 
-											media.title
-										)
+                    elif correct_lib_name == "Commercials":
 
-					elif correct_lib_name == "Commercials":
+                        sectionMedia = self.PLEX.library.section(section.title).all()
 
-						sectionMedia = self.PLEX.library.section(section.title).all()
+                        media_length = len(sectionMedia)
 
-						media_length = len(sectionMedia)
+                        for i, media in enumerate(sectionMedia):
 
-						for i, media in enumerate(sectionMedia):
+                            self.db.add_commercials_to_db(3, media.title, media.duration)
 
-							self.db.add_commercials_to_db(3, media.title, media.duration)
+                            self.print_progress(
+                                i + 1, 
+                                media_length, 
+                                prefix = 'Progress '+section.title+":", 
+                                suffix = 'Complete', 
+                                bar_length = 40
+                            )
 
-							self.print_progress(
-								i + 1, 
-								media_length, 
-								prefix = 'Progress '+section.title+":", 
-								suffix = 'Complete', 
-								bar_length = 40
-							)
+    def update_schedule(self):
 
-	def update_schedule(self):
+        self.db.create_tables()
 
-		self.db.create_tables()
+        self.db.remove_all_scheduled_items()
 
-		self.db.remove_all_scheduled_items()
+        scheduled_days_list = [
+            "mondays",
+            "tuesdays",
+            "wednesdays",
+            "thursdays",
+            "fridays",
+            "saturdays",
+            "sundays",
+            "weekdays",
+            "weekends",
+            "everyday"
+        ]
 
-		scheduled_days_list = [
-			"mondays",
-			"tuesdays",
-			"wednesdays",
-			"thursdays",
-			"fridays",
-			"saturdays",
-			"sundays",
-			"weekdays",
-			"weekends",
-			"everyday"
-		]
+        section_dict = {
+            "TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
+            "Movies"   : ["movie", "movies", "films", "film"],
+            "Videos"   : ["video", "videos", "vid"],
+            "Music"    : ["music", "songs", "song", "tune", "tunes"]
+        }
 
-		section_dict = {
-			"TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
-			"Movies"   : ["movie", "movies", "films", "film"],
-			"Videos"   : ["video", "videos", "vid"],
-			"Music"    : ["music", "songs", "song", "tune", "tunes"]
-		}
+        tree = ET.parse('pseudo_schedule.xml')
 
-		tree = ET.parse('pseudo_schedule.xml')
+        root = tree.getroot()
 
-		root = tree.getroot()
+        for child in root:
 
-		for child in root:
+            if child.tag in scheduled_days_list:
 
-			if child.tag in scheduled_days_list:
+                for time in child.iter("time"):
 
-				for time in child.iter("time"):
+                    for key, value in section_dict.items():
 
-					for key, value in section_dict.items():
+                        if time.attrib['type'] == key or time.attrib['type'] in value:
 
-						if time.attrib['type'] == key or time.attrib['type'] in value:
+                            title = time.attrib['title']
 
-							title = time.attrib['title']
+                            natural_start_time = self.translate_time(time.text)
 
-							natural_start_time = self.translate_time(time.text)
+                            natural_end_time = 0
 
-							natural_end_time = 0
+                            section = key
 
-							section = key
+                            day_of_week = child.tag
 
-							day_of_week = child.tag
+                            strict_time = time.attrib['strict-time']
 
-							strict_time = time.attrib['strict-time']
+                            time_shift = time.attrib['time-shift']
 
-							time_shift = time.attrib['time-shift']
+                            overlap_max = time.attrib['overlap-max']
 
-							overlap_max = time.attrib['overlap-max']
+                            start_time_unix = datetime.datetime.strptime(
+                                    self.translate_time(time.text), 
+                                    '%I:%M %p').strftime('%Y-%m-%d %H:%M:%S')
 
-							start_time_unix = datetime.datetime.strptime(
-									self.translate_time(time.text), 
-									'%I:%M %p').strftime('%Y-%m-%d %H:%M:%S')
+                            print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
-							print "Adding: ", time.tag, section, time.text, time.attrib['title']
+                            self.db.add_schedule_to_db(
+                                0, # mediaID
+                                title, # title
+                                0, # duration
+                                natural_start_time, # startTime
+                                natural_end_time, # endTime
+                                day_of_week, # dayOfWeek
+                                start_time_unix, # startTimeUnix
+                                section, # section
+                                strict_time, # strictTime
+                                time_shift, # timeShift
+                                overlap_max, # overlapMax
+                            )
 
-							self.db.add_schedule_to_db(
-								0, # mediaID
-								title, # title
-								0, # duration
-								natural_start_time, # startTime
-								natural_end_time, # endTime
-								day_of_week, # dayOfWeek
-								start_time_unix, # startTimeUnix
-								section, # section
-								strict_time, # strictTime
-								time_shift, # timeShift
-								overlap_max, # overlapMax
-							)
+    def drop_db(self):
 
-	def drop_db(self):
+        self.db.drop_db()
 
-		self.db.drop_db()
+    def drop_schedule(self):
 
-	def drop_schedule(self):
+        self.db.drop_schedule()
 
-		self.db.drop_schedule()
+    def remove_all_scheduled_items():
 
-	def remove_all_scheduled_items():
+        self.db.remove_all_scheduled_items()
 
-		self.db.remove_all_scheduled_items()
 
 
+    """App functions.
 
-	"""App functions.
+        generate_daily_schedule(): Generate the daily_schedule table.
+    """
 
-		generate_daily_schedule(): Generate the daily_schedule table.
-	"""
+    '''
+    *
+    * Using datetime to figure out when the media item will end based on the scheduled start time or the offset 
+    * generated by the previous media item. 
 
-	'''
-	*
-	* Using datetime to figure out when the media item will end based on the scheduled start time or the offset 
-	* generated by the previous media item. 
+    * Returns time 
+    *
+    '''
+    '''
+    *
+    * Returns time difference in minutes
+    *
+    '''
 
-	* Returns time 
-	*
-	'''
-	'''
-	*
-	* Returns time difference in minutes
-	*
-	'''
+    def translate_time(self, timestr):
 
-	def translate_time(self, timestr):
+        try:
 
-		try:
+            return datetime.datetime.strptime(timestr, "%I:%M %p").strftime("%-I:%M %p")
 
-			return datetime.datetime.strptime(timestr, "%I:%M %p").strftime("%-I:%M %p")
+        except ValueError as e:
 
-		except ValueError as e:
+            pass
 
-			pass
+        try:
 
-		try:
+            return datetime.datetime.strptime(timestr, "%H:%M").strftime("%-I:%M %p")
 
-			return datetime.datetime.strptime(timestr, "%H:%M").strftime("%-I:%M %p")
+        except ValueError as e:
 
-		except ValueError as e:
+            pass
 
-			pass
+    def time_diff(self, time1,time2):
+        '''
+        *
+        * Getting the offest by comparing both times from the unix epoch time and getting the difference.
+        *
+        '''
+        timeA = datetime.datetime.strptime(time1, "%I:%M %p")
+        timeB = datetime.datetime.strptime(time2, "%I:%M %p")
+        
+        timeAEpoch = calendar.timegm(timeA.timetuple())
+        timeBEpoch = calendar.timegm(timeB.timetuple())
 
-	def time_diff(self, time1,time2):
-		'''
-		*
-		* Getting the offest by comparing both times from the unix epoch time and getting the difference.
-		*
-		'''
-		timeA = datetime.datetime.strptime(time1, "%I:%M %p")
-		timeB = datetime.datetime.strptime(time2, "%I:%M %p")
-		
-		timeAEpoch = calendar.timegm(timeA.timetuple())
-		timeBEpoch = calendar.timegm(timeB.timetuple())
+        tdelta = abs(timeAEpoch) - abs(timeBEpoch)
 
-		tdelta = abs(timeAEpoch) - abs(timeBEpoch)
+        return int(tdelta/60)
 
-		return int(tdelta/60)
 
+    '''
+    *
+    * Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
 
-	'''
-	*
-	* Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
+    * Returns time - for new start time
+    *
+    '''
+    def calculate_start_time(self, prevEndTime, intendedStartTime, timeGap, overlapMax):
 
-	* Returns time - for new start time
-	*
-	'''
-	def calculate_start_time(self, prevEndTime, intendedStartTime, timeGap, overlapMax):
+        self.TIME_GAP = timeGap
 
-		self.TIME_GAP = timeGap
+        self.OVERLAP_GAP = timeGap
 
-		self.OVERLAP_GAP = timeGap
+        self.OVERLAP_MAX = overlapMax
 
-		self.OVERLAP_MAX = overlapMax
+        time1 = prevEndTime.strftime('%-I:%M %p')
 
-		time1 = prevEndTime.strftime('%-I:%M %p')
+        timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M %p').strftime('%-I:%M %p')
 
-		timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M %p').strftime('%-I:%M %p')
+        print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
 
-		print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
+        timeDiff = self.time_diff(time1, timeB)
 
-		timeDiff = self.time_diff(time1, timeB)
+        """print("timeDiff "+ str(timeDiff))
+        print("startTimeUNIX: "+ str(intendedStartTime))"""
 
-		"""print("timeDiff "+ str(timeDiff))
-		print("startTimeUNIX: "+ str(intendedStartTime))"""
+        newTimeObj = timeB
 
-		newTimeObj = timeB
+        newStartTime = timeB
 
-		newStartTime = timeB
+        '''
+        *
+        * If time difference is negative, then we know there is overlap
+        *
+        '''
+        if timeDiff < 0:
+            '''
+            *
+            * If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+            *
+            '''
+            timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
+            
+            #print(timeset)
 
-		'''
-		*
-		* If time difference is negative, then we know there is overlap
-		*
-		'''
-		if timeDiff < 0:
-			'''
-			*
-			* If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
-			*
-			'''
-			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
-			
-			#print(timeset)
+            timeSetToUse = None
 
-			timeSetToUse = None
+            for time in timeset:
 
-			for time in timeset:
+                #print(time)
+                theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-				#print(time)
-				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+                # print(theTimeSetInterval)
 
-				# print(theTimeSetInterval)
+                # print(prevEndTime)
 
-				# print(prevEndTime)
+                if theTimeSetInterval >= prevEndTime:
 
-				if theTimeSetInterval >= prevEndTime:
+                    print "++++ There is overlap. Setting new time-interval:", theTimeSetInterval
 
-					print "++++ There is overlap. Setting new time-interval:", theTimeSetInterval
+                    newStartTime = theTimeSetInterval
 
-					newStartTime = theTimeSetInterval
+                    break
 
-					break
+                #newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + overlapGap))
 
-				#newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + overlapGap))
+        elif (timeDiff >= 0) and (self.TIME_GAP != -1):
 
-		elif (timeDiff >= 0) and (self.TIME_GAP != -1):
+            '''
+            *
+            * If there this value is configured, then the timeGap var in config will determine the next increment. 
+            * If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+            *
+            '''
+            timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
+            
+            # print(timeset)
 
-			'''
-			*
-			* If there this value is configured, then the timeGap var in config will determine the next increment. 
-			* If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
-			*
-			'''
-			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
-			
-			# print(timeset)
+            for time in timeset:
 
-			for time in timeset:
+                theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+                tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M %p').strftime('%H:%M')
 
-				tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M %p').strftime('%H:%M')
+                formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
 
-				formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
+                if theTimeSetInterval >= formatted_time_two:
 
-				if theTimeSetInterval >= formatted_time_two:
+                    print "++++ Setting new time-interval:", theTimeSetInterval
 
-					print "++++ Setting new time-interval:", theTimeSetInterval
+                    newStartTime = theTimeSetInterval
 
-					newStartTime = theTimeSetInterval
+                    break
 
-					break
+        else:
 
-		else:
+            print("Not sure what to do here")
 
-			print("Not sure what to do here")
+        return newStartTime.strftime('%-I:%M %p')
 
-		return newStartTime.strftime('%-I:%M %p')
+    def get_end_time_from_duration(self, startTime, duration):
 
-	def get_end_time_from_duration(self, startTime, duration):
+        time = datetime.datetime.strptime(startTime, '%I:%M %p')
 
-		time = datetime.datetime.strptime(startTime, '%I:%M %p')
+        show_time_plus_duration = time + datetime.timedelta(milliseconds=duration)
 
-		show_time_plus_duration = time + datetime.timedelta(milliseconds=duration)
+        #print(show_time_plus_duration.minute)
 
-		#print(show_time_plus_duration.minute)
+        return show_time_plus_duration
 
-		return show_time_plus_duration
+    def generate_daily_schedule(self):
 
-	def generate_daily_schedule(self):
+        print("#### Generating Daily Schedule")
 
-		print("#### Generating Daily Schedule")
+        schedule = self.db.get_schedule()
 
-		schedule = self.db.get_schedule()
+        weekday_dict = {
+            "0" : ["mondays", "weekdays", "everyday"],
+            "1" : ["tuesdays", "weekdays", "everyday"],
+            "2" : ["wednesdays", "weekdays", "everyday"],
+            "3" : ["thursdays", "weekdays", "everyday"],
+            "4" : ["fridays", "weekdays", "everyday"],
+            "5" : ["saturdays", "weekends", "everyday"],
+            "6" : ["sundays", "weekends", "everyday"],
+        }
 
-		weekday_dict = {
-			"0" : ["mondays", "weekdays", "everyday"],
-			"1" : ["tuesdays", "weekdays", "everyday"],
-			"2" : ["wednesdays", "weekdays", "everyday"],
-			"3" : ["thursdays", "weekdays", "everyday"],
-			"4" : ["fridays", "weekdays", "everyday"],
-			"5" : ["saturdays", "weekends", "everyday"],
-			"6" : ["sundays", "weekends", "everyday"],
-		}
+        weekno = datetime.datetime.today().weekday()
 
-		weekno = datetime.datetime.today().weekday()
+        schedule_advance_watcher = 0
 
-		schedule_advance_watcher = 0
+        for entry in schedule:
 
-		for entry in schedule:
+            schedule_advance_watcher += 1
 
-			schedule_advance_watcher += 1
+            section = entry[9]
 
-			section = entry[9]
+            for key, val in weekday_dict.iteritems(): 
 
-			for key, val in weekday_dict.iteritems(): 
+                if str(entry[7]) in str(val) and int(weekno) == int(key):
 
-				if str(entry[7]) in str(val) and int(weekno) == int(key):
+                    if section == "TV Shows":
 
-					if section == "TV Shows":
+                        if entry[3] == "random":
 
-						if entry[3] == "random":
+                            next_episode = self.db.get_random_episode()
 
-							next_episode = self.db.get_random_episode()
+                        else:
 
-						else:
+                            next_episode = self.db.get_next_episode(entry[3])
 
-							next_episode = self.db.get_next_episode(entry[3])
+                        if next_episode != None:
+                        
+                            episode = Episode(
+                                section, # section_type
+                                next_episode[3], # title
+                                entry[5], # natural_start_time
+                                self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
+                                next_episode[4], # duration
+                                entry[7], # day_of_week
+                                entry[10], # is_strict_time
+                                entry[11], # time_shift
+                                entry[12], # overlap_max
+                                entry[3], # show_series_title
+                                next_episode[5], # episode_number
+                                next_episode[6] # season_number
+                                )
 
-						if next_episode != None:
-						
-							episode = Episode(
-								section, # section_type
-								next_episode[3], # title
-								entry[5], # natural_start_time
-								self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
-								next_episode[4], # duration
-								entry[7], # day_of_week
-								entry[10], # is_strict_time
-								entry[11], # time_shift
-								entry[12], # overlap_max
-								entry[3], # show_series_title
-								next_episode[5], # episode_number
-								next_episode[6] # season_number
-								)
+                            self.MEDIA.append(episode)
 
-							self.MEDIA.append(episode)
+                        else:
 
-						else:
+                            print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
 
-							print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
+                        #print(episode)
 
-						#print(episode)
+                    elif section == "Movies":
 
-					elif section == "Movies":
+                        if entry[3] == "random":
 
-						if entry[3] == "random":
+                            the_movie = self.db.get_random_movie()
 
-							the_movie = self.db.get_random_movie()
+                        else:
 
-						else:
+                            the_movie = self.db.get_movie(entry[3])
 
-							the_movie = self.db.get_movie(entry[3])
+                        if the_movie != None:
 
-						if the_movie != None:
+                            movie = Movie(
+                            section, # section_type
+                            the_movie[3], # title
+                            entry[5], # natural_start_time
+                            self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
+                            the_movie[4], # duration
+                            entry[7], # day_of_week
+                            entry[10], # is_strict_time
+                            entry[11], # time_shift
+                            entry[12] # overlap_max
+                            )
 
-							movie = Movie(
-							section, # section_type
-							the_movie[3], # title
-							entry[5], # natural_start_time
-							self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
-							the_movie[4], # duration
-							entry[7], # day_of_week
-							entry[10], # is_strict_time
-							entry[11], # time_shift
-							entry[12] # overlap_max
-							)
+                            #print(movie.natural_end_time)
 
-							#print(movie.natural_end_time)
+                            self.MEDIA.append(movie)
 
-							self.MEDIA.append(movie)
+                        else:
 
-						else:
+                            print("Cannot find Movie, {} in the local db".format(entry[3]))
 
-							print("Cannot find Movie, {} in the local db".format(entry[3]))
+                    elif section == "Music":
 
-					elif section == "Music":
+                        the_music = self.db.get_music(entry[3])
 
-						the_music = self.db.get_music(entry[3])
+                        if the_music != None:
 
-						if the_music != None:
+                            music = Music(
+                            section, # section_type
+                            the_music[3], # title
+                            entry[5], # natural_start_time
+                            self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
+                            the_music[4], # duration
+                            entry[7], # day_of_week
+                            entry[10], # is_strict_time
+                            entry[11], # time_shift
+                            entry[12] # overlap_max
+                            )
 
-							music = Music(
-							section, # section_type
-							the_music[3], # title
-							entry[5], # natural_start_time
-							self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
-							the_music[4], # duration
-							entry[7], # day_of_week
-							entry[10], # is_strict_time
-							entry[11], # time_shift
-							entry[12] # overlap_max
-							)
+                            #print(music.natural_end_time)
 
-							#print(music.natural_end_time)
+                            self.MEDIA.append(music)
 
-							self.MEDIA.append(music)
+                        else:
 
-						else:
+                            print("Cannot find Music, {} in the local db".format(entry[3]))
 
-							print("Cannot find Music, {} in the local db".format(entry[3]))
+                    elif section == "Video":
 
-					elif section == "Video":
+                        the_video = self.db.get_video(entry[3])
 
-						the_video = self.db.get_video(entry[3])
+                        if the_music != None:
 
-						if the_music != None:
+                            video = Video(
+                            section, # section_type
+                            the_video[3], # title
+                            entry[5], # natural_start_time
+                            self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
+                            the_video[4], # duration
+                            entry[7], # day_of_week
+                            entry[10], # is_strict_time
+                            entry[11], # time_shift
+                            entry[12] # overlap_max
+                            )
 
-							video = Video(
-							section, # section_type
-							the_video[3], # title
-							entry[5], # natural_start_time
-							self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
-							the_video[4], # duration
-							entry[7], # day_of_week
-							entry[10], # is_strict_time
-							entry[11], # time_shift
-							entry[12] # overlap_max
-							)
+                            #print(music.natural_end_time)
 
-							#print(music.natural_end_time)
+                            self.MEDIA.append(video)
 
-							self.MEDIA.append(video)
+                        else:
 
-						else:
+                            print("Cannot find Video, {} in the local db".format(entry[3]))
 
-							print("Cannot find Video, {} in the local db".format(entry[3]))
+                    else:
 
-					else:
+                        pass
 
-						pass
+            """If we reached the end of the scheduled items for today, add them to the daily schedule
 
-			"""If we reached the end of the scheduled items for today, add them to the daily schedule
+            """
+            if schedule_advance_watcher >= len(schedule):
 
-			"""
-			if schedule_advance_watcher >= len(schedule):
+                print "+++++ Finished processing time entries, recreating daily_schedule"
 
-				print "+++++ Finished processing time entries, recreating daily_schedule"
+                previous_episode = None
 
-				previous_episode = None
+                self.db.remove_all_daily_scheduled_items()
 
-				self.db.remove_all_daily_scheduled_items()
+                for entry in self.MEDIA:
 
-				for entry in self.MEDIA:
+                    #print entry.natural_end_time
 
-					#print entry.natural_end_time
+                    if previous_episode != None:
 
-					if previous_episode != None:
+                        natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
 
-						natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
+                        natural_end_time = entry.natural_end_time
 
-						natural_end_time = entry.natural_end_time
+                        if entry.is_strict_time.lower() == "true":
 
-						if entry.is_strict_time.lower() == "true":
+                            print "++++ Strict-time: {}".format(str(entry.title))
 
-							print "++++ Strict-time: {}".format(str(entry.title))
+                            entry.end_time = self.get_end_time_from_duration(
+                                    self.translate_time(entry.start_time), 
+                                    entry.duration
+                                )
 
-							entry.end_time = self.get_end_time_from_duration(
-									self.translate_time(entry.start_time), 
-									entry.duration
-								)
+                            self.db.add_media_to_daily_schedule(entry)
 
-							self.db.add_media_to_daily_schedule(entry)
+                            previous_episode = entry
 
-							previous_episode = entry
+                        else:
 
-						else:
+                            print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
 
-							print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+                            new_starttime = self.calculate_start_time(
+                                previous_episode.end_time,
+                                entry.natural_start_time,  
+                                previous_episode.time_shift, 
+                                previous_episode.overlap_max
+                            )
 
-							new_starttime = self.calculate_start_time(
-								previous_episode.end_time,
-								entry.natural_start_time,  
-								previous_episode.time_shift, 
-								previous_episode.overlap_max
-							)
+                            print "++++ New start time:", new_starttime
 
-							print "++++ New start time:", new_starttime
+                            entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
 
-							entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+                            entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
 
-							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+                            self.db.add_media_to_daily_schedule(entry)
 
-							self.db.add_media_to_daily_schedule(entry)
+                            previous_episode = entry
 
-							previous_episode = entry
+                    else:
 
-					else:
+                        self.db.add_media_to_daily_schedule(entry)
 
-						self.db.add_media_to_daily_schedule(entry)
+                        previous_episode = entry
 
-						previous_episode = entry
+    def show_clients(self):
+
+        print "##### Connected Clients:"
+
+        for i, client in enumerate(self.PLEX.clients()):
+            
+            print "+++++", str(i + 1)+".", "Client:", client.title
+
+    def show_schedule(self):
+
+        print "##### Daily Pseudo Schedule:"
+
+        daily_schedule = self.db.get_daily_schedule()
+
+        for i , entry in enumerate(daily_schedule):
+
+            print "+++++", str(i + 1)+".", entry[11], entry[8], entry[6], " - ", entry[3]
+
+    def exit_app(self):
+
+        print "Exiting Pseudo TV & cleaning up."
+
+        for i in self.MEDIA:
+
+            del i
+
+        self.MEDIA = None
+
+        self.controller = None
+
+        self.db = None
+
+        sleep(1)
 
 if __name__ == '__main__':
 
-	pseudo_channel = PseudoChannel()
+    pseudo_channel = PseudoChannel()
 
-	#pseudo_channel.db.create_tables()
+    #pseudo_channel.db.create_tables()
 
-	#pseudo_channel.update_db()
+    #pseudo_channel.update_db()
 
-	#pseudo_channel.update_schedule()
+    #pseudo_channel.update_schedule()
 
-	#pseudo_channel.generate_daily_schedule()
+    #pseudo_channel.generate_daily_schedule()
 
-	parser = argparse.ArgumentParser(
-    	description="Pseudo Channel for Plex. Update pseduo_config.py & pseudo_schedule.xml before this step.",
-    	usage="PseudoChannel.py [-u] update local db with plex db [-xml] update db with xml schedule data [-g] generate daily schedule [-r] run the app"
+    parser = argparse.ArgumentParser(
+        description="Pseudo Channel for Plex. Update pseduo_config.py & pseudo_schedule.xml before this step.",
+        usage="PseudoChannel.py [-u] update local db with plex db [-xml] update db " \
+              "with xml schedule data [-g] generate daily schedule [-r] run the app"
     )
 
-	parser.add_argument('-u', action='store_true')
-	parser.add_argument('-xml', action='store_true')
-	parser.add_argument('-g', action='store_true')
-	parser.add_argument('-r', action='store_true')
+    '''
+    * 
+    * Primary arguments: "python PseudoChannel.py -u -xml -g -r"
+    *
+    '''
 
-	'''
-	* 
-	* Show connected clients: "python PseudoChannel.py -u -xml -g -r"
-	*
-	'''
-	parser.add_argument('-sc', action='store_true')
+    parser.add_argument('-u', action='store_true')
+    parser.add_argument('-xml', action='store_true')
+    parser.add_argument('-g', action='store_true')
+    parser.add_argument('-r', action='store_true')
 
-	globals().update(vars(parser.parse_args()))
+    '''
+    * 
+    * Show connected clients: "python PseudoChannel.py -c"
+    *
+    '''
+    parser.add_argument('-c', action='store_true')
 
-	args = parser.parse_args()
+    '''
+    * 
+    * Show schedule (daily): "python PseudoChannel.py -s"
+    *
+    '''
+    parser.add_argument('-s', action='store_true')
 
-	print(args)
+    globals().update(vars(parser.parse_args()))
 
-	if args.u:
+    args = parser.parse_args()
 
-		pseudo_channel.update_db()
+    #print(args)
 
-	if args.xml:
+    if args.u:
 
-		pseudo_channel.update_schedule()
+        pseudo_channel.update_db()
 
-	if args.g:
+    if args.xml:
 
-		pseudo_channel.generate_daily_schedule()
+        pseudo_channel.update_schedule()
 
-	if args.r:
+    if args.g:
 
-		try:
+        pseudo_channel.generate_daily_schedule()
 
-			print "++++ Running TV Controller"
-			
-			"""Every minute on the minute check the DB startTimes of all media to 
-			   determine whether or not to play. Also, check the now_time to
-			   see if it's midnight (or 23.59), if so then generate a new daily_schedule
-				
-			"""
-			while True:
+    if args.c:
 
-				now = datetime.datetime.now()
+        pseudo_channel.show_clients()
 
-				now_time = now.time()
+    if args.s:
 
-				if now_time == time(23,59):
+        pseudo_channel.show_schedule()
 
-					pseudo_channel.generate_daily_schedule()
+    if args.r:
 
-				pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
+        try:
 
-				t = datetime.datetime.utcnow()
+            print "##### Running TV Controller"
+            print "+++++ To run this in the background:"
+            print "+++++", "screen -d -m bash -c 'python PseudoChannel.py -r; exec sh'"
+            
+            """Every minute on the minute check the DB startTimes of all media to 
+               determine whether or not to play. Also, check the now_time to
+               see if it's midnight (or 23.59), if so then generate a new daily_schedule
+                
+            """
+            while True:
 
-				sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+                now = datetime.datetime.now()
 
-				sleep(sleeptime)
+                now_time = now.time()
 
-		except KeyboardInterrupt, e:
+                if now_time == time(23,59):
 
-		    pass
-		
+                    pseudo_channel.generate_daily_schedule()
+
+                pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
+
+                t = datetime.datetime.utcnow()
+
+                sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+
+                sleep(sleeptime)
+
+        except KeyboardInterrupt, e:
+
+            pseudo_channel.exit_app()
+
+            del pseudo_channel
+        
 
 
 

@@ -1,13 +1,15 @@
+#!/usr/bin/env python
+
 """
 *** Inherited by Commercial, Episode & Movie
 """
 class Media(object):
 
-	plex_server_url = ''
-	plex_server_token = ''
-	media_image = ''
+    plex_server_url = ''
+    plex_server_token = ''
+    media_image = ''
 
-	"""A base class for media objects.
+    """A base class for media objects.
 
     Attributes:
         section_type: The type of library this is (i.e. "TV Shows")
@@ -19,29 +21,29 @@ class Media(object):
         is_strict_time: If strict time, then anchor to "natural_start_time"
     """
 
-	def __init__(
-			self, 
-			section_type, 
-			title, 
-			natural_start_time, 
-			natural_end_time, 
-			duration, 
-			day_of_week,
-			is_strict_time,
-			time_shift, 
-			overlap_max
-			):
+    def __init__(
+            self, 
+            section_type, 
+            title, 
+            natural_start_time, 
+            natural_end_time, 
+            duration, 
+            day_of_week,
+            is_strict_time,
+            time_shift, 
+            overlap_max
+            ):
 
-		self.section_type = section_type
-		self.title = title
-		self.natural_start_time = natural_start_time
-		self.natural_end_time = natural_end_time
-		self.duration = duration
-		self.day_of_week = day_of_week
-		self.is_strict_time = is_strict_time
-		self.time_shift = time_shift
-		self.overlap_max = overlap_max
+        self.section_type = section_type
+        self.title = title
+        self.natural_start_time = natural_start_time
+        self.natural_end_time = natural_end_time
+        self.duration = duration
+        self.day_of_week = day_of_week
+        self.is_strict_time = is_strict_time
+        self.time_shift = time_shift
+        self.overlap_max = overlap_max
 
-		self.start_time = natural_start_time
-		self.end_time = natural_end_time
+        self.start_time = natural_start_time
+        self.end_time = natural_end_time
 

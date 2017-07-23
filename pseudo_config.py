@@ -1,23 +1,24 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
 """
-	1) Create a file outside of this proj dir called "plex_token.py":
+    1) Create a file outside of this proj dir called "plex_token.py":
 
-	touch ../plex_token.py
-	
-	2) add this line to the newly created file:
+    touch ../plex_token.py
+    
+    2) add this line to the newly created file:
 
-	token = 'your plex token'
+    token = 'your plex token'
 
-	3) Edit the "basurl" variable below to point to your Plex server
+    3) Edit the "basurl" variable below to point to your Plex server
 
-	4) Edit the "plexClients" variable to include the name of your plex client(s) this app will control.
+    4) Edit the "plexClients" variable to include the name of your plex client(s) this app will control.
 
-	5) Edit the "plexLibraries" variable to remap your specific library names to the app specific names. 
-	...for instance, if your Plex "Movies" are located in your Plex library as "Films", update that
-	line so it looks like: 
+    5) Edit the "plexLibraries" variable to remap your specific library names to the app specific names. 
+    ...for instance, if your Plex "Movies" are located in your Plex library as "Films", update that
+    line so it looks like: 
 
-	"Movies" : ["Films"],
-	
+    "Movies" : ["Films"],
+    
 """
 
 import os, sys
@@ -36,8 +37,8 @@ token = plex_token.token
 plexClients = ['RasPlex']
 
 plexLibraries = {
-	"TV Shows" : ["TV Shows"],
-	"Movies"   : ["Movies"],
-	"Music"    : ["Music"],
-	"Commercials" : ["Commercials"],
+    "TV Shows" : ["TV Shows"],
+    "Movies"   : ["Movies"],
+    "Music"    : ["Music"],
+    "Commercials" : ["Commercials"],
 }
