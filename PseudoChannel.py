@@ -17,6 +17,7 @@ from datetime import time
 import calendar
 import itertools
 import argparse
+import textwrap
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
@@ -662,7 +663,7 @@ class PseudoChannel():
 
         for i , entry in enumerate(daily_schedule):
 
-            print "+++++", str(i + 1)+".", entry[11], entry[8], entry[6], " - ", entry[3]
+            print "+++++", str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3]
 
     def exit_app(self):
 
@@ -692,11 +693,18 @@ if __name__ == '__main__':
 
     #pseudo_channel.generate_daily_schedule()
 
+    banner = textwrap.dedent('''\
+#   __              __                        
+#  |__)_ _    _| _ /  |_  _  _  _  _|    _    
+#  |  _)(-|_|(_|(_)\__| )(_|| )| )(-|.  |_)\/ 
+#                                       |  /  
+
+            A Custom TV Channel for Plex
+''')
+
     parser = argparse.ArgumentParser(
-        description="Pseudo Channel for Plex. Update pseduo_config.py & pseudo_schedule.xml before this step.",
-        usage="PseudoChannel.py [-u] update local db with plex db [-xml] update db " \
-              "with xml schedule data [-g] generate daily schedule [-r] run the app"
-    )
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description = banner)
 
     '''
     * 
@@ -704,24 +712,36 @@ if __name__ == '__main__':
     *
     '''
 
-    parser.add_argument('-u', action='store_true')
-    parser.add_argument('-xml', action='store_true')
-    parser.add_argument('-g', action='store_true')
-    parser.add_argument('-r', action='store_true')
+    parser.add_argument('-u', 
+                         action='store_true',
+                         help='Update the local database with Plex linraries.')
+    parser.add_argument('-xml', 
+                         action='store_true', 
+                         help='Update the local database with the pseudo_schedule.xml.')
+    parser.add_argument('-g', 
+                         action='store_true', 
+                         help='Generate the daily schedule.')
+    parser.add_argument('-r', 
+                         action='store_true', 
+                         help='Run this program.')
 
     '''
     * 
     * Show connected clients: "python PseudoChannel.py -c"
     *
     '''
-    parser.add_argument('-c', action='store_true')
+    parser.add_argument('-c', 
+                         action='store_true',
+                         help='Show Plex clients.')
 
     '''
     * 
     * Show schedule (daily): "python PseudoChannel.py -s"
     *
     '''
-    parser.add_argument('-s', action='store_true')
+    parser.add_argument('-s', 
+                         action='store_true',
+                         help='Show scheduled media for today.')
 
     globals().update(vars(parser.parse_args()))
 
@@ -753,7 +773,7 @@ if __name__ == '__main__':
 
         try:
 
-            print "##### Running TV Controller"
+            print banner
             print "+++++ To run this in the background:"
             print "+++++", "screen -d -m bash -c 'python PseudoChannel.py -r; exec sh'"
             
