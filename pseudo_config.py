@@ -18,6 +18,11 @@
     line so it looks like: 
 
     "Movies" : ["Films"],
+
+    6) For Google Calendar integration add you "gkey" to the "plex_token.py" file 
+    ...(https://docs.simplecalendar.io/find-google-calendar-id/):
+
+    gkey = "the key"
     
 """
 
@@ -28,6 +33,7 @@ import plex_token as plex_token
 
 baseurl = 'http://media.home:32400'
 token = plex_token.token
+gkey = plex_token.gkey
 
 '''
 *
@@ -42,3 +48,5 @@ plexLibraries = {
     "Music"    : ["Music"],
     "Commercials" : ["Commercials"],
 }
+
+useGoogleCalendar = True
