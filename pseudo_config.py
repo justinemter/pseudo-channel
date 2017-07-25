@@ -23,6 +23,10 @@
     ...(https://docs.simplecalendar.io/find-google-calendar-id/):
 
     gkey = "the key"
+
+    7) If using the Google Calendar integration exclusively, set this to true below:
+
+    useGoogleCalendar
     
 """
 

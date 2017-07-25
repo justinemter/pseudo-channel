@@ -35,8 +35,11 @@ class PseudoChannel():
     MEDIA = []
     USING_GCALENDAR = config.useGoogleCalendar
     GKEY = config.gkey
+    USING_GOOGLE_CALENDAR = False
 
     def __init__(self):
+
+        self.USING_GOOGLE_CALENDAR = config.useGoogleCalendar
 
         self.db = PseudoChannelDatabase("pseudo-channel.db")
 
@@ -569,7 +572,7 @@ class PseudoChannel():
 
                     if section == "TV Shows":
 
-                        if entry[3] == "random":
+                        if str(entry[3]).lower() == "random":
 
                             next_episode = self.db.get_random_episode()
 
@@ -604,7 +607,7 @@ class PseudoChannel():
 
                     elif section == "Movies":
 
-                        if entry[3] == "random":
+                        if str(entry[3]).lower() == "random":
 
                             the_movie = self.db.get_random_movie()
 
@@ -938,6 +941,14 @@ if __name__ == '__main__':
 
                 if now_time == time(23,59):
 
+                    if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+                        pseudo_channel.update_schedule_from_google_calendar()
+
+                    else:
+
+                         pass
+                        
                     pseudo_channel.generate_daily_schedule()
 
                 pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
