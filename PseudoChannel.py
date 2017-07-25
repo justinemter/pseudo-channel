@@ -33,13 +33,10 @@ class PseudoChannel():
 
     PLEX = PlexServer(config.baseurl, config.token)
     MEDIA = []
-    USING_GCALENDAR = config.useGoogleCalendar
     GKEY = config.gkey
-    USING_GOOGLE_CALENDAR = False
+    USING_GOOGLE_CALENDAR = config.useGoogleCalendar
 
     def __init__(self):
-
-        self.USING_GOOGLE_CALENDAR = config.useGoogleCalendar
 
         self.db = PseudoChannelDatabase("pseudo-channel.db")
 
@@ -937,9 +934,9 @@ if __name__ == '__main__':
 
                 now = datetime.datetime.now()
 
-                now_time = now.time()
+                now_time = now.time().replace(microsecond=0)
 
-                if now_time == time(23,59):
+                if now_time == time(11,59):
 
                     if pseudo_channel.USING_GOOGLE_CALENDAR:
 

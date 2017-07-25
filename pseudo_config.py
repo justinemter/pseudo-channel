@@ -19,7 +19,7 @@
 
     "Movies" : ["Films"],
 
-    6) For Google Calendar integration add you "gkey" to the "plex_token.py" file 
+    6) For Google Calendar integration add your "gkey" to the "plex_token.py" file 
     ...(https://docs.simplecalendar.io/find-google-calendar-id/):
 
     gkey = "the key"
@@ -33,7 +33,12 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # import ../plex_token.py
-import plex_token as plex_token
+
+try:
+    import plex_token as plex_token
+except ImportError as e:
+    print "+++++ Cannot find plex_token file. Make sure you create a plex_token.py file with the appropriate data."
+    raise e
 
 baseurl = 'http://media.home:32400'
 token = plex_token.token
