@@ -591,7 +591,7 @@ class PseudoChannel():
                                 entry[10], # is_strict_time
                                 entry[11], # time_shift
                                 entry[12], # overlap_max
-                                next_episode[8], # plex id
+                                next_episode[8] if len(next_episode) >= 9 else '', # plex id
                                 entry[3], # show_series_title
                                 next_episode[5], # episode_number
                                 next_episode[6] # season_number
