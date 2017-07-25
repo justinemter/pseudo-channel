@@ -5,6 +5,7 @@ from datetime import datetime
 import sqlite3
 
 from yattag import Doc
+from yattag import indent
 import os, sys
 
 import logging
@@ -55,6 +56,63 @@ class PseudoDailyScheduleController():
             backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
 
         return backgroundImgURL
+
+    def get_xml_from_daily_schedule(self, currentTime, bgImageURL, datalist):
+
+        now = datetime.now()
+
+        time = now.strftime("%B %d, %Y")
+
+        doc, tag, text, line = Doc(
+
+        ).ttl()
+
+        doc.asis('<?xml version="1.0" encoding="UTF-8"?>')
+
+        with tag('schedule', currently_playing_bg_image=bgImageURL if bgImageURL != None else ''):
+
+            for row in datalist:
+
+                timeB = datetime.strptime(row[8], '%I:%M %p')
+
+                if currentTime == None:
+                
+                    with tag('time',
+                            ('data-key', str(row[12])),
+                            ('data-current', 'false'),
+                            ('data-type', str(row[11])),
+                            ('data-title', str(row[3])),
+                            ('data-start-time', str(row[8])),
+                        ):
+
+                        text(row[8])
+
+                elif currentTime.hour == timeB.hour and currentTime.minute == timeB.minute:
+
+                    with tag('time',
+                            ('data-key', str(row[12])),
+                            ('data-current', 'true'),
+                            ('data-type', str(row[11])),
+                            ('data-title', str(row[3])),
+                            ('data-start-time', str(row[8])),
+                        ):
+
+                        text(row[8])
+
+                else:
+
+                    with tag('time',
+                            ('data-key', str(row[12])),
+                            ('data-current', 'false'),
+                            ('data-type', str(row[11])),
+                            ('data-title', str(row[3])),
+                            ('data-start-time', str(row[8])),
+                        ):
+
+                        text(row[8])
+
+        return indent(doc.getvalue())
+
 
     '''
     *
@@ -176,7 +234,7 @@ class PseudoDailyScheduleController():
                                                 text(row[8])
 
 
-        return doc.getvalue()
+        return indent(doc.getvalue())
 
     '''
     *
@@ -190,6 +248,35 @@ class PseudoDailyScheduleController():
         now = datetime.now()
 
         fileName = "index.html"
+
+        writepath = './schedules/'
+
+        if not os.path.exists(writepath):
+
+            os.makedirs(writepath)
+
+        if os.path.exists(writepath+fileName):
+            
+            os.remove(writepath+fileName)
+
+        mode = 'a' if os.path.exists(writepath) else 'w'
+
+        with open(writepath+fileName, mode) as f:
+
+            f.write(data)
+
+    '''
+    *
+    * Create 'schedules' dir & write the generated xml to .xml file.
+    * @param data: xml string
+    * @return null
+    *
+    '''
+    def write_xml_to_file(self, data):
+
+        now = datetime.now()
+
+        fileName = "pseudo_schedule.xml"
 
         writepath = './schedules/'
 
@@ -283,6 +370,7 @@ class PseudoDailyScheduleController():
                     print("Ok end time found")
 
                     self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+                    self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
 
                     break
     '''
@@ -328,6 +416,19 @@ class PseudoDailyScheduleController():
                         )
                     )
 
+                    """Generate / write XML to file
+                    """
+                    self.write_xml_to_file(
+                        self.get_xml_from_daily_schedule(
+                            timeB,
+                            self.get_show_photo(
+                                row[11], 
+                                row[6] if row[11] == "TV Shows" else row[3]
+                            ),
+                            datalist
+                        )
+                    )
+
                     self.my_logger.debug('Trying to play: ' + row[3])
 
                     break
@@ -337,3 +438,10 @@ class PseudoDailyScheduleController():
             if datalistLengthMonitor >= len(datalist):
 
                 self.check_for_end_time(datalist)
+
+    def make_xml_schedule(self, datalist):
+
+        print "+++++ ", "Writing XML / HTML to file."
+
+        self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+        self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))

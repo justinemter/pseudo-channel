@@ -30,9 +30,10 @@ class Episode(Media):
             is_strict_time,
             time_shift, 
             overlap_max,
+            plex_media_id,
             show_series_title, 
             episode_number, 
-            season_number
+            season_number,
             ):
 
         super(Episode, self).__init__( 
@@ -44,7 +45,8 @@ class Episode(Media):
                 day_of_week,
                 is_strict_time,
                 time_shift, 
-                overlap_max
+                overlap_max,
+                plex_media_id
                 )
 
         self.show_series_title = show_series_title

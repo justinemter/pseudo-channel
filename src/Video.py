@@ -26,7 +26,8 @@ class Video(Media):
             day_of_week,
             is_strict_time,
             time_shift, 
-            overlap_max
+            overlap_max,
+            plex_media_id
             ):
 
         super(Video, self).__init__( 
@@ -38,5 +39,6 @@ class Video(Media):
                 day_of_week,
                 is_strict_time,
                 time_shift, 
-                overlap_max
+                overlap_max,
+                plex_media_id
                 )

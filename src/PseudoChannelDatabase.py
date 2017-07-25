@@ -23,29 +23,30 @@ class PseudoChannelDatabase():
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'movies(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, lastPlayedDate TEXT)')
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
+                  'lastPlayedDate TEXT, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'videos(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'music(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'shows(id INTEGER PRIMARY KEY AUTOINCREMENT, '
                   'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
-                  'lastEpisodeTitle TEXT, fullImageURL TEXT)')
+                  'lastEpisodeTitle TEXT, fullImageURL TEXT, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'episodes(id INTEGER PRIMARY KEY AUTOINCREMENT, '
                   'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
-                  'episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT)')
+                  'episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'commercials(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
-                  'mediaID INTEGER, title TEXT, duration INTEGER)')
+                  'mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
@@ -57,7 +58,7 @@ class PseudoChannelDatabase():
                   'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
                   'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
                   'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
-                  'dayOfWeek TEXT, sectionType TEXT)')
+                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)')
@@ -119,12 +120,12 @@ class PseudoChannelDatabase():
         Setters, etc.
     """
 
-    def add_movies_to_db(self, mediaID, title, duration):
+    def add_movies_to_db(self, mediaID, title, duration, plexMediaID):
         unix = int(time.time())
         try:
             self.cursor.execute("INSERT OR REPLACE INTO movies "
-                      "(unix, mediaID, title, duration) VALUES (?, ?, ?, ?)", 
-                      (unix, mediaID, title, duration))
+                      "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, plexMediaID))
 
             self.conn.commit()
         # Catch the exception
@@ -133,12 +134,12 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_videos_to_db(self, mediaID, title, duration):
+    def add_videos_to_db(self, mediaID, title, duration, plexMediaID):
         unix = int(time.time())
         try:
             self.cursor.execute("INSERT OR REPLACE INTO videos "
-                      "(unix, mediaID, title, duration) VALUES (?, ?, ?, ?)", 
-                      (unix, mediaID, title, duration))
+                      "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, plexMediaID))
 
             self.conn.commit()
         # Catch the exception
@@ -147,12 +148,12 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL):
+    def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID):
         unix = int(time.time())
         try:
             self.cursor.execute("INSERT OR REPLACE INTO shows "
-                      "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL) VALUES (?, ?, ?, ?, ?, ?)", 
-                      (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL))
+                      "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
             self.conn.commit()
         # Catch the exception
         except Exception as e:
@@ -160,12 +161,12 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_episodes_to_db(self, mediaID, title, duration, episodeNumber, seasonNumber, showTitle):
+    def add_episodes_to_db(self, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID):
         unix = int(time.time())
         try:
             self.cursor.execute("INSERT OR REPLACE INTO episodes "
-                "(unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                (unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle)) 
+                "(unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+                (unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID)) 
             self.conn.commit()
         # Catch the exception
         except Exception as e:
@@ -173,15 +174,16 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_commercials_to_db(self, mediaID, title, duration):
+    def add_commercials_to_db(self, mediaID, title, duration, plexMediaID):
         unix = int(time.time())
         try:
             self.cursor.execute("INSERT OR REPLACE INTO commercials "
-                      "(unix, mediaID, title, duration) VALUES (?, ?, ?, ?)", 
-                      (unix, mediaID, title, duration))
+                      "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, plexMediaID))
             self.conn.commit()
         # Catch the exception
         except Exception as e:
+            print plexMediaID
             # Roll back any change if something goes wrong
             self.conn.rollback()
             raise e
@@ -211,7 +213,8 @@ class PseudoChannelDatabase():
             startTime, 
             endTime, 
             dayOfWeek, 
-            sectionType
+            sectionType,
+            plexMediaID
             ):
 
         unix = int(time.time())
@@ -220,8 +223,8 @@ class PseudoChannelDatabase():
 
             self.cursor.execute("INSERT OR REPLACE INTO daily_schedule "
                       "(unix, mediaID, title, episodeNumber, seasonNumber, "
-                      "showTitle, duration, startTime, endTime, dayOfWeek, sectionType) "
-                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                      "showTitle, duration, startTime, endTime, dayOfWeek, sectionType, plexMediaID) "
+                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
                       (
                         unix, 
                         mediaID, 
@@ -233,7 +236,8 @@ class PseudoChannelDatabase():
                         startTime, 
                         endTime, 
                         dayOfWeek, 
-                        sectionType
+                        sectionType,
+                        plexMediaID
                         ))
 
             self.conn.commit()
@@ -261,7 +265,8 @@ class PseudoChannelDatabase():
                 media.start_time,
                 media.end_time,
                 media.day_of_week,
-                media.section_type
+                media.section_type,
+                media.plex_media_id
             )
 
     """Database functions.

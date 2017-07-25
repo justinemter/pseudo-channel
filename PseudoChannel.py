@@ -100,7 +100,7 @@ class PseudoChannel():
 
                         for i, media in enumerate(sectionMedia):
 
-                            self.db.add_movies_to_db(1, media.title, media.duration)
+                            self.db.add_movies_to_db(1, media.title, media.duration, media.key)
 
                             self.print_progress(
                                     i + 1, 
@@ -125,7 +125,7 @@ class PseudoChannel():
 
                                 backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
 
-                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
+                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL, media.key)
 
                             self.print_progress(
                                     i + 1, 
@@ -150,7 +150,8 @@ class PseudoChannel():
                                             duration, 
                                             episode.index, 
                                             episode.parentIndex, 
-                                            media.title
+                                            media.title,
+                                            episode.key
                                         )
 
                                 else:
@@ -161,7 +162,8 @@ class PseudoChannel():
                                             0, 
                                             episode.index, 
                                             episode.parentIndex, 
-                                            media.title
+                                            media.title,
+                                            episode.key
                                         )
 
                     elif correct_lib_name == "Commercials":
@@ -172,7 +174,7 @@ class PseudoChannel():
 
                         for i, media in enumerate(sectionMedia):
 
-                            self.db.add_commercials_to_db(3, media.title, media.duration)
+                            self.db.add_commercials_to_db(3, media.title, media.duration, media.key)
 
                             self.print_progress(
                                 i + 1, 
@@ -589,6 +591,7 @@ class PseudoChannel():
                                 entry[10], # is_strict_time
                                 entry[11], # time_shift
                                 entry[12], # overlap_max
+                                next_episode[8], # plex id
                                 entry[3], # show_series_title
                                 next_episode[5], # episode_number
                                 next_episode[6] # season_number
@@ -623,7 +626,8 @@ class PseudoChannel():
                             entry[7], # day_of_week
                             entry[10], # is_strict_time
                             entry[11], # time_shift
-                            entry[12] # overlap_max
+                            entry[12], # overlap_max
+                            the_movie[6] # plex id
                             )
 
                             #print(movie.natural_end_time)
@@ -649,7 +653,8 @@ class PseudoChannel():
                             entry[7], # day_of_week
                             entry[10], # is_strict_time
                             entry[11], # time_shift
-                            entry[12] # overlap_max
+                            entry[12], # overlap_max
+                            the_music[6], # plex id
                             )
 
                             #print(music.natural_end_time)
@@ -675,7 +680,8 @@ class PseudoChannel():
                             entry[7], # day_of_week
                             entry[10], # is_strict_time
                             entry[11], # time_shift
-                            entry[12] # overlap_max
+                            entry[12], # overlap_max
+                            the_video[6] # plex id
                             )
 
                             #print(music.natural_end_time)
@@ -750,6 +756,10 @@ class PseudoChannel():
                         self.db.add_media_to_daily_schedule(entry)
 
                         previous_episode = entry
+
+    def make_xml_schedule(self):
+
+        self.controller.make_xml_schedule(self.db.get_daily_schedule())
 
     def get_daily_schedule_as_media_object_list(self):
 
@@ -887,6 +897,15 @@ if __name__ == '__main__':
                          action='store_true',
                          help='Updates the schedule based on entries in the google calendar.')
 
+    '''
+    * 
+    * Make XML / HTML Schedule: "python PseudoChannel.py -m"
+    *
+    '''
+    parser.add_argument('-m', 
+                         action='store_true',
+                         help='Makes the XML / HTML schedule based on the daily_schedule table.')
+
     globals().update(vars(parser.parse_args()))
 
     args = parser.parse_args()
@@ -916,6 +935,10 @@ if __name__ == '__main__':
     if args.s:
 
         pseudo_channel.show_schedule()
+
+    if args.m:
+
+        pseudo_channel.make_xml_schedule()
 
     if args.r:
 
@@ -947,6 +970,8 @@ if __name__ == '__main__':
                          pass
                         
                     pseudo_channel.generate_daily_schedule()
+
+                    pseudo_channel.make_xml_schedule()
 
                 pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
 
