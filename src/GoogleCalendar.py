@@ -85,7 +85,7 @@ class GoogleCalendar():
 
         #print(end)
 
-        print('Getting the upcoming 10 events')
+        print('##### Getting the upcoming calendar events')
         eventsResult = service.events().list(
             calendarId=self.KEY, timeMin=now, timeMax=end, maxResults=250, singleEvents=True,
             orderBy='startTime').execute()

@@ -857,16 +857,25 @@ if __name__ == '__main__':
     *
     '''
 
-    parser.add_argument('-u', 
+    parser.add_argument('-u', '--update',
                          action='store_true',
-                         help='Update the local database with Plex linraries.')
-    parser.add_argument('-xml', 
+                         help='Update the local database with Plex libraries.')
+    parser.add_argument('-xml', '--xml',
                          action='store_true', 
                          help='Update the local database with the pseudo_schedule.xml.')
-    parser.add_argument('-g', 
+    '''
+    * 
+    * Update Schedule based on Google Cal: "python PseudoChannel.py -gc"
+    *
+    '''
+    parser.add_argument('-gc', '--google_calendar',
+                         action='store_true',
+                         help='Update the local database with entries in the google calendar.')
+
+    parser.add_argument('-g', '--generate_schedule',
                          action='store_true', 
                          help='Generate the daily schedule.')
-    parser.add_argument('-r', 
+    parser.add_argument('-r', '--run',
                          action='store_true', 
                          help='Run this program.')
 
@@ -875,7 +884,7 @@ if __name__ == '__main__':
     * Show connected clients: "python PseudoChannel.py -c"
     *
     '''
-    parser.add_argument('-c', 
+    parser.add_argument('-c', '--show_clients',
                          action='store_true',
                          help='Show Plex clients.')
 
@@ -884,25 +893,16 @@ if __name__ == '__main__':
     * Show schedule (daily): "python PseudoChannel.py -s"
     *
     '''
-    parser.add_argument('-s', 
+    parser.add_argument('-s', '--show_schedule',
                          action='store_true',
                          help='Show scheduled media for today.')
-
-    '''
-    * 
-    * Update Schedule based on Google Cal: "python PseudoChannel.py -gc"
-    *
-    '''
-    parser.add_argument('-gc', 
-                         action='store_true',
-                         help='Updates the schedule based on entries in the google calendar.')
 
     '''
     * 
     * Make XML / HTML Schedule: "python PseudoChannel.py -m"
     *
     '''
-    parser.add_argument('-m', 
+    parser.add_argument('-m', '--make_html',
                          action='store_true',
                          help='Makes the XML / HTML schedule based on the daily_schedule table.')
 
@@ -912,7 +912,7 @@ if __name__ == '__main__':
 
     #print(args)
 
-    if args.u:
+    if args.update:
 
         pseudo_channel.update_db()
 
@@ -920,27 +920,27 @@ if __name__ == '__main__':
 
         pseudo_channel.update_schedule()
 
-    if args.gc:
+    if args.google_calendar:
 
         pseudo_channel.update_schedule_from_google_calendar()
 
-    if args.g:
+    if args.generate_schedule:
 
         pseudo_channel.generate_daily_schedule()
 
-    if args.c:
+    if args.show_clients:
 
         pseudo_channel.show_clients()
 
-    if args.s:
+    if args.show_schedule:
 
         pseudo_channel.show_schedule()
 
-    if args.m:
+    if args.make_html:
 
         pseudo_channel.make_xml_schedule()
 
-    if args.r:
+    if args.run:
 
         try:
 
