@@ -7,6 +7,9 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
+import os.path as path
+import sys
+
 import datetime
 
 """try:
@@ -20,8 +23,11 @@ class GoogleCalendar():
 
     # If modifying these scopes, delete your previously saved credentials
     # at ~/.credentials/calendar-python-quickstart.json
+    two_up =  path.abspath(path.join(__file__ ,"../../../"))
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, 'client_secret.json')
     SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
-    CLIENT_SECRET_FILE = 'client_secret.json'
+    CLIENT_SECRET_FILE = credential_dir
     APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
     KEY = ''
@@ -48,6 +54,7 @@ class GoogleCalendar():
 
         store = Storage(credential_path)
         credentials = store.get()
+
         if not credentials or credentials.invalid:
             flow = client.flow_from_clientsecrets(self.CLIENT_SECRET_FILE, self.SCOPES)
             flow.user_agent = self.APPLICATION_NAME
