@@ -112,7 +112,7 @@ class PseudoChannelCommercial():
 
         print "here", time_diff.seconds
 
-        while curr_item_start_time > new_commercial_start_time and (count) < len(self.commercials):
+        while curr_item_start_time > new_commercial_start_time and (count) < len(self.commercials)*100:
 
             random_commercial = self.get_random_commercial()
 
