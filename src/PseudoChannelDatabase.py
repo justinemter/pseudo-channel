@@ -329,6 +329,14 @@ class PseudoChannelDatabase():
 
         return self.get_media(title, media)
 
+    def get_commercials(self):
+
+        self.cursor.execute("SELECT * FROM commercials ORDER BY duration ASC")
+
+        datalist = list(self.cursor.fetchall())
+
+        return datalist
+
     def update_shows_table_with_last_episode(self, showTitle, lastEpisodeTitle):
 
         sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title LIKE ? COLLATE NOCASE"
@@ -461,7 +469,7 @@ class PseudoChannelDatabase():
 
             return first_episode
                 
-    def get_commercials(self, title):
+    def get_commercial(self, title):
 
         media = "commercials"
 

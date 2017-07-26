@@ -73,7 +73,7 @@ class PseudoDailyScheduleController():
 
             for row in datalist:
 
-                timeB = datetime.strptime(row[8], '%I:%M %p')
+                timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
                 if currentTime == None:
                 
@@ -188,7 +188,7 @@ class PseudoDailyScheduleController():
 
                                 with tag('tbody'):
 
-                                    timeB = datetime.strptime(row[8], '%I:%M %p')
+                                    timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
                                     if currentTime == None:
 
@@ -333,6 +333,16 @@ class PseudoDailyScheduleController():
 
                     clientItem.playMedia(movie)
 
+        elif mediaType == "Commercials":
+
+            movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+
+            for client in self.PLEX_CLIENTS:
+
+                    clientItem = self.PLEX.client(client)
+
+                    clientItem.playMedia(movie)
+
         else:
 
             print("Not sure how to play {}".format(mediaType))
@@ -367,12 +377,14 @@ class PseudoDailyScheduleController():
 
                 if currentTime.minute == endTime.minute:
 
-                    print("Ok end time found")
+                    if currentTime.second == endTime.second:
 
-                    self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
-                    self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
+                        print("Ok end time found")
 
-                    break
+                        self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+                        self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
+
+                        break
     '''
     *
     * Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API
@@ -394,44 +406,46 @@ class PseudoDailyScheduleController():
 
         for row in datalist:
 
-            timeB = datetime.strptime(row[8], '%I:%M %p')
+            timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
             if currentTime.hour == timeB.hour:
 
                 if currentTime.minute == timeB.minute:
 
-                    print("Starting Epsisode: " + row[3])
-                    print(row)
+                    if currentTime.second == timeB.second:
 
-                    self.play_media(row[11], row[6], row[3])
+                        print("Starting Media: " + row[3])
+                        print(row)
 
-                    self.write_schedule_to_file(
-                        self.get_html_from_daily_schedule(
-                            timeB,
-                            self.get_show_photo(
-                                row[11], 
-                                row[6] if row[11] == "TV Shows" else row[3]
-                            ),
-                            datalist
+                        self.play_media(row[11], row[6], row[3])
+
+                        self.write_schedule_to_file(
+                            self.get_html_from_daily_schedule(
+                                timeB,
+                                self.get_show_photo(
+                                    row[11], 
+                                    row[6] if row[11] == "TV Shows" else row[3]
+                                ),
+                                datalist
+                            )
                         )
-                    )
 
-                    """Generate / write XML to file
-                    """
-                    self.write_xml_to_file(
-                        self.get_xml_from_daily_schedule(
-                            timeB,
-                            self.get_show_photo(
-                                row[11], 
-                                row[6] if row[11] == "TV Shows" else row[3]
-                            ),
-                            datalist
+                        """Generate / write XML to file
+                        """
+                        self.write_xml_to_file(
+                            self.get_xml_from_daily_schedule(
+                                timeB,
+                                self.get_show_photo(
+                                    row[11], 
+                                    row[6] if row[11] == "TV Shows" else row[3]
+                                ),
+                                datalist
+                            )
                         )
-                    )
 
-                    self.my_logger.debug('Trying to play: ' + row[3])
+                        self.my_logger.debug('Trying to play: ' + row[3])
 
-                    break
+                        break
 
             datalistLengthMonitor += 1
 

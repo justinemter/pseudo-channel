@@ -9,6 +9,7 @@ from src import Music
 from src import Video
 from src import PseudoDailyScheduleController
 from src import GoogleCalendar
+from src import PseudoChannelCommercial
 
 from plexapi.server import PlexServer
 
@@ -35,6 +36,8 @@ class PseudoChannel():
     MEDIA = []
     GKEY = config.gkey
     USING_GOOGLE_CALENDAR = config.useGoogleCalendar
+
+    USING_COMMERCIAL_INJECTION = config.useCommercialInjection
 
     def __init__(self):
 
@@ -243,7 +246,7 @@ class PseudoChannel():
                     title = titlelist[1]
 
                     # s.strftime('%I:%M'), event["summary"]
-                    natural_start_time = self.translate_time(s.strftime('%I:%M %p'))
+                    natural_start_time = self.translate_time(s.strftime('%I:%M:%S %p'))
 
                     natural_end_time = 0
 
@@ -259,6 +262,8 @@ class PseudoChannel():
 
                     strict_time = titlelist[2] if len(titlelist) > 2 else "true"
 
+                    #strict_time = "true"
+
                     time_shift = "5"
 
                     overlap_max = ""
@@ -267,7 +272,7 @@ class PseudoChannel():
 
                     start_time_unix = datetime.datetime.strptime(
                             self.translate_time(natural_start_time), 
-                            '%I:%M %p').strftime('%Y-%m-%d %H:%M:%S')
+                            '%I:%M:%S %p').strftime('%Y-%m-%d %H:%M:%S')
 
                     #print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
@@ -343,7 +348,7 @@ class PseudoChannel():
 
                             start_time_unix = datetime.datetime.strptime(
                                     self.translate_time(time.text), 
-                                    '%I:%M %p').strftime('%Y-%m-%d %H:%M:%S')
+                                    '%I:%M:%S %p').strftime('%Y-%m-%d %H:%M:%S')
 
                             print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
@@ -398,7 +403,7 @@ class PseudoChannel():
 
         try:
 
-            return datetime.datetime.strptime(timestr, "%I:%M %p").strftime("%-I:%M %p")
+            return datetime.datetime.strptime(timestr, '%I:%M:%S %p').strftime('%I:%M:%S %p')
 
         except ValueError as e:
 
@@ -406,7 +411,7 @@ class PseudoChannel():
 
         try:
 
-            return datetime.datetime.strptime(timestr, "%H:%M").strftime("%-I:%M %p")
+            return datetime.datetime.strptime(timestr, '%I:%M:%S %p').strftime('%I:%M:%S %p')
 
         except ValueError as e:
 
@@ -418,8 +423,8 @@ class PseudoChannel():
         * Getting the offest by comparing both times from the unix epoch time and getting the difference.
         *
         '''
-        timeA = datetime.datetime.strptime(time1, "%I:%M %p")
-        timeB = datetime.datetime.strptime(time2, "%I:%M %p")
+        timeA = datetime.datetime.strptime(time1, '%I:%M:%S %p')
+        timeB = datetime.datetime.strptime(time2, '%I:%M:%S %p')
         
         timeAEpoch = calendar.timegm(timeA.timetuple())
         timeBEpoch = calendar.timegm(timeB.timetuple())
@@ -444,9 +449,9 @@ class PseudoChannel():
 
         self.OVERLAP_MAX = overlapMax
 
-        time1 = prevEndTime.strftime('%-I:%M %p')
+        time1 = prevEndTime.strftime('%I:%M:%S %p')
 
-        timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M %p').strftime('%-I:%M %p')
+        timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M:%S %p').strftime('%I:%M:%S %p')
 
         print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
 
@@ -511,7 +516,7 @@ class PseudoChannel():
 
                 theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-                tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M %p').strftime('%H:%M')
+                tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M:%S %p').strftime('%H:%M')
 
                 formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
 
@@ -527,11 +532,11 @@ class PseudoChannel():
 
             print("Not sure what to do here")
 
-        return newStartTime.strftime('%-I:%M %p')
+        return newStartTime.strftime('%I:%M:%S %p')
 
     def get_end_time_from_duration(self, startTime, duration):
 
-        time = datetime.datetime.strptime(startTime, '%I:%M %p')
+        time = datetime.datetime.strptime(startTime, '%I:%M:%S %p')
 
         show_time_plus_duration = time + datetime.timedelta(milliseconds=duration)
 
@@ -542,6 +547,11 @@ class PseudoChannel():
     def generate_daily_schedule(self):
 
         print("#### Generating Daily Schedule")
+
+        if self.USING_COMMERCIAL_INJECTION:
+            self.commercials = PseudoChannelCommercial(
+                self.db.get_commercials()
+            )
 
         schedule = self.db.get_schedule()
 
@@ -713,7 +723,7 @@ class PseudoChannel():
 
                     if previous_episode != None:
 
-                        natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
+                        natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M:%S %p')
 
                         natural_end_time = entry.natural_end_time
 
@@ -725,6 +735,19 @@ class PseudoChannel():
                                     self.translate_time(entry.start_time), 
                                     entry.duration
                                 )
+
+                            """Get List of Commercials to inject"""
+
+                            if self.USING_COMMERCIAL_INJECTION:
+
+                                list_of_commercials = self.commercials.get_commercials_to_place_between_media(
+                                    previous_episode,
+                                    entry
+                                )
+
+                                for commercial in list_of_commercials:
+
+                                    self.db.add_media_to_daily_schedule(commercial)
 
                             self.db.add_media_to_daily_schedule(entry)
 
@@ -743,9 +766,20 @@ class PseudoChannel():
 
                             print "++++ New start time:", new_starttime
 
-                            entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+                            entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M:%S %p').strftime('%I:%M:%S %p')
 
                             entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+                            """Get List of Commercials to inject"""
+                            if self.USING_COMMERCIAL_INJECTION:
+                                list_of_commercials = self.commercials.get_commercials_to_place_between_media(
+                                    previous_episode,
+                                    entry
+                                )
+
+                                for commercial in list_of_commercials:
+
+                                    self.db.add_media_to_daily_schedule(commercial)
 
                             self.db.add_media_to_daily_schedule(entry)
 
@@ -756,6 +790,19 @@ class PseudoChannel():
                         self.db.add_media_to_daily_schedule(entry)
 
                         previous_episode = entry
+
+    def run_commercial_injection(self):
+
+        print "#### Running commercial injection."
+
+        self.commercials = PseudoChannelCommercial(
+            self.db.get_commercials(),
+            self.db.get_daily_schedule()
+        )
+
+        commercials_to_inject = self.commercials.get_commercials_to_inject()
+
+        print commercials_to_inject
 
     def make_xml_schedule(self):
 
@@ -906,6 +953,15 @@ if __name__ == '__main__':
                          action='store_true',
                          help='Makes the XML / HTML schedule based on the daily_schedule table.')
 
+    '''
+    * 
+    * Make XML / HTML Schedule: "python PseudoChannel.py -i"
+    *
+    '''
+    parser.add_argument('-i', '--inject_commercials',
+                         action='store_true',
+                         help='Squeeze commercials in any media gaps if possible.')
+
     globals().update(vars(parser.parse_args()))
 
     args = parser.parse_args()
@@ -939,6 +995,10 @@ if __name__ == '__main__':
     if args.make_html:
 
         pseudo_channel.make_xml_schedule()
+
+    if args.inject_commercials:
+
+        pseudo_channel.run_commercial_injection()
 
     if args.run:
 
@@ -977,9 +1037,9 @@ if __name__ == '__main__':
 
                 t = datetime.datetime.utcnow()
 
-                sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+                #sleeptime = 60 - (t.second + t.microsecond/1000000.0)
 
-                sleep(sleeptime)
+                sleep(.5)
 
         except KeyboardInterrupt, e:
 

@@ -59,3 +59,5 @@ plexLibraries = {
 }
 
 useGoogleCalendar = True
+
+useCommercialInjection = True
