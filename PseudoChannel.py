@@ -1027,11 +1027,15 @@ if __name__ == '__main__':
 
                 now_time = now.time().replace(microsecond=0)
 
-                if now_time == time(11,59):
+                #print time(11,59,00), now_time
+
+                if now_time == time(00,00,00):
 
                     if pseudo_channel.USING_GOOGLE_CALENDAR:
 
                         pseudo_channel.update_schedule_from_google_calendar()
+
+                        sleep(.5)
 
                     else:
 

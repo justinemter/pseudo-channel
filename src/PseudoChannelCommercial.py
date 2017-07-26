@@ -106,6 +106,8 @@ class PseudoChannelCommercial():
 
         time_watch = prev_item_end_time 
 
+        new_commercial_start_time = prev_item_end_time 
+
         print "here", time_diff.seconds
 
         while curr_item_start_time > time_watch and (count) < len(self.commercials):
@@ -118,9 +120,11 @@ class PseudoChannelCommercial():
 
             new_commercial_milli = int(random_commercial[4])
 
-            commercial_dur_sum += new_commercial_milli
+            new_commercial_start_time += datetime.timedelta(milliseconds=commercial_dur_sum)
 
-            new_commercial_start_time = time_watch
+            time_watch += datetime.timedelta(milliseconds=commercial_dur_sum)
+
+            commercial_dur_sum += new_commercial_milli
 
             new_commercial_end_time = new_commercial_start_time
 
@@ -141,9 +145,7 @@ class PseudoChannelCommercial():
                 "", # plex_media_id
             )
 
-            time_watch += datetime.timedelta(milliseconds=commercial_dur_sum)
-
-            if time_diff_milli < commercial_dur_sum or new_commercial_end_time > curr_item_start_time:
+            if new_commercial_end_time > curr_item_start_time:
 
                 break
 
