@@ -3,7 +3,9 @@
 from random import shuffle
 import random
 import copy
-import datetime
+from datetime import datetime
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 from src import Commercial
 
 class PseudoChannelCommercial():
@@ -88,9 +90,9 @@ class PseudoChannelCommercial():
 
         print last_ep.end_time, now_ep.start_time
 
-        prev_item_end_time = datetime.datetime.strptime(last_ep.end_time.strftime('%Y-%m-%d %H:%M:%S.%f'), '%Y-%m-%d %H:%M:%S.%f')
+        prev_item_end_time = datetime.strptime(last_ep.end_time.strftime('%Y-%m-%d %H:%M:%S.%f'), '%Y-%m-%d %H:%M:%S.%f')
 
-        curr_item_start_time = datetime.datetime.strptime(now_ep.start_time, '%I:%M:%S %p')
+        curr_item_start_time = datetime.strptime(now_ep.start_time, '%I:%M:%S %p')
 
         time_diff = (curr_item_start_time - prev_item_end_time)
 
@@ -110,27 +112,33 @@ class PseudoChannelCommercial():
 
         print "here", time_diff.seconds
 
-        while curr_item_start_time > time_watch and (count) < len(self.commercials):
+        while curr_item_start_time > new_commercial_start_time and (count) < len(self.commercials):
 
             random_commercial = self.get_random_commercial()
-
-            last_commercial = random_commercial
 
             #new_commercial_seconds = (int(random_commercial[4])/1000)%60
 
             new_commercial_milli = int(random_commercial[4])
 
-            new_commercial_start_time += datetime.timedelta(milliseconds=commercial_dur_sum)
+            if last_commercial != None:
 
-            time_watch += datetime.timedelta(milliseconds=commercial_dur_sum)
+                #print last_commercial[3]
+
+                new_commercial_start_time = last_commercial.end_time
+
+                new_commercial_end_time = new_commercial_start_time + \
+                                          timedelta(milliseconds=int(new_commercial_milli))
+
+            else:
+
+                new_commercial_start_time = prev_item_end_time
+
+                new_commercial_end_time = new_commercial_start_time + \
+                                          timedelta(milliseconds=int(new_commercial_milli))
 
             commercial_dur_sum += new_commercial_milli
 
-            new_commercial_end_time = new_commercial_start_time
-
-            new_commercial_end_time += datetime.timedelta(milliseconds=int(new_commercial_milli))
-
-            formatted_time_for_new_commercial = time_watch.strftime('%I:%M:%S %p')
+            formatted_time_for_new_commercial = new_commercial_start_time.strftime('%I:%M:%S %p')
 
             new_commercial = Commercial(
                 "Commercials",
@@ -144,6 +152,8 @@ class PseudoChannelCommercial():
                 "0", # overlap_max
                 "", # plex_media_id
             )
+
+            last_commercial = new_commercial
 
             if new_commercial_end_time > curr_item_start_time:
 
