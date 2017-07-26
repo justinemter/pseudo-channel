@@ -346,9 +346,7 @@ class PseudoChannel():
 
                             overlap_max = time.attrib['overlap-max']
 
-                            start_time_unix = datetime.datetime.strptime(
-                                    self.translate_time(time.text), 
-                                    '%I:%M:%S %p').strftime('%Y-%m-%d %H:%M:%S')
+                            start_time_unix = self.translate_time(time.text)
 
                             print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
@@ -403,7 +401,7 @@ class PseudoChannel():
 
         try:
 
-            return datetime.datetime.strptime(timestr, '%I:%M:%S %p').strftime('%I:%M:%S %p')
+            return datetime.datetime.strptime(timestr, '%I:%M %p').strftime('%I:%M:%S %p')
 
         except ValueError as e:
 
@@ -416,6 +414,16 @@ class PseudoChannel():
         except ValueError as e:
 
             pass
+
+        try:
+
+            return datetime.datetime.strptime(timestr, '%H:%M').strftime('%I:%M:%S %p')
+
+        except ValueError as e:
+
+            pass
+
+        return timestr
 
     def time_diff(self, time1,time2):
         '''
@@ -595,7 +603,7 @@ class PseudoChannel():
                                 section, # section_type
                                 next_episode[3], # title
                                 entry[5], # natural_start_time
-                                self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
+                                self.get_end_time_from_duration(self.translate_time(entry[5]), next_episode[4]), # natural_end_time
                                 next_episode[4], # duration
                                 entry[7], # day_of_week
                                 entry[10], # is_strict_time

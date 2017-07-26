@@ -99,7 +99,7 @@ class PseudoChannelCommercial():
 
 		commercial_dur_sum = 0
 
-		while int(time_diff.total_seconds()) >= commercial_dur_sum and count < len(self.commercials):
+		while int(time_diff.total_seconds()) >= commercial_dur_sum and (count*10000) < len(self.commercials):
 
 			random_commercial = self.get_random_commercial()
 
@@ -125,6 +125,10 @@ class PseudoChannelCommercial():
 	            "0", # overlap_max
 	            "", # plex_media_id
 			)
+
+			if int(time_diff.total_seconds()) < commercial_dur_sum:
+
+				break
 
 			commercial_list.append(new_commercial)
 
