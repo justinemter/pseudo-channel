@@ -68,7 +68,9 @@ class PseudoChannelDatabase():
 
         self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_movie_title ON movies (title);')
 
-        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_movie_title ON videos (title);')
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_shows_title ON shows (title);')
+
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_video_title ON videos (title);')
 
         self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_music_title ON music (title);')
 
@@ -123,7 +125,7 @@ class PseudoChannelDatabase():
     def add_movies_to_db(self, mediaID, title, duration, plexMediaID):
         unix = int(time.time())
         try:
-            self.cursor.execute("INSERT OR REPLACE INTO movies "
+            self.cursor.execute("REPLACE INTO movies "
                       "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
                       (unix, mediaID, title, duration, plexMediaID))
 
@@ -137,7 +139,7 @@ class PseudoChannelDatabase():
     def add_videos_to_db(self, mediaID, title, duration, plexMediaID):
         unix = int(time.time())
         try:
-            self.cursor.execute("INSERT OR REPLACE INTO videos "
+            self.cursor.execute("REPLACE INTO videos "
                       "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
                       (unix, mediaID, title, duration, plexMediaID))
 
@@ -151,7 +153,7 @@ class PseudoChannelDatabase():
     def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID):
         unix = int(time.time())
         try:
-            self.cursor.execute("INSERT OR REPLACE INTO shows "
+            self.cursor.execute("REPLACE INTO shows "
                       "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
                       (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
             self.conn.commit()
@@ -164,7 +166,7 @@ class PseudoChannelDatabase():
     def add_episodes_to_db(self, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID):
         unix = int(time.time())
         try:
-            self.cursor.execute("INSERT OR REPLACE INTO episodes "
+            self.cursor.execute("REPLACE INTO episodes "
                 "(unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
                 (unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID)) 
             self.conn.commit()
@@ -177,7 +179,7 @@ class PseudoChannelDatabase():
     def add_commercials_to_db(self, mediaID, title, duration, plexMediaID):
         unix = int(time.time())
         try:
-            self.cursor.execute("INSERT OR REPLACE INTO commercials "
+            self.cursor.execute("REPLACE INTO commercials "
                       "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
                       (unix, mediaID, title, duration, plexMediaID))
             self.conn.commit()
@@ -191,7 +193,7 @@ class PseudoChannelDatabase():
     def add_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax):
         unix = int(time.time())
         try:
-            self.cursor.execute("INSERT OR REPLACE INTO  schedule "
+            self.cursor.execute("REPLACE INTO  schedule "
                 "(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
                 (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax))
