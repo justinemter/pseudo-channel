@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from src import PseudoChannelDatabase
@@ -7,6 +8,8 @@ from src import Episode
 from src import Music
 from src import Video
 from src import PseudoDailyScheduleController
+from src import GoogleCalendar
+from src import PseudoChannelCommercial
 
 from plexapi.server import PlexServer
 
@@ -16,8 +19,12 @@ from datetime import time
 import calendar
 import itertools
 import argparse
+import textwrap
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
+
+from threading import Timer
+import signal
 
 from time import sleep
 
@@ -28,704 +35,1106 @@ sys.setdefaultencoding('utf-8')
 
 class PseudoChannel():
 
-	PLEX = PlexServer(config.baseurl, config.token)
+    PLEX = PlexServer(config.baseurl, config.token)
+    MEDIA = []
+    GKEY = config.gkey
 
-	MEDIA = []
+    USING_GOOGLE_CALENDAR = config.useGoogleCalendar
 
-	def __init__(self):
+    USING_COMMERCIAL_INJECTION = config.useCommercialInjection
 
-		self.db = PseudoChannelDatabase("pseudo-channel.db")
+    DAILY_UPDATE_TIME = config.dailyUpdateTime
 
-		self.controller = PseudoDailyScheduleController(config.baseurl, config.token, config.plexClients)
+    APP_TIME_FORMAT_STR = '%I:%M:%S %p'
 
-	"""Database functions.
+    DEBUG = config.debug_mode
 
-		update_db(): Grab the media from the Plex DB and store it in the local pseudo-channel.db.
+    def __init__(self):
 
-		drop_db(): Drop the local database. Fresh start. 
+        self.db = PseudoChannelDatabase("pseudo-channel.db")
 
-		update_schedule(): Update schedule with user defined times.
+        self.controller = PseudoDailyScheduleController(
+            config.baseurl, 
+            config.token, 
+            config.plexClients,
+            self.DEBUG
+        )
 
-		drop_schedule(): Drop the user defined schedule table. 
+    """Database functions.
 
-		generate_daily_schedule(): Generates daily schedule based on the "schedule" table.
-	"""
+        update_db(): Grab the media from the Plex DB and store it in the local pseudo-channel.db.
 
-	# Print iterations progress
-	def print_progress(self, iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
-	    """
-	    Call in a loop to create terminal progress bar
-	    @params:
-	        iteration   - Required  : current iteration (Int)
-	        total       - Required  : total iterations (Int)
-	        prefix      - Optional  : prefix string (Str)
-	        suffix      - Optional  : suffix string (Str)
-	        decimals    - Optional  : positive number of decimals in percent complete (Int)
-	        bar_length  - Optional  : character length of bar (Int)
-	    """
-	    str_format = "{0:." + str(decimals) + "f}"
-	    percents = str_format.format(100 * (iteration / float(total)))
-	    filled_length = int(round(bar_length * iteration / float(total)))
-	    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+        drop_db(): Drop the local database. Fresh start. 
 
-	    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
+        update_schedule(): Update schedule with user defined times.
 
-	    if iteration == total:
-	        sys.stdout.write('\n')
-	    sys.stdout.flush()
+        drop_schedule(): Drop the user defined schedule table. 
 
-	def update_db(self):
+        generate_daily_schedule(): Generates daily schedule based on the "schedule" table.
+    """
 
-		print("#### Updating Local Database")
+    # Print iterations progress
+    def print_progress(self, iteration, total, prefix='', suffix='', decimals=1, bar_length=100):
+        """
+        Call in a loop to create terminal progress bar
+        @params:
+            iteration   - Required  : current iteration (Int)
+            total       - Required  : total iterations (Int)
+            prefix      - Optional  : prefix string (Str)
+            suffix      - Optional  : suffix string (Str)
+            decimals    - Optional  : positive number of decimals in percent complete (Int)
+            bar_length  - Optional  : character length of bar (Int)
+        """
+        str_format = "{0:." + str(decimals) + "f}"
+        percents = str_format.format(100 * (iteration / float(total)))
+        filled_length = int(round(bar_length * iteration / float(total)))
+        bar = '█' * filled_length + '-' * (bar_length - filled_length)
 
-		self.db.create_tables()
+        sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percents, '%', suffix)),
 
-		libs_dict = config.plexLibraries
+        if iteration == total:
+            sys.stdout.write('\n')
+        sys.stdout.flush()
 
-		sections = self.PLEX.library.sections()
+    def update_db(self):
 
-		for section in sections:
+        print("#### Updating Local Database")
 
-			for correct_lib_name, user_lib_name in libs_dict.items():
+        self.db.create_tables()
 
-				if section.title.lower() in [x.lower() for x in user_lib_name]:
+        libs_dict = config.plexLibraries
 
-					if correct_lib_name == "Movies":
+        sections = self.PLEX.library.sections()
 
-						sectionMedia = self.PLEX.library.section(section.title).all()
+        for section in sections:
 
-						for i, media in enumerate(sectionMedia):
+            for correct_lib_name, user_lib_name in libs_dict.items():
 
-							self.db.add_movies_to_db(1, media.title, media.duration)
+                if section.title.lower() in [x.lower() for x in user_lib_name]:
 
-							self.print_progress(
-									i + 1, 
-									len(sectionMedia), 
-									prefix = 'Progress '+section.title+":     ", 
-									suffix = 'Complete', 
-									bar_length = 40
-								)
+                    if correct_lib_name == "Movies":
 
+                        sectionMedia = self.PLEX.library.section(section.title).all()
 
-					elif correct_lib_name == "TV Shows":
+                        for i, media in enumerate(sectionMedia):
 
-						sectionMedia = self.PLEX.library.section(section.title).all()
+                            self.db.add_movies_to_db(1, media.title, media.duration, media.key)
 
-						for i, media in enumerate(sectionMedia):
+                            self.print_progress(
+                                    i + 1, 
+                                    len(sectionMedia), 
+                                    prefix = 'Progress '+section.title+":     ", 
+                                    suffix = 'Complete', 
+                                    bar_length = 40
+                                )
 
-							backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
 
-							backgroundImgURL = ''
+                    elif correct_lib_name == "TV Shows":
 
-							if isinstance(backgroundImagePath.art, str):
+                        sectionMedia = self.PLEX.library.section(section.title).all()
 
-								backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
+                        for i, media in enumerate(sectionMedia):
 
-							self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL)
+                            backgroundImagePath = self.PLEX.library.section(section.title).get(media.title)
 
-							self.print_progress(
-									i + 1, 
-									len(sectionMedia),
-									prefix = 'Progress '+section.title+":   ", 
-									suffix = 'Complete', 
-									bar_length = 40
-								)
+                            backgroundImgURL = ''
 
-							#add all episodes of each tv show to episodes table
-							episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
+                            if isinstance(backgroundImagePath.art, str):
+
+                                backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
 
-							for episode in episodes:
+                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL, media.key)
 
-								duration = episode.duration
+                            self.print_progress(
+                                    i + 1, 
+                                    len(sectionMedia),
+                                    prefix = 'Progress '+section.title+":   ", 
+                                    suffix = 'Complete', 
+                                    bar_length = 40
+                                )
 
-								if duration:
+                            #add all episodes of each tv show to episodes table
+                            episodes = self.PLEX.library.section(section.title).get(media.title).episodes()
 
-									self.db.add_episodes_to_db(
-											4, 
-											episode.title, 
-											duration, 
-											episode.index, 
-											episode.parentIndex, 
-											media.title
-										)
+                            for episode in episodes:
 
-								else:
+                                duration = episode.duration
 
-									self.db.add_episodes_to_db(
-											4, 
-											episode.title, 
-											0, 
-											episode.index, 
-											episode.parentIndex, 
-											media.title
-										)
+                                if duration:
 
-					elif correct_lib_name == "Commercials":
+                                    self.db.add_episodes_to_db(
+                                            4, 
+                                            episode.title, 
+                                            duration, 
+                                            episode.index, 
+                                            episode.parentIndex, 
+                                            media.title,
+                                            episode.key
+                                        )
 
-						sectionMedia = self.PLEX.library.section(section.title).all()
+                                else:
 
-						media_length = len(sectionMedia)
+                                    self.db.add_episodes_to_db(
+                                            4, 
+                                            episode.title, 
+                                            0, 
+                                            episode.index, 
+                                            episode.parentIndex, 
+                                            media.title,
+                                            episode.key
+                                        )
 
-						for i, media in enumerate(sectionMedia):
+                    elif correct_lib_name == "Commercials":
 
-							self.db.add_commercials_to_db(3, media.title, media.duration)
+                        sectionMedia = self.PLEX.library.section(section.title).all()
 
-							self.print_progress(
-								i + 1, 
-								media_length, 
-								prefix = 'Progress '+section.title+":", 
-								suffix = 'Complete', 
-								bar_length = 40
-							)
+                        media_length = len(sectionMedia)
 
-	def update_schedule(self):
+                        for i, media in enumerate(sectionMedia):
 
-		self.db.create_tables()
+                            self.db.add_commercials_to_db(3, media.title, media.duration, media.key)
 
-		self.db.remove_all_scheduled_items()
+                            self.print_progress(
+                                i + 1, 
+                                media_length, 
+                                prefix = 'Progress '+section.title+":", 
+                                suffix = 'Complete', 
+                                bar_length = 40
+                            )
 
-		scheduled_days_list = [
-			"mondays",
-			"tuesdays",
-			"wednesdays",
-			"thursdays",
-			"fridays",
-			"saturdays",
-			"sundays",
-			"weekdays",
-			"weekends",
-			"everyday"
-		]
+    def update_schedule_from_google_calendar(self):
 
-		section_dict = {
-			"TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
-			"Movies"   : ["movie", "movies", "films", "film"],
-			"Videos"   : ["video", "videos", "vid"],
-			"Music"    : ["music", "songs", "song", "tune", "tunes"]
-		}
+        self.gcal = GoogleCalendar(self.GKEY)
 
-		tree = ET.parse('pseudo_schedule.xml')
+        events = self.gcal.get_entries()
 
-		root = tree.getroot()
+        self.db.create_tables()
 
-		for child in root:
+        self.db.remove_all_scheduled_items()
 
-			if child.tag in scheduled_days_list:
+        scheduled_days_list = [
+            "mondays",
+            "tuesdays",
+            "wednesdays",
+            "thursdays",
+            "fridays",
+            "saturdays",
+            "sundays",
+            "weekdays",
+            "weekends",
+            "everyday"
+        ]
 
-				for time in child.iter("time"):
+        section_dict = {
+            "TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
+            "Movies"   : ["movie", "movies", "films", "film"],
+            "Videos"   : ["video", "videos", "vid"],
+            "Music"    : ["music", "songs", "song", "tune", "tunes"]
+        }
 
-					for key, value in section_dict.items():
+        weekday_dict = {
+            "0" : ["mondays", "weekdays", "everyday"],
+            "1" : ["tuesdays", "weekdays", "everyday"],
+            "2" : ["wednesdays", "weekdays", "everyday"],
+            "3" : ["thursdays", "weekdays", "everyday"],
+            "4" : ["fridays", "weekdays", "everyday"],
+            "5" : ["saturdays", "weekends", "everyday"],
+            "6" : ["sundays", "weekends", "everyday"],
+        }
 
-						if time.attrib['type'] == key or time.attrib['type'] in value:
+        for event in events:
 
-							title = time.attrib['title']
+            titlelist = [x.strip() for x in event['summary'].split(',')]
 
-							natural_start_time = self.translate_time(time.text)
+            start = event['start'].get('dateTime', event['start'].get('date'))
 
-							natural_end_time = 0
+            s = datetime.datetime.strptime(start,"%Y-%m-%dT%H:%M:%S-07:00")
 
-							section = key
+            weekno = s.weekday()
 
-							day_of_week = child.tag
+            for key, value in section_dict.items():
 
-							strict_time = time.attrib['strict-time']
+                if str(titlelist[0]).lower() == key or str(titlelist[0]).lower() in value:
 
-							time_shift = time.attrib['time-shift']
+                    print "Adding {} to schedule.".format(titlelist[1])
 
-							overlap_max = time.attrib['overlap-max']
+                    title = titlelist[1]
 
-							start_time_unix = datetime.datetime.strptime(
-									self.translate_time(time.text), 
-									'%I:%M %p').strftime('%Y-%m-%d %H:%M:%S')
+                    # s.strftime('%I:%M'), event["summary"]
+                    natural_start_time = self.translate_time(s.strftime(self.APP_TIME_FORMAT_STR))
 
-							print "Adding: ", time.tag, section, time.text, time.attrib['title']
+                    natural_end_time = 0
 
-							self.db.add_schedule_to_db(
-								0, # mediaID
-								title, # title
-								0, # duration
-								natural_start_time, # startTime
-								natural_end_time, # endTime
-								day_of_week, # dayOfWeek
-								start_time_unix, # startTimeUnix
-								section, # section
-								strict_time, # strictTime
-								time_shift, # timeShift
-								overlap_max, # overlapMax
-							)
+                    section = key
 
-	def drop_db(self):
+                    for dnum, daylist in weekday_dict.items():
 
-		self.db.drop_db()
+                        #print int(weekno), int(dnum)
 
-	def drop_schedule(self):
+                        if int(weekno) == int(dnum):
 
-		self.db.drop_schedule()
+                            day_of_week = daylist[0]
 
-	def remove_all_scheduled_items():
+                    strict_time = titlelist[2] if len(titlelist) > 2 else "true"
 
-		self.db.remove_all_scheduled_items()
+                    #strict_time = "true"
 
+                    time_shift = "5"
 
+                    overlap_max = ""
 
-	"""App functions.
+                    print natural_start_time
 
-		generate_daily_schedule(): Generate the daily_schedule table.
-	"""
+                    start_time_unix = datetime.datetime.strptime(
+                            self.translate_time(natural_start_time), 
+                            '%I:%M:%S %p').strftime('%Y-%m-%d %H:%M:%S')
 
-	'''
-	*
-	* Using datetime to figure out when the media item will end based on the scheduled start time or the offset 
-	* generated by the previous media item. 
+                    #print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
-	* Returns time 
-	*
-	'''
-	'''
-	*
-	* Returns time difference in minutes
-	*
-	'''
+                    self.db.add_schedule_to_db(
+                        0, # mediaID
+                        title, # title
+                        0, # duration
+                        natural_start_time, # startTime
+                        natural_end_time, # endTime
+                        day_of_week, # dayOfWeek
+                        start_time_unix, # startTimeUnix
+                        section, # section
+                        strict_time, # strictTime
+                        time_shift, # timeShift
+                        overlap_max, # overlapMax
+                    )
 
-	def translate_time(self, timestr):
+    def update_schedule(self):
 
-		try:
+        self.db.create_tables()
 
-			return datetime.datetime.strptime(timestr, "%I:%M %p").strftime("%-I:%M %p")
+        self.db.remove_all_scheduled_items()
 
-		except ValueError as e:
+        scheduled_days_list = [
+            "mondays",
+            "tuesdays",
+            "wednesdays",
+            "thursdays",
+            "fridays",
+            "saturdays",
+            "sundays",
+            "weekdays",
+            "weekends",
+            "everyday"
+        ]
 
-			pass
+        section_dict = {
+            "TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
+            "Movies"   : ["movie", "movies", "films", "film"],
+            "Videos"   : ["video", "videos", "vid"],
+            "Music"    : ["music", "songs", "song", "tune", "tunes"]
+        }
 
-		try:
+        tree = ET.parse('pseudo_schedule.xml')
 
-			return datetime.datetime.strptime(timestr, "%H:%M").strftime("%-I:%M %p")
+        root = tree.getroot()
 
-		except ValueError as e:
+        for child in root:
 
-			pass
+            if child.tag in scheduled_days_list:
 
-	def time_diff(self, time1,time2):
-		'''
-		*
-		* Getting the offest by comparing both times from the unix epoch time and getting the difference.
-		*
-		'''
-		timeA = datetime.datetime.strptime(time1, "%I:%M %p")
-		timeB = datetime.datetime.strptime(time2, "%I:%M %p")
-		
-		timeAEpoch = calendar.timegm(timeA.timetuple())
-		timeBEpoch = calendar.timegm(timeB.timetuple())
+                for time in child.iter("time"):
 
-		tdelta = abs(timeAEpoch) - abs(timeBEpoch)
+                    for key, value in section_dict.items():
 
-		return int(tdelta/60)
+                        if time.attrib['type'] == key or time.attrib['type'] in value:
 
+                            title = time.attrib['title']
 
-	'''
-	*
-	* Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
+                            natural_start_time = self.translate_time(time.text)
 
-	* Returns time - for new start time
-	*
-	'''
-	def calculate_start_time(self, prevEndTime, intendedStartTime, timeGap, overlapMax):
+                            natural_end_time = 0
 
-		self.TIME_GAP = timeGap
+                            section = key
 
-		self.OVERLAP_GAP = timeGap
+                            day_of_week = child.tag
 
-		self.OVERLAP_MAX = overlapMax
+                            strict_time = time.attrib['strict-time']
 
-		time1 = prevEndTime.strftime('%-I:%M %p')
+                            time_shift = time.attrib['time-shift']
 
-		timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M %p').strftime('%-I:%M %p')
+                            overlap_max = time.attrib['overlap-max']
 
-		print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
+                            start_time_unix = self.translate_time(time.text)
 
-		timeDiff = self.time_diff(time1, timeB)
+                            print "Adding: ", time.tag, section, time.text, time.attrib['title']
 
-		"""print("timeDiff "+ str(timeDiff))
-		print("startTimeUNIX: "+ str(intendedStartTime))"""
+                            self.db.add_schedule_to_db(
+                                0, # mediaID
+                                title, # title
+                                0, # duration
+                                natural_start_time, # startTime
+                                natural_end_time, # endTime
+                                day_of_week, # dayOfWeek
+                                start_time_unix, # startTimeUnix
+                                section, # section
+                                strict_time, # strictTime
+                                time_shift, # timeShift
+                                overlap_max, # overlapMax
+                            )
 
-		newTimeObj = timeB
+    def drop_db(self):
 
-		newStartTime = timeB
+        self.db.drop_db()
 
-		'''
-		*
-		* If time difference is negative, then we know there is overlap
-		*
-		'''
-		if timeDiff < 0:
-			'''
-			*
-			* If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
-			*
-			'''
-			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
-			
-			#print(timeset)
+    def drop_schedule(self):
 
-			timeSetToUse = None
+        self.db.drop_schedule()
 
-			for time in timeset:
+    def remove_all_scheduled_items():
 
-				#print(time)
-				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+        self.db.remove_all_scheduled_items()
 
-				# print(theTimeSetInterval)
 
-				# print(prevEndTime)
 
-				if theTimeSetInterval >= prevEndTime:
+    """App functions.
 
-					print "++++ There is overlap. Setting new time-interval:", theTimeSetInterval
+        generate_daily_schedule(): Generate the daily_schedule table.
+    """
 
-					newStartTime = theTimeSetInterval
+    '''
+    *
+    * Using datetime to figure out when the media item will end based on the scheduled start time or the offset 
+    * generated by the previous media item. 
 
-					break
+    * Returns time 
+    *
+    '''
+    '''
+    *
+    * Returns time difference in minutes
+    *
+    '''
 
-				#newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + overlapGap))
+    def translate_time(self, timestr):
 
-		elif (timeDiff >= 0) and (self.TIME_GAP != -1):
+        try:
 
-			'''
-			*
-			* If there this value is configured, then the timeGap var in config will determine the next increment. 
-			* If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
-			*
-			'''
-			timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
-			
-			# print(timeset)
+            return datetime.datetime.strptime(timestr, '%I:%M %p').strftime(self.APP_TIME_FORMAT_STR)
 
-			for time in timeset:
+        except ValueError as e:
 
-				theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
+            pass
 
-				tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M %p').strftime('%H:%M')
+        try:
 
-				formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
+            return datetime.datetime.strptime(timestr, '%I:%M:%S %p').strftime(self.APP_TIME_FORMAT_STR)
 
-				if theTimeSetInterval >= formatted_time_two:
+        except ValueError as e:
 
-					print "++++ Setting new time-interval:", theTimeSetInterval
+            pass
 
-					newStartTime = theTimeSetInterval
+        try:
 
-					break
+            return datetime.datetime.strptime(timestr, '%H:%M').strftime(self.APP_TIME_FORMAT_STR)
 
-		else:
+        except ValueError as e:
 
-			print("Not sure what to do here")
+            pass
 
-		return newStartTime.strftime('%-I:%M %p')
+        return timestr
 
-	def get_end_time_from_duration(self, startTime, duration):
+    def time_diff(self, time1,time2):
+        '''
+        *
+        * Getting the offest by comparing both times from the unix epoch time and getting the difference.
+        *
+        '''
+        timeA = datetime.datetime.strptime(time1, '%I:%M:%S %p')
+        timeB = datetime.datetime.strptime(time2, '%I:%M:%S %p')
+        
+        timeAEpoch = calendar.timegm(timeA.timetuple())
+        timeBEpoch = calendar.timegm(timeB.timetuple())
 
-		time = datetime.datetime.strptime(startTime, '%I:%M %p')
+        tdelta = abs(timeAEpoch) - abs(timeBEpoch)
 
-		show_time_plus_duration = time + datetime.timedelta(milliseconds=duration)
+        return int(tdelta/60)
 
-		#print(show_time_plus_duration.minute)
 
-		return show_time_plus_duration
+    '''
+    *
+    * Passing in the endtime from the prev episode and desired start time of this episode, calculate the best start time 
 
-	def generate_daily_schedule(self):
+    * Returns time - for new start time
+    *
+    '''
+    def calculate_start_time(self, prevEndTime, intendedStartTime, timeGap, overlapMax):
 
-		print("#### Generating Daily Schedule")
+        self.TIME_GAP = timeGap
 
-		schedule = self.db.get_schedule()
+        self.OVERLAP_GAP = timeGap
 
-		weekday_dict = {
-			"0" : ["mondays", "weekdays", "everyday"],
-			"1" : ["tuesdays", "weekdays", "everyday"],
-			"2" : ["wednesdays", "weekdays", "everyday"],
-			"3" : ["thursdays", "weekdays", "everyday"],
-			"4" : ["fridays", "weekdays", "everyday"],
-			"5" : ["saturdays", "weekends", "everyday"],
-			"6" : ["sundays", "weekends", "everyday"],
-		}
+        self.OVERLAP_MAX = overlapMax
 
-		weekno = datetime.datetime.today().weekday()
+        time1 = prevEndTime.strftime('%I:%M:%S %p')
 
-		schedule_advance_watcher = 0
+        timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M:%S %p').strftime(self.APP_TIME_FORMAT_STR)
 
-		for entry in schedule:
+        print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
 
-			schedule_advance_watcher += 1
+        timeDiff = self.time_diff(time1, timeB)
 
-			section = entry[9]
+        """print("timeDiff "+ str(timeDiff))
+        print("startTimeUNIX: "+ str(intendedStartTime))"""
 
-			for key, val in weekday_dict.iteritems(): 
+        newTimeObj = timeB
 
-				if str(entry[7]) in str(val) and int(weekno) == int(key):
+        newStartTime = timeB
 
-					if section == "TV Shows":
+        '''
+        *
+        * If time difference is negative, then we know there is overlap
+        *
+        '''
+        if timeDiff < 0:
+            '''
+            *
+            * If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+            *
+            '''
+            timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
+            
+            #print(timeset)
 
-						if entry[3] == "random":
+            timeSetToUse = None
 
-							next_episode = self.db.get_random_episode()
+            for time in timeset:
 
-						else:
+                #print(time)
+                theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-							next_episode = self.db.get_next_episode(entry[3])
+                # print(theTimeSetInterval)
 
-						if next_episode != None:
-						
-							episode = Episode(
-								section, # section_type
-								next_episode[3], # title
-								entry[5], # natural_start_time
-								self.get_end_time_from_duration(entry[5], next_episode[4]), # natural_end_time
-								next_episode[4], # duration
-								entry[7], # day_of_week
-								entry[10], # is_strict_time
-								entry[11], # time_shift
-								entry[12], # overlap_max
-								entry[3], # show_series_title
-								next_episode[5], # episode_number
-								next_episode[6] # season_number
-								)
+                # print(prevEndTime)
 
-							self.MEDIA.append(episode)
+                if theTimeSetInterval >= prevEndTime:
 
-						else:
+                    print "++++ There is overlap. Setting new time-interval:", theTimeSetInterval
 
-							print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
+                    newStartTime = theTimeSetInterval
 
-						#print(episode)
+                    break
 
-					elif section == "Movies":
+                #newStartTime = newTimeObj + datetime.timedelta(minutes=abs(timeDiff + overlapGap))
 
-						if entry[3] == "random":
+        elif (timeDiff >= 0) and (self.TIME_GAP != -1):
 
-							the_movie = self.db.get_random_movie()
+            '''
+            *
+            * If there this value is configured, then the timeGap var in config will determine the next increment. 
+            * If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
+            *
+            '''
+            timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
+            
+            # print(timeset)
 
-						else:
+            for time in timeset:
 
-							the_movie = self.db.get_movie(entry[3])
+                theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-						if the_movie != None:
+                tempTimeTwoStr = datetime.datetime.strptime(time1, self.APP_TIME_FORMAT_STR).strftime('%H:%M')
 
-							movie = Movie(
-							section, # section_type
-							the_movie[3], # title
-							entry[5], # natural_start_time
-							self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
-							the_movie[4], # duration
-							entry[7], # day_of_week
-							entry[10], # is_strict_time
-							entry[11], # time_shift
-							entry[12] # overlap_max
-							)
+                formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
 
-							#print(movie.natural_end_time)
+                if theTimeSetInterval >= formatted_time_two:
 
-							self.MEDIA.append(movie)
+                    print "++++ Setting new time-interval:", theTimeSetInterval
 
-						else:
+                    newStartTime = theTimeSetInterval
 
-							print("Cannot find Movie, {} in the local db".format(entry[3]))
+                    break
 
-					elif section == "Music":
+        else:
 
-						the_music = self.db.get_music(entry[3])
+            print("Not sure what to do here")
 
-						if the_music != None:
+        return newStartTime.strftime('%I:%M:%S %p')
 
-							music = Music(
-							section, # section_type
-							the_music[3], # title
-							entry[5], # natural_start_time
-							self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
-							the_music[4], # duration
-							entry[7], # day_of_week
-							entry[10], # is_strict_time
-							entry[11], # time_shift
-							entry[12] # overlap_max
-							)
+    def get_end_time_from_duration(self, startTime, duration):
 
-							#print(music.natural_end_time)
+        time = datetime.datetime.strptime(startTime, '%I:%M:%S %p')
 
-							self.MEDIA.append(music)
+        show_time_plus_duration = time + datetime.timedelta(milliseconds=duration)
 
-						else:
+        #print(show_time_plus_duration.minute)
 
-							print("Cannot find Music, {} in the local db".format(entry[3]))
+        return show_time_plus_duration
 
-					elif section == "Video":
+    def generate_daily_schedule(self):
 
-						the_video = self.db.get_video(entry[3])
+        print("#### Generating Daily Schedule")
 
-						if the_music != None:
+        if self.USING_COMMERCIAL_INJECTION:
+            self.commercials = PseudoChannelCommercial(
+                self.db.get_commercials()
+            )
 
-							video = Video(
-							section, # section_type
-							the_video[3], # title
-							entry[5], # natural_start_time
-							self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
-							the_video[4], # duration
-							entry[7], # day_of_week
-							entry[10], # is_strict_time
-							entry[11], # time_shift
-							entry[12] # overlap_max
-							)
+        schedule = self.db.get_schedule()
 
-							#print(music.natural_end_time)
+        weekday_dict = {
+            "0" : ["mondays", "weekdays", "everyday"],
+            "1" : ["tuesdays", "weekdays", "everyday"],
+            "2" : ["wednesdays", "weekdays", "everyday"],
+            "3" : ["thursdays", "weekdays", "everyday"],
+            "4" : ["fridays", "weekdays", "everyday"],
+            "5" : ["saturdays", "weekends", "everyday"],
+            "6" : ["sundays", "weekends", "everyday"],
+        }
 
-							self.MEDIA.append(video)
+        weekno = datetime.datetime.today().weekday()
 
-						else:
+        schedule_advance_watcher = 0
 
-							print("Cannot find Video, {} in the local db".format(entry[3]))
+        for entry in schedule:
 
-					else:
+            schedule_advance_watcher += 1
 
-						pass
+            section = entry[9]
 
-			"""If we reached the end of the scheduled items for today, add them to the daily schedule
+            for key, val in weekday_dict.iteritems(): 
 
-			"""
-			if schedule_advance_watcher >= len(schedule):
+                if str(entry[7]) in str(val) and int(weekno) == int(key):
 
-				print "+++++ Finished processing time entries, recreating daily_schedule"
+                    if section == "TV Shows":
 
-				previous_episode = None
+                        if str(entry[3]).lower() == "random":
 
-				self.db.remove_all_daily_scheduled_items()
+                            next_episode = self.db.get_random_episode()
 
-				for entry in self.MEDIA:
+                        else:
 
-					#print entry.natural_end_time
+                            next_episode = self.db.get_next_episode(entry[3])
 
-					if previous_episode != None:
+                        if next_episode != None:
+                        
+                            episode = Episode(
+                                section, # section_type
+                                next_episode[3], # title
+                                entry[5], # natural_start_time
+                                self.get_end_time_from_duration(self.translate_time(entry[5]), next_episode[4]), # natural_end_time
+                                next_episode[4], # duration
+                                entry[7], # day_of_week
+                                entry[10], # is_strict_time
+                                entry[11], # time_shift
+                                entry[12], # overlap_max
+                                next_episode[8] if len(next_episode) >= 9 else '', # plex id
+                                entry[3], # show_series_title
+                                next_episode[5], # episode_number
+                                next_episode[6] # season_number
+                                )
 
-						natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M %p')
+                            self.MEDIA.append(episode)
 
-						natural_end_time = entry.natural_end_time
+                        else:
 
-						if entry.is_strict_time.lower() == "true":
+                            print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
 
-							print "++++ Strict-time: {}".format(str(entry.title))
+                        #print(episode)
 
-							entry.end_time = self.get_end_time_from_duration(
-									self.translate_time(entry.start_time), 
-									entry.duration
-								)
+                    elif section == "Movies":
 
-							self.db.add_media_to_daily_schedule(entry)
+                        if str(entry[3]).lower() == "random":
 
-							previous_episode = entry
+                            the_movie = self.db.get_random_movie()
 
-						else:
+                        else:
 
-							print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+                            the_movie = self.db.get_movie(entry[3])
 
-							new_starttime = self.calculate_start_time(
-								previous_episode.end_time,
-								entry.natural_start_time,  
-								previous_episode.time_shift, 
-								previous_episode.overlap_max
-							)
+                        if the_movie != None:
 
-							print "++++ New start time:", new_starttime
+                            movie = Movie(
+                            section, # section_type
+                            the_movie[3], # title
+                            entry[5], # natural_start_time
+                            self.get_end_time_from_duration(entry[5], the_movie[4]), # natural_end_time
+                            the_movie[4], # duration
+                            entry[7], # day_of_week
+                            entry[10], # is_strict_time
+                            entry[11], # time_shift
+                            entry[12], # overlap_max
+                            the_movie[6] # plex id
+                            )
 
-							entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M %p').strftime('%-I:%M %p')
+                            #print(movie.natural_end_time)
 
-							entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+                            self.MEDIA.append(movie)
 
-							self.db.add_media_to_daily_schedule(entry)
+                        else:
 
-							previous_episode = entry
+                            print("Cannot find Movie, {} in the local db".format(entry[3]))
 
-					else:
+                    elif section == "Music":
 
-						self.db.add_media_to_daily_schedule(entry)
+                        the_music = self.db.get_music(entry[3])
 
-						previous_episode = entry
+                        if the_music != None:
+
+                            music = Music(
+                            section, # section_type
+                            the_music[3], # title
+                            entry[5], # natural_start_time
+                            self.get_end_time_from_duration(entry[5], the_music[4]), # natural_end_time
+                            the_music[4], # duration
+                            entry[7], # day_of_week
+                            entry[10], # is_strict_time
+                            entry[11], # time_shift
+                            entry[12], # overlap_max
+                            the_music[6], # plex id
+                            )
+
+                            #print(music.natural_end_time)
+
+                            self.MEDIA.append(music)
+
+                        else:
+
+                            print("Cannot find Music, {} in the local db".format(entry[3]))
+
+                    elif section == "Video":
+
+                        the_video = self.db.get_video(entry[3])
+
+                        if the_music != None:
+
+                            video = Video(
+                            section, # section_type
+                            the_video[3], # title
+                            entry[5], # natural_start_time
+                            self.get_end_time_from_duration(entry[5], the_video[4]), # natural_end_time
+                            the_video[4], # duration
+                            entry[7], # day_of_week
+                            entry[10], # is_strict_time
+                            entry[11], # time_shift
+                            entry[12], # overlap_max
+                            the_video[6] # plex id
+                            )
+
+                            #print(music.natural_end_time)
+
+                            self.MEDIA.append(video)
+
+                        else:
+
+                            print("Cannot find Video, {} in the local db".format(entry[3]))
+
+                    else:
+
+                        pass
+
+            """If we reached the end of the scheduled items for today, add them to the daily schedule
+
+            """
+            if schedule_advance_watcher >= len(schedule):
+
+                print "+++++ Finished processing time entries, recreating daily_schedule"
+
+                previous_episode = None
+
+                self.db.remove_all_daily_scheduled_items()
+
+                for entry in self.MEDIA:
+
+                    #print entry.natural_end_time
+
+                    if previous_episode != None:
+
+                        natural_start_time = datetime.datetime.strptime(entry.natural_start_time, self.APP_TIME_FORMAT_STR)
+
+                        natural_end_time = entry.natural_end_time
+
+                        if entry.is_strict_time.lower() == "true":
+
+                            print "++++ Strict-time: {}".format(str(entry.title))
+
+                            entry.end_time = self.get_end_time_from_duration(
+                                    self.translate_time(entry.start_time), 
+                                    entry.duration
+                                )
+
+                            """Get List of Commercials to inject"""
+
+                            if self.USING_COMMERCIAL_INJECTION:
+
+                                list_of_commercials = self.commercials.get_commercials_to_place_between_media(
+                                    previous_episode,
+                                    entry
+                                )
+
+                                for commercial in list_of_commercials:
+
+                                    self.db.add_media_to_daily_schedule(commercial)
+
+                            self.db.add_media_to_daily_schedule(entry)
+
+                            previous_episode = entry
+
+                        else:
+
+                            print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+
+                            new_starttime = self.calculate_start_time(
+                                previous_episode.end_time,
+                                entry.natural_start_time,  
+                                previous_episode.time_shift, 
+                                previous_episode.overlap_max
+                            )
+
+                            print "++++ New start time:", new_starttime
+
+                            entry.start_time = datetime.datetime.strptime(new_starttime, self.APP_TIME_FORMAT_STR).strftime('%I:%M:%S %p')
+
+                            entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
+
+                            """Get List of Commercials to inject"""
+                            if self.USING_COMMERCIAL_INJECTION:
+                                list_of_commercials = self.commercials.get_commercials_to_place_between_media(
+                                    previous_episode,
+                                    entry
+                                )
+
+                                for commercial in list_of_commercials:
+
+                                    self.db.add_media_to_daily_schedule(commercial)
+
+                            self.db.add_media_to_daily_schedule(entry)
+
+                            previous_episode = entry
+
+                    else:
+
+                        self.db.add_media_to_daily_schedule(entry)
+
+                        previous_episode = entry
+
+    def run_commercial_injection(self):
+
+        print "#### Running commercial injection."
+
+        self.commercials = PseudoChannelCommercial(
+            self.db.get_commercials(),
+            self.db.get_daily_schedule()
+        )
+
+        commercials_to_inject = self.commercials.get_commercials_to_inject()
+
+        print commercials_to_inject
+
+    def run(self):
+
+        """print datetime.datetime.now()
+        threading.Timer(1, self.run()).start()"""
+        pass
+
+    def make_xml_schedule(self):
+
+        self.controller.make_xml_schedule(self.db.get_daily_schedule())
+
+    def get_daily_schedule_as_media_object_list(self):
+
+        for i, item in enumerate(self.db.get_daily_schedule(), start=0):
+
+            if item[11] == "TV Shows":
+
+                """episode = Episode(
+
+                )"""
+                pass
+
+            elif item[11] == "Movies":
+
+                pass
+
+            elif item[11] == "Music":
+
+                pass
+
+            elif item[11] == "Commercials":
+
+                pass
+
+            elif item[11] == "Videos":
+
+                pass
+
+            else:
+
+                pass
+
+    def show_clients(self):
+
+        print "##### Connected Clients:"
+
+        for i, client in enumerate(self.PLEX.clients()):
+            
+            print "+++++", str(i + 1)+".", "Client:", client.title
+
+    def show_schedule(self):
+
+        print "##### Daily Pseudo Schedule:"
+
+        daily_schedule = self.db.get_daily_schedule()
+
+        for i , entry in enumerate(daily_schedule):
+
+            print "+++++", str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3]
+
+    def exit_app(self):
+
+        print " - Exiting Pseudo TV & cleaning up."
+
+        for i in self.MEDIA:
+
+            del i
+
+        self.MEDIA = None
+
+        self.controller = None
+
+        self.db = None
+
+        sleep(1)
 
 if __name__ == '__main__':
 
-	pseudo_channel = PseudoChannel()
+    pseudo_channel = PseudoChannel()
 
-	#pseudo_channel.db.create_tables()
+    #pseudo_channel.db.create_tables()
 
-	#pseudo_channel.update_db()
+    #pseudo_channel.update_db()
 
-	#pseudo_channel.update_schedule()
+    #pseudo_channel.update_schedule()
 
-	#pseudo_channel.generate_daily_schedule()
+    #pseudo_channel.generate_daily_schedule()
 
-	parser = argparse.ArgumentParser(
-    	description="Pseudo Channel for Plex. Update pseduo_config.py & pseudo_schedule.xml before this step.",
-    	usage="PseudoChannel.py [-u] update local db with plex db [-xml] update db with xml schedule data [-g] generate daily schedule [-r] run the app"
-    )
+    banner = textwrap.dedent('''\
+#   __              __                        
+#  |__)_ _    _| _ /  |_  _  _  _  _|    _    
+#  |  _)(-|_|(_|(_)\__| )(_|| )| )(-|.  |_)\/ 
+#                                       |  /  
 
-	parser.add_argument('-u', action='store_true')
-	parser.add_argument('-xml', action='store_true')
-	parser.add_argument('-g', action='store_true')
-	parser.add_argument('-r', action='store_true')
+            A Custom TV Channel for Plex
+''')
 
-	'''
-	* 
-	* Show connected clients: "python PseudoChannel.py -u -xml -g -r"
-	*
-	'''
-	parser.add_argument('-sc', action='store_true')
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description = banner)
 
-	globals().update(vars(parser.parse_args()))
+    '''
+    * 
+    * Primary arguments: "python PseudoChannel.py -u -xml -g -r"
+    *
+    '''
 
-	args = parser.parse_args()
+    parser.add_argument('-u', '--update',
+                         action='store_true',
+                         help='Update the local database with Plex libraries.')
+    parser.add_argument('-xml', '--xml',
+                         action='store_true', 
+                         help='Update the local database with the pseudo_schedule.xml.')
+    '''
+    * 
+    * Update Schedule based on Google Cal: "python PseudoChannel.py -gc"
+    *
+    '''
+    parser.add_argument('-gc', '--google_calendar',
+                         action='store_true',
+                         help='Update the local database with entries in the google calendar.')
 
-	print(args)
+    parser.add_argument('-g', '--generate_schedule',
+                         action='store_true', 
+                         help='Generate the daily schedule.')
+    parser.add_argument('-r', '--run',
+                         action='store_true', 
+                         help='Run this program.')
 
-	if args.u:
+    '''
+    * 
+    * Show connected clients: "python PseudoChannel.py -c"
+    *
+    '''
+    parser.add_argument('-c', '--show_clients',
+                         action='store_true',
+                         help='Show Plex clients.')
 
-		pseudo_channel.update_db()
+    '''
+    * 
+    * Show schedule (daily): "python PseudoChannel.py -s"
+    *
+    '''
+    parser.add_argument('-s', '--show_schedule',
+                         action='store_true',
+                         help='Show scheduled media for today.')
 
-	if args.xml:
+    '''
+    * 
+    * Make XML / HTML Schedule: "python PseudoChannel.py -m"
+    *
+    '''
+    parser.add_argument('-m', '--make_html',
+                         action='store_true',
+                         help='Makes the XML / HTML schedule based on the daily_schedule table.')
 
-		pseudo_channel.update_schedule()
+    '''
+    * 
+    * Make XML / HTML Schedule: "python PseudoChannel.py -i"
+    *
+    '''
+    parser.add_argument('-i', '--inject_commercials',
+                         action='store_true',
+                         help='Squeeze commercials in any media gaps if possible.')
 
-	if args.g:
+    globals().update(vars(parser.parse_args()))
 
-		pseudo_channel.generate_daily_schedule()
+    args = parser.parse_args()
 
-	if args.r:
+    #print(args)
 
-		try:
+    if args.update:
 
-			print "++++ Running TV Controller"
-			
-			"""Every minute on the minute check the DB startTimes of all media to 
-			   determine whether or not to play. Also, check the now_time to
-			   see if it's midnight (or 23.59), if so then generate a new daily_schedule
-				
-			"""
-			while True:
+        pseudo_channel.update_db()
 
-				now = datetime.datetime.now()
+    if args.xml:
 
-				now_time = now.time()
+        pseudo_channel.update_schedule()
 
-				if now_time == time(23,59):
+    if args.google_calendar:
 
-					pseudo_channel.generate_daily_schedule()
+        pseudo_channel.update_schedule_from_google_calendar()
 
-				pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
+    if args.generate_schedule:
 
-				t = datetime.datetime.utcnow()
+        pseudo_channel.generate_daily_schedule()
 
-				sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+    if args.show_clients:
 
-				sleep(sleeptime)
+        pseudo_channel.show_clients()
 
-		except KeyboardInterrupt, e:
+    if args.show_schedule:
 
-		    pass
-		
+        pseudo_channel.show_schedule()
+
+    if args.make_html:
+
+        pseudo_channel.make_xml_schedule()
+
+    if args.inject_commercials:
+
+        pseudo_channel.run_commercial_injection()
+
+    if args.run:
+
+        print banner
+        print "+++++ To run this in the background:"
+        print "+++++", "screen -d -m bash -c 'python PseudoChannel.py -r; exec sh'"
+        
+        """Every minute on the minute check the DB startTimes of all media to 
+           determine whether or not to play. Also, check the now_time to
+           see if it's midnight (or 23.59), if so then generate a new daily_schedule
+            
+        """
+
+        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+        daily_update_time = datetime.datetime.strptime(
+            pseudo_channel.translate_time(
+                pseudo_channel.DAILY_UPDATE_TIME
+            ),
+            pseudo_channel.APP_TIME_FORMAT_STR
+        ) 
+
+        try:
+        
+            def run_task():
+
+                now = datetime.datetime.now()
+
+                now_time = now.time().replace(microsecond=0)
+
+                #print time(11,59,00), now_time
+
+                if now_time == time(
+                        daily_update_time.hour,
+                        daily_update_time.minute,
+                        daily_update_time.second
+                ):
+
+                    if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+                        pseudo_channel.update_schedule_from_google_calendar()
+
+                    else:
+
+                         pass
+                        
+                    pseudo_channel.generate_daily_schedule()
+
+                    pseudo_channel.make_xml_schedule()
+
+                pseudo_channel.controller.tv_controller(the_daily_schedule)
+
+                t = Timer(1, run_task, ())
+
+                t.start()
+
+                print '{}'.format(datetime.datetime.now(), end="\r")
+
+        except KeyboardInterrupt:
+
+                print('Manual break by user')
+
+        run_task()
+
+   
+
+        """try:
+
+            
+            while True:
+
+                now = datetime.datetime.now()
+
+                now_time = now.time().replace(microsecond=0)
+
+                #print time(11,59,00), now_time
+
+                if now_time == time(00,00,00):
+
+                    if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+                        pseudo_channel.update_schedule_from_google_calendar()
+
+                        sleep(.5)
+
+                    else:
+
+                         pass
+                        
+                    pseudo_channel.generate_daily_schedule()
+
+                    pseudo_channel.make_xml_schedule()
+
+                pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
+
+                t = datetime.datetime.utcnow()
+
+                #sleeptime = 60 - (t.second + t.microsecond/1000000.0)
+
+                sleep(.5)
+
+        except KeyboardInterrupt, e:
+
+            pseudo_channel.exit_app()
+
+            del pseudo_channel"""
+        
 
 
 

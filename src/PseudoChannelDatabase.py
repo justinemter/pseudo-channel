@@ -1,472 +1,491 @@
+#!/usr/bin/env python
+
 import sqlite3
 import datetime
 import time
 
 class PseudoChannelDatabase():
 
-	def __init__(self, db):
+    def __init__(self, db):
 
-		self.db = db
+        self.db = db
 
-		self.conn = sqlite3.connect(self.db)
+        self.conn = sqlite3.connect(self.db, check_same_thread=False)
 
-		self.cursor = self.conn.cursor()
+        self.cursor = self.conn.cursor()
 
-	"""Database functions.
+    """Database functions.
 
-		Utilities, etc.
-	"""
+        Utilities, etc.
+    """
 
-	def create_tables(self):
+    def create_tables(self):
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'movies(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, lastPlayedDate TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'movies(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
+                  'lastPlayedDate TEXT, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'videos(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'videos(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'music(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'music(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'shows(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
-				  'lastEpisodeTitle TEXT, fullImageURL TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'shows(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
+                  'lastEpisodeTitle TEXT, fullImageURL TEXT, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'episodes(id INTEGER PRIMARY KEY AUTOINCREMENT, '
-				  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
-				  'episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'episodes(id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                  'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
+                  'episodeNumber INTEGER, seasonNumber INTEGER, showTitle TEXT, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'commercials(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
-				  'mediaID INTEGER, title TEXT, duration INTEGER)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'commercials(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
+                  'mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
-				  'mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, '
-				  'endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER, section TEXT, '
-				  'strictTime TEXT, timeShift TEXT, overlapMax TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
+                  'mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, '
+                  'endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER, section TEXT, '
+                  'strictTime TEXT, timeShift TEXT, overlapMax TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
-				  'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
-				  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
-				  'dayOfWeek TEXT, sectionType TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
+                  'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
+                  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
+                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT)')
 
-		self.cursor.execute('CREATE TABLE IF NOT EXISTS '
-				  'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)')
 
-		#index
-		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_episode_title ON episodes (title);')
+        #index
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_episode_title ON episodes (title);')
 
-		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_movie_title ON movies (title);')
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_movie_title ON movies (title);')
 
-		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_movie_title ON videos (title);')
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_shows_title ON shows (title);')
 
-		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_music_title ON music (title);')
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_video_title ON videos (title);')
 
-		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_commercial_title ON commercials (title);')
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_music_title ON music (title);')
 
-		self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_settings_version ON app_settings (version);')
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_commercial_title ON commercials (title);')
 
-		"""Setting Basic Settings
-		
-		"""
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO app_settings "
-					  "(version) VALUES (?)", 
-					  ("0.1",))
+        self.cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_settings_version ON app_settings (version);')
 
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def drop_db(self):
-
-		pass
-
-	def drop_schedule(self):
-
-		pass
-
-	def remove_all_scheduled_items(self):
-
-		sql = "DELETE FROM schedule WHERE id > -1"
-
-		self.cursor.execute(sql)
-
-		self.conn.commit()
-
-	def remove_all_daily_scheduled_items(self):
-
-		sql = "DELETE FROM daily_schedule WHERE id > -1"
-
-		self.cursor.execute(sql)
-
-		self.conn.commit()
-
-	"""Database functions.
-
-		Setters, etc.
-	"""
-
-	def add_movies_to_db(self, mediaID, title, duration):
-		unix = int(time.time())
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO movies "
-					  "(unix, mediaID, title, duration) VALUES (?, ?, ?, ?)", 
-					  (unix, mediaID, title, duration))
-
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def add_videos_to_db(self, mediaID, title, duration):
-		unix = int(time.time())
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO videos "
-					  "(unix, mediaID, title, duration) VALUES (?, ?, ?, ?)", 
-					  (unix, mediaID, title, duration))
-
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL):
-		unix = int(time.time())
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO shows "
-					  "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL) VALUES (?, ?, ?, ?, ?, ?)", 
-					  (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL))
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def add_episodes_to_db(self, mediaID, title, duration, episodeNumber, seasonNumber, showTitle):
-		unix = int(time.time())
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO episodes "
-				"(unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-				(unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle)) 
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def add_commercials_to_db(self, mediaID, title, duration):
-		unix = int(time.time())
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO commercials "
-					  "(unix, mediaID, title, duration) VALUES (?, ?, ?, ?)", 
-					  (unix, mediaID, title, duration))
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def add_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax):
-		unix = int(time.time())
-		try:
-			self.cursor.execute("INSERT OR REPLACE INTO  schedule "
-				"(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax) "
-				"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-				(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax))
-			self.conn.commit()
-		# Catch the exception
-		except Exception as e:
-		    # Roll back any change if something goes wrong
-		    self.conn.rollback()
-		    raise e
-
-	def add_daily_schedule_to_db(
-			self,
-			mediaID, 
-			title, 
-			episodeNumber, 
-			seasonNumber, 
-			showTitle, 
-			duration, 
-			startTime, 
-			endTime, 
-			dayOfWeek, 
-			sectionType
-			):
-
-		unix = int(time.time())
-
-		try:
-
-			self.cursor.execute("INSERT OR REPLACE INTO daily_schedule "
-					  "(unix, mediaID, title, episodeNumber, seasonNumber, "
-					  "showTitle, duration, startTime, endTime, dayOfWeek, sectionType) "
-					  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-					  (
-					  	unix, 
-					  	mediaID, 
-					  	title, 
-					  	episodeNumber, 
-					  	seasonNumber, 
-					  	showTitle, 
-					  	duration, 
-					  	startTime, 
-					  	endTime, 
-					  	dayOfWeek, 
-					  	sectionType
-					  	))
+        """Setting Basic Settings
+        
+        """
+        try:
+            self.cursor.execute("INSERT OR REPLACE INTO app_settings "
+                      "(version) VALUES (?)", 
+                      ("0.1",))
 
-			self.conn.commit()
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def drop_db(self):
+
+        pass
+
+    def drop_schedule(self):
+
+        pass
+
+    def remove_all_scheduled_items(self):
+
+        sql = "DELETE FROM schedule WHERE id > -1"
+
+        self.cursor.execute(sql)
+
+        self.conn.commit()
+
+    def remove_all_daily_scheduled_items(self):
+
+        sql = "DELETE FROM daily_schedule WHERE id > -1"
+
+        self.cursor.execute(sql)
+
+        self.conn.commit()
+
+    """Database functions.
+
+        Setters, etc.
+    """
+
+    def add_movies_to_db(self, mediaID, title, duration, plexMediaID):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO movies "
+                      "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, plexMediaID))
+
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def add_videos_to_db(self, mediaID, title, duration, plexMediaID):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO videos "
+                      "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, plexMediaID))
+
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO shows "
+                      "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def add_episodes_to_db(self, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO episodes "
+                "(unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+                (unix, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID)) 
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def add_commercials_to_db(self, mediaID, title, duration, plexMediaID):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO commercials "
+                      "(unix, mediaID, title, duration, plexMediaID) VALUES (?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, plexMediaID))
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            print plexMediaID
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def add_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO  schedule "
+                "(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax))
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def add_daily_schedule_to_db(
+            self,
+            mediaID, 
+            title, 
+            episodeNumber, 
+            seasonNumber, 
+            showTitle, 
+            duration, 
+            startTime, 
+            endTime, 
+            dayOfWeek, 
+            sectionType,
+            plexMediaID
+            ):
+
+        unix = int(time.time())
+
+        try:
+
+            self.cursor.execute("INSERT OR REPLACE INTO daily_schedule "
+                      "(unix, mediaID, title, episodeNumber, seasonNumber, "
+                      "showTitle, duration, startTime, endTime, dayOfWeek, sectionType, plexMediaID) "
+                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                      (
+                        unix, 
+                        mediaID, 
+                        title, 
+                        episodeNumber, 
+                        seasonNumber, 
+                        showTitle, 
+                        duration, 
+                        startTime, 
+                        endTime, 
+                        dayOfWeek, 
+                        sectionType,
+                        plexMediaID
+                        ))
 
-		# Catch the exception
-		except Exception as e:
+            self.conn.commit()
 
-		    # Roll back any change if something goes wrong
+        # Catch the exception
+        except Exception as e:
 
-		    self.conn.rollback()
+            # Roll back any change if something goes wrong
 
-		    raise e
+            self.conn.rollback()
 
-	def add_media_to_daily_schedule(self, media):
+            raise e
 
-		print "#### Adding media to db", media.title, media.start_time
+    def add_media_to_daily_schedule(self, media):
 
-		self.add_daily_schedule_to_db(
-				0,
-				media.title,
-				media.episode_number if media.__class__.__name__ == "Episode" else 0,
-				media.season_number if media.__class__.__name__ == "Episode" else 0,
-				media.show_series_title if media.__class__.__name__ == "Episode" else '',
-				media.duration,
-				media.start_time,
-				media.end_time,
-				media.day_of_week,
-				media.section_type
-			)
+        print "#### Adding media to db", media.title, media.start_time
 
-	"""Database functions.
+        self.add_daily_schedule_to_db(
+                0,
+                media.title,
+                media.episode_number if media.__class__.__name__ == "Episode" else 0,
+                media.season_number if media.__class__.__name__ == "Episode" else 0,
+                media.show_series_title if media.__class__.__name__ == "Episode" else '',
+                media.duration,
+                media.start_time,
+                media.end_time,
+                media.day_of_week,
+                media.section_type,
+                media.plex_media_id
+            )
 
-		Getters, etc.
-	"""
-	def get_media(self, title, mediaType):
+    """Database functions.
 
-		media = mediaType
+        Getters, etc.
+    """
+    def get_media(self, title, mediaType):
 
-		sql = "SELECT * FROM "+media+" WHERE (title LIKE ?) COLLATE NOCASE"
-		self.cursor.execute(sql, ("%"+title+"%", ))
-		media_item = self.cursor.fetchone()
+        media = mediaType
 
-		return media_item
+        sql = "SELECT * FROM "+media+" WHERE (title LIKE ?) COLLATE NOCASE"
+        self.cursor.execute(sql, ("%"+title+"%", ))
+        media_item = self.cursor.fetchone()
 
-	def get_schedule(self):
+        return media_item
 
-		self.cursor.execute("SELECT * FROM schedule ORDER BY datetime(startTimeUnix) ASC")
+    def get_schedule(self):
 
-		datalist = list(self.cursor.fetchall())
+        self.cursor.execute("SELECT * FROM schedule ORDER BY datetime(startTimeUnix) ASC")
 
-		return datalist
+        datalist = list(self.cursor.fetchall())
 
-	def get_daily_schedule(self):
+        return datalist
 
-		self.cursor.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTime) ASC")
+    def get_daily_schedule(self):
 
-		datalist = list(self.cursor.fetchall())
+        self.cursor.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTime) ASC")
 
-		return datalist
+        datalist = list(self.cursor.fetchall())
 
-	def get_movie(self, title):
+        print "##### Getting Daily Schedule from DB."
 
-		media = "movies"
+        return datalist
 
-		return self.get_media(title, media)
+    def get_movie(self, title):
 
-	def get_shows(self, title):
+        media = "movies"
 
-		media = "shows"
+        return self.get_media(title, media)
 
-		return self.get_media(title, media)
+    def get_shows(self, title):
 
-	def get_music(self, title):
+        media = "shows"
 
-		media = "music"
+        return self.get_media(title, media)
 
-		return self.get_media(title, media)
+    def get_music(self, title):
 
-	def get_video(self, title):
+        media = "music"
 
-		media = "videos"
+        return self.get_media(title, media)
 
-		return self.get_media(title, media)
+    def get_video(self, title):
 
-	def get_episodes(self, title):
+        media = "videos"
 
-		media = "episodes"
+        return self.get_media(title, media)
 
-		return self.get_media(title, media)
+    def get_episodes(self, title):
 
-	def update_shows_table_with_last_episode(self, showTitle, lastEpisodeTitle):
+        media = "episodes"
 
-		sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title LIKE ? COLLATE NOCASE"
+        return self.get_media(title, media)
 
-		self.cursor.execute(sql1, (lastEpisodeTitle, showTitle, ))
+    def get_commercials(self):
 
-		self.conn.commit()
+        self.cursor.execute("SELECT * FROM commercials ORDER BY duration ASC")
 
-	def get_first_episode(self, tvshow):
+        datalist = list(self.cursor.fetchall())
 
-		sql = ("SELECT id, unix, mediaID, title, duration, MIN(episodeNumber), MIN(seasonNumber), "
-				"showTitle FROM episodes WHERE ( showTitle LIKE ?) COLLATE NOCASE")
+        return datalist
 
-		self.cursor.execute(sql, (tvshow, ))
+    def update_shows_table_with_last_episode(self, showTitle, lastEpisodeTitle):
 
-		first_episode = self.cursor.fetchone()
+        sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title LIKE ? COLLATE NOCASE"
 
-		return first_episode
+        self.cursor.execute(sql1, (lastEpisodeTitle, showTitle, ))
 
-	'''
-	*
-	* When incrementing episodes in a series I am advancing by "id" 
-	*
-	'''
-	def get_episode_id(self, episodeTitle):
+        self.conn.commit()
 
-		sql = "SELECT id FROM episodes WHERE ( title LIKE ?) COLLATE NOCASE"
+    def get_first_episode(self, tvshow):
 
-		self.cursor.execute(sql, (episodeTitle, ))
+        sql = ("SELECT id, unix, mediaID, title, duration, MIN(episodeNumber), MIN(seasonNumber), "
+                "showTitle FROM episodes WHERE ( showTitle LIKE ?) COLLATE NOCASE")
 
-		episode_id = self.cursor.fetchone()
+        self.cursor.execute(sql, (tvshow, ))
 
-		return episode_id
+        first_episode = self.cursor.fetchone()
 
-	def get_random_episode(self):
+        return first_episode
 
-		sql = "SELECT * FROM episodes WHERE id IN (SELECT id FROM episodes ORDER BY RANDOM() LIMIT 1)"
+    '''
+    *
+    * When incrementing episodes in a series I am advancing by "id" 
+    *
+    '''
+    def get_episode_id(self, episodeTitle):
 
-		self.cursor.execute(sql)
+        sql = "SELECT id FROM episodes WHERE ( title LIKE ?) COLLATE NOCASE"
 
-		return self.cursor.fetchone()
+        self.cursor.execute(sql, (episodeTitle, ))
 
-	def get_random_movie(self):
+        episode_id = self.cursor.fetchone()
 
-		sql = "SELECT * FROM movies WHERE id IN (SELECT id FROM movies ORDER BY RANDOM() LIMIT 1)"
+        return episode_id
 
-		self.cursor.execute(sql)
+    def get_random_episode(self):
 
-		return self.cursor.fetchone()
+        sql = "SELECT * FROM episodes WHERE id IN (SELECT id FROM episodes ORDER BY RANDOM() LIMIT 1)"
 
-	def get_next_episode(self, series):
+        self.cursor.execute(sql)
 
-		#print(series)
-		'''
-		*
-		* As a way of storing a "queue", I am storing the *next episode title in the "shows" table so I can 
-		* determine what has been previously scheduled for each show
-		*
-		'''
-		self.cursor.execute("SELECT lastEpisodeTitle FROM shows WHERE title LIKE ?  COLLATE NOCASE", (series, ))
+        return self.cursor.fetchone()
 
-		last_title_list = self.cursor.fetchone()
-		'''
-		*
-		* If the last episode stored in the "shows" table is empty, then this is probably a first run...
-		*
-		'''
-		if last_title_list and last_title_list[0] == '':
+    def get_random_movie(self):
 
-			'''
-			*
-			* Find the first episode of the series
-			*
-			'''
-			first_episode = self.get_first_episode(series)
+        sql = "SELECT * FROM movies WHERE id IN (SELECT id FROM movies ORDER BY RANDOM() LIMIT 1)"
 
-			first_episode_title = first_episode[3]
+        self.cursor.execute(sql)
 
-			#print(first_episode_title)
-			'''
-			*
-			* Add this episdoe title to the "shows" table for the queue functionality to work
-			*
-			'''
-			self.update_shows_table_with_last_episode(series, first_episode_title)
+        return self.cursor.fetchone()
 
-			return first_episode
+    def get_next_episode(self, series):
 
-		elif last_title_list:
-			'''
-			*
-			* The last episode stored in the "shows" table was not empty... get the next episode in the series
-			*
-			'''
-			#print("First episode already set in shows, advancing episodes forward")
+        #print(series)
+        '''
+        *
+        * As a way of storing a "queue", I am storing the *next episode title in the "shows" table so I can 
+        * determine what has been previously scheduled for each show
+        *
+        '''
+        self.cursor.execute("SELECT lastEpisodeTitle FROM shows WHERE title LIKE ?  COLLATE NOCASE", (series, ))
 
-			#print(str(self.get_episode_id(last_title_list[0])))
+        last_title_list = self.cursor.fetchone()
+        '''
+        *
+        * If the last episode stored in the "shows" table is empty, then this is probably a first run...
+        *
+        '''
+        if last_title_list and last_title_list[0] == '':
 
-			"""
-			*
-			* If this isn't a first run, then grabbing the next episode by incrementing id
-			*
-			"""
-			sql = ("SELECT * FROM episodes WHERE ( id > "+str(self.get_episode_id(last_title_list[0])[0])+
-				   " AND showTitle LIKE ? ) ORDER BY seasonNumber LIMIT 1 COLLATE NOCASE")
+            '''
+            *
+            * Find the first episode of the series
+            *
+            '''
+            first_episode = self.get_first_episode(series)
 
-			self.cursor.execute(sql, (series, ))
-			'''
-			*
-			* Try and advance to the next episode in the series, if it returns None then that means it reached the end...
-			*
-			'''
-			next_episode = self.cursor.fetchone()
+            first_episode_title = first_episode[3]
 
-			if next_episode != None:
+            #print(first_episode_title)
+            '''
+            *
+            * Add this episdoe title to the "shows" table for the queue functionality to work
+            *
+            '''
+            self.update_shows_table_with_last_episode(series, first_episode_title)
 
-				#print(next_episode[3])
+            return first_episode
 
-				self.update_shows_table_with_last_episode(series, next_episode[3])
+        elif last_title_list:
+            '''
+            *
+            * The last episode stored in the "shows" table was not empty... get the next episode in the series
+            *
+            '''
+            #print("First episode already set in shows, advancing episodes forward")
 
-				return next_episode
+            #print(str(self.get_episode_id(last_title_list[0])))
 
-			else:
+            """
+            *
+            * If this isn't a first run, then grabbing the next episode by incrementing id
+            *
+            """
+            sql = ("SELECT * FROM episodes WHERE ( id > "+str(self.get_episode_id(last_title_list[0])[0])+
+                   " AND showTitle LIKE ? ) ORDER BY seasonNumber LIMIT 1 COLLATE NOCASE")
 
-				print("Not grabbing next episode restarting series, series must be over. Restarting from episode 1.")
+            self.cursor.execute(sql, (series, ))
+            '''
+            *
+            * Try and advance to the next episode in the series, if it returns None then that means it reached the end...
+            *
+            '''
+            next_episode = self.cursor.fetchone()
 
-				first_episode = self.get_first_episode(series)
+            if next_episode != None:
 
-				self.update_shows_table_with_last_episode(series, first_episode[3])
+                #print(next_episode[3])
 
-			return first_episode
-				
-	def get_commercials(self, title):
+                self.update_shows_table_with_last_episode(series, next_episode[3])
 
-		media = "commercials"
+                return next_episode
 
-		sql = "SELECT * FROM "+media+" WHERE (title LIKE ?) COLLATE NOCASE"
-		self.cursor.execute(sql, (title, ))
-		datalist = list(self.cursor.fetchone())
-		if datalist > 0:
-			print(datalist)
+            else:
 
-			return datalist
+                print("Not grabbing next episode restarting series, series must be over. Restarting from episode 1.")
 
-		else:
+                first_episode = self.get_first_episode(series)
 
-			return None
+                self.update_shows_table_with_last_episode(series, first_episode[3])
+
+            return first_episode
+                
+    def get_commercial(self, title):
+
+        media = "commercials"
+
+        sql = "SELECT * FROM "+media+" WHERE (title LIKE ?) COLLATE NOCASE"
+        self.cursor.execute(sql, (title, ))
+        datalist = list(self.cursor.fetchone())
+        if datalist > 0:
+            print(datalist)
+
+            return datalist
+
+        else:
+
+            return None
 

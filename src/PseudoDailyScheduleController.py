@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+
 from plexapi.server import PlexServer
 from datetime import datetime
 import sqlite3
 
 from yattag import Doc
+from yattag import indent
 import os, sys
 
 import logging
@@ -10,328 +13,459 @@ import logging.handlers
 
 class PseudoDailyScheduleController():
 
-	def __init__(self, server, token, clients):
+    def __init__(self, server, token, clients, debugMode = False):
 
-		self.PLEX = PlexServer(server, token)
+        self.PLEX = PlexServer(server, token)
 
-		self.BASE_URL = server
+        self.BASE_URL = server
 
-		self.TOKEN = token
+        self.TOKEN = token
 
-		self.PLEX_CLIENTS = clients
+        self.PLEX_CLIENTS = clients
 
-		self.my_logger = logging.getLogger('MyLogger')
-		self.my_logger.setLevel(logging.DEBUG)
+        self.DEBUG = debugMode
 
-		self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
+        self.my_logger = logging.getLogger('MyLogger')
+        self.my_logger.setLevel(logging.DEBUG)
 
-		self.my_logger.addHandler(self.handler)
+        self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
 
-	'''
-	*
-	* Get the full image url (including plex token) from the local db.
-	* @param seriesTitle: case-unsensitive string of the series title
-	* @return string: full path of to the show image
-	*
-	'''
-	def get_show_photo(self, section, title):
+        self.my_logger.addHandler(self.handler)
 
-		backgroundImagePath = None
+    '''
+    *
+    * Get the full image url (including plex token) from the local db.
+    * @param seriesTitle: case-unsensitive string of the series title
+    * @return string: full path of to the show image
+    *
+    '''
+    def get_show_photo(self, section, title):
 
-		backgroundImgURL = ''
+        backgroundImagePath = None
 
-		try:
+        backgroundImgURL = ''
 
-			backgroundImagePath = self.PLEX.library.section(section).get(title)
+        try:
 
-		except:
+            backgroundImagePath = self.PLEX.library.section(section).get(title)
 
-			return backgroundImgURL
+        except:
 
-		if backgroundImagePath != None and isinstance(backgroundImagePath.art, str):
+            return backgroundImgURL
 
-			backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
+        if backgroundImagePath != None and isinstance(backgroundImagePath.art, str):
 
-		return backgroundImgURL
+            backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
 
-	'''
-	*
-	* Get the generated html for the .html file that is the schedule. 
-	* ...This is used whenever a show starts or stops in order to add and remove various styles.
-	* @param currentTime: datetime object 
-	* @param bgImageURL: str of the image used for the background
-	* @return string: the generated html content
-	*
-	'''
-	def get_html_from_daily_schedule(self, currentTime, bgImageURL, datalist):
+        return backgroundImgURL
 
-		now = datetime.now()
+    def get_xml_from_daily_schedule(self, currentTime, bgImageURL, datalist):
 
-		time = now.strftime("%B %d, %Y")
+        now = datetime.now()
 
-		doc, tag, text, line = Doc(
+        time = now.strftime("%B %d, %Y")
 
-	    ).ttl()
+        doc, tag, text, line = Doc(
 
-		doc.asis('<!DOCTYPE html>')
+        ).ttl()
 
-		with tag('html'):
+        doc.asis('<?xml version="1.0" encoding="UTF-8"?>')
 
-			with tag('head'):
+        with tag('schedule', currently_playing_bg_image=bgImageURL if bgImageURL != None else ''):
 
-				with tag('title'):
+            for row in datalist:
 
-					text(time + " - Daily Pseudo Schedule")
+                if str(row[11]) == "Commercials" and self.DEBUG == False:
 
-				doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-				doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
+                    continue
 
-				if bgImageURL != None:
-					doc.asis('<style>body{ background:transparent!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
+                timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
-	        with tag('body'):
+                if currentTime == None:
+                
+                    with tag('time',
+                            ('data-key', str(row[12])),
+                            ('data-current', 'false'),
+                            ('data-type', str(row[11])),
+                            ('data-title', str(row[3])),
+                            ('data-start-time', str(row[8])),
+                        ):
 
-	        	with tag('div', klass='container mt-3'):
+                        text(row[8])
 
-					with tag('div', klass='row make-white'):
+                elif currentTime.hour == timeB.hour and currentTime.minute == timeB.minute:
 
-						with tag('div'):
+                    with tag('time',
+                            ('data-key', str(row[12])),
+                            ('data-current', 'true'),
+                            ('data-type', str(row[11])),
+                            ('data-title', str(row[3])),
+                            ('data-start-time', str(row[8])),
+                        ):
 
-							with tag('div'):
+                        text(row[8])
 
-								line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
+                else:
 
-							with tag('div'):
+                    with tag('time',
+                            ('data-key', str(row[12])),
+                            ('data-current', 'false'),
+                            ('data-type', str(row[11])),
+                            ('data-title', str(row[3])),
+                            ('data-start-time', str(row[8])),
+                        ):
 
-								line('h3', time, klass='col-12 pl-1')
+                        text(row[8])
 
-						with tag('table', klass='col-12 table table-bordered table-hover'):
+        return indent(doc.getvalue())
 
-							with tag('thead', klass='table-info'):
-								with tag('tr'):
-									with tag('th'):
-										text('#')
-									with tag('th'):
-										text('Type')
-									with tag('th'):
-										text('Series')
-									with tag('th'):
-										text('Title')
-									with tag('th'):
-										text('Start Time')
-
-							numberIncrease = 0
 
-							for row in datalist:
+    '''
+    *
+    * Get the generated html for the .html file that is the schedule. 
+    * ...This is used whenever a show starts or stops in order to add and remove various styles.
+    * @param currentTime: datetime object 
+    * @param bgImageURL: str of the image used for the background
+    * @return string: the generated html content
+    *
+    '''
+    def get_html_from_daily_schedule(self, currentTime, bgImageURL, datalist):
 
-								numberIncrease += 1
+        now = datetime.now()
 
-								with tag('tbody'):
+        time = now.strftime("%B %d, %Y")
 
-									timeB = datetime.strptime(row[8], '%I:%M %p')
+        doc, tag, text, line = Doc(
 
-									if currentTime == None:
+        ).ttl()
 
-										with tag('tr'):
-											with tag('th', scope='row'):
-												text(numberIncrease)
-											with tag('td'):
-												text(row[11])
-											with tag('td'):
-												text(row[6])
-											with tag('td'):
-												text(row[3])
-											with tag('td'):
-												text(row[8])
+        doc.asis('<!DOCTYPE html>')
 
-									elif currentTime.hour == timeB.hour and currentTime.minute == timeB.minute:
+        with tag('html'):
 
-											with tag('tr', klass='bg-info'):
+            with tag('head'):
 
-												with tag('th', scope='row'):
-													text(numberIncrease)
-												with tag('td'):
-													text(row[11])
-												with tag('td'):
-													text(row[6])
-												with tag('td'):
-													text(row[3])
-												with tag('td'):
-													text(row[8])
+                with tag('title'):
 
-									else:
+                    text(time + " - Daily Pseudo Schedule")
 
-										with tag('tr'):
-											with tag('th', scope='row'):
-												text(numberIncrease)
-											with tag('td'):
-												text(row[11])
-											with tag('td'):
-												text(row[6])
-											with tag('td'):
-												text(row[3])
-											with tag('td'):
-												text(row[8])
+                doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
+                doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
 
+                if bgImageURL != None:
+                    doc.asis('<style>body{ background:transparent!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
 
-		return doc.getvalue()
+            with tag('body'):
 
-	'''
-	*
-	* Create 'schedules' dir & write the generated html to .html file.
-	* @param data: html string
-	* @return null
-	*
-	'''
-	def write_schedule_to_file(self, data):
+                with tag('div', klass='container mt-3'):
 
-		now = datetime.now()
+                    with tag('div', klass='row make-white'):
 
-		fileName = "index.html"
+                        with tag('div'):
 
-		writepath = './schedules/'
+                            with tag('div'):
 
-		if not os.path.exists(writepath):
+                                line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
 
-			os.makedirs(writepath)
+                            with tag('div'):
 
-		if os.path.exists(writepath+fileName):
-			
-			os.remove(writepath+fileName)
+                                line('h3', time, klass='col-12 pl-1')
 
-		mode = 'a' if os.path.exists(writepath) else 'w'
+                        with tag('table', klass='col-12 table table-bordered table-hover'):
 
-		with open(writepath+fileName, mode) as f:
+                            with tag('thead', klass='table-info'):
+                                with tag('tr'):
+                                    with tag('th'):
+                                        text('#')
+                                    with tag('th'):
+                                        text('Type')
+                                    with tag('th'):
+                                        text('Series')
+                                    with tag('th'):
+                                        text('Title')
+                                    with tag('th'):
+                                        text('Start Time')
 
-			f.write(data)
+                            numberIncrease = 0
 
-	'''
-	*
-	* Trigger "playMedia()" on the Python Plex API for specified media.
-	* @param mediaType: str: "TV Shows"
-	* @param mediaParentTitle: str: "Seinfeld"
-	* @param mediaTitle: str: "The Soup Nazi"
-	* @return null
-	*
-	'''
-	def play_media(self, mediaType, mediaParentTitle, mediaTitle):
+                            for row in datalist:
 
-		if mediaType == "TV Shows":
+                                if str(row[11]) == "Commercials" and self.DEBUG == False:
 
-			mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
+                                    continue
 
-			for item in mediaItems:
+                                numberIncrease += 1
 
-			# print(part.title)
+                                with tag('tbody'):
 
-				if item.title == mediaTitle:
+                                    timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
-					for client in self.PLEX_CLIENTS:
+                                    if currentTime == None:
 
-						clientItem = self.PLEX.client(client)
+                                        with tag('tr'):
+                                            with tag('th', scope='row'):
+                                                text(numberIncrease)
+                                            with tag('td'):
+                                                text(row[11])
+                                            with tag('td'):
+                                                text(row[6])
+                                            with tag('td'):
+                                                text(row[3])
+                                            with tag('td'):
+                                                text(row[8])
 
-						clientItem.playMedia(item)
-						
-					break
+                                    elif currentTime.hour == timeB.hour and currentTime.minute == timeB.minute:
 
-		elif mediaType == "Movies":
+                                            with tag('tr', klass='bg-info'):
 
-			movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+                                                with tag('th', scope='row'):
+                                                    text(numberIncrease)
+                                                with tag('td'):
+                                                    text(row[11])
+                                                with tag('td'):
+                                                    text(row[6])
+                                                with tag('td'):
+                                                    text(row[3])
+                                                with tag('td'):
+                                                    text(row[8])
 
-			for client in self.PLEX_CLIENTS:
+                                    else:
 
-					clientItem = self.PLEX.client(client)
+                                        with tag('tr'):
+                                            with tag('th', scope='row'):
+                                                text(numberIncrease)
+                                            with tag('td'):
+                                                text(row[11])
+                                            with tag('td'):
+                                                text(row[6])
+                                            with tag('td'):
+                                                text(row[3])
+                                            with tag('td'):
+                                                text(row[8])
 
-					clientItem.playMedia(movie)
 
-		else:
+        return indent(doc.getvalue())
 
-			print("Not sure how to play {}".format(mediaType))
-		
-	'''
-	*
-	* If tv_controller() does not find a "startTime" for scheduled media, search for an "endTime" match for now time.
-	* ...This is useful for clearing the generated html schedule when media ends and there is a gap before the next media.
-	* @param null
-	* @return null
-	*
-	'''
-	def check_for_end_time(self, datalist):
+    '''
+    *
+    * Create 'schedules' dir & write the generated html to .html file.
+    * @param data: html string
+    * @return null
+    *
+    '''
+    def write_schedule_to_file(self, data):
 
-		currentTime = datetime.now()
+        now = datetime.now()
 
-		"""c.execute("SELECT * FROM daily_schedule")
+        fileName = "index.html"
 
-		datalist = list(c.fetchall())
-		"""
-		for row in datalist:
+        writepath = './schedules/'
 
-			try:
-				
-				endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
+        if not os.path.exists(writepath):
 
-			except ValueError:
+            os.makedirs(writepath)
 
-				endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S')
+        if os.path.exists(writepath+fileName):
+            
+            os.remove(writepath+fileName)
 
-			if currentTime.hour == endTime.hour:
+        mode = 'a' if os.path.exists(writepath) else 'w'
 
-				if currentTime.minute == endTime.minute:
+        with open(writepath+fileName, mode) as f:
 
-					print("Ok end time found")
+            f.write(data)
 
-					self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+    '''
+    *
+    * Create 'schedules' dir & write the generated xml to .xml file.
+    * @param data: xml string
+    * @return null
+    *
+    '''
+    def write_xml_to_file(self, data):
 
-					break
-	'''
-	*
-	* Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API
-	* @param null
-	* @return null
-	*
-	'''
-	def tv_controller(self, datalist):
+        now = datetime.now()
 
-		datalistLengthMonitor = 0;
+        fileName = "pseudo_schedule.xml"
 
-		currentTime = datetime.now()
+        writepath = './schedules/'
 
-		"""c.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTimeUnix) ASC")
+        if not os.path.exists(writepath):
 
-		datalist = list(c.fetchall())"""
+            os.makedirs(writepath)
 
-		self.my_logger.debug('TV Controller')
+        if os.path.exists(writepath+fileName):
+            
+            os.remove(writepath+fileName)
 
-		for row in datalist:
+        mode = 'a' if os.path.exists(writepath) else 'w'
 
-			timeB = datetime.strptime(row[8], '%I:%M %p')
+        with open(writepath+fileName, mode) as f:
 
-			if currentTime.hour == timeB.hour:
+            f.write(data)
 
-				if currentTime.minute == timeB.minute:
+    '''
+    *
+    * Trigger "playMedia()" on the Python Plex API for specified media.
+    * @param mediaType: str: "TV Shows"
+    * @param mediaParentTitle: str: "Seinfeld"
+    * @param mediaTitle: str: "The Soup Nazi"
+    * @return null
+    *
+    '''
+    def play_media(self, mediaType, mediaParentTitle, mediaTitle):
 
-					print("Starting Epsisode: " + row[3])
-					print(row)
+        if mediaType == "TV Shows":
 
-					self.play_media(row[11], row[6], row[3])
+            mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
 
-					self.write_schedule_to_file(
-						self.get_html_from_daily_schedule(
-							timeB,
-							self.get_show_photo(
-								row[11], 
-								row[6] if row[11] == "TV Shows" else row[3]
-							),
-							datalist
-						)
-					)
+            for item in mediaItems:
 
-					self.my_logger.debug('Trying to play: ' + row[3])
+            # print(part.title)
 
-					break
+                if item.title == mediaTitle:
 
-			datalistLengthMonitor += 1
+                    for client in self.PLEX_CLIENTS:
 
-			if datalistLengthMonitor >= len(datalist):
+                        clientItem = self.PLEX.client(client)
 
-				self.check_for_end_time(datalist)
+                        clientItem.playMedia(item)
+                        
+                    break
+
+        elif mediaType == "Movies":
+
+            movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+
+            for client in self.PLEX_CLIENTS:
+
+                    clientItem = self.PLEX.client(client)
+
+                    clientItem.playMedia(movie)
+
+        elif mediaType == "Commercials":
+
+            movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+
+            for client in self.PLEX_CLIENTS:
+
+                    clientItem = self.PLEX.client(client)
+
+                    clientItem.playMedia(movie)
+
+        else:
+
+            print("Not sure how to play {}".format(mediaType))
+        
+    '''
+    *
+    * If tv_controller() does not find a "startTime" for scheduled media, search for an "endTime" match for now time.
+    * ...This is useful for clearing the generated html schedule when media ends and there is a gap before the next media.
+    * @param null
+    * @return null
+    *
+    '''
+    def check_for_end_time(self, datalist):
+
+        currentTime = datetime.now()
+
+        """c.execute("SELECT * FROM daily_schedule")
+
+        datalist = list(c.fetchall())
+        """
+        for row in datalist:
+
+            try:
+                
+                endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
+
+            except ValueError:
+
+                endTime = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S')
+
+            if currentTime.hour == endTime.hour:
+
+                if currentTime.minute == endTime.minute:
+
+                    if currentTime.second == endTime.second:
+
+                        print("Ok end time found")
+
+                        self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+                        self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
+
+                        break
+    '''
+    *
+    * Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API
+    * @param null
+    * @return null
+    *
+    '''
+    def tv_controller(self, datalist):
+
+        datalistLengthMonitor = 0;
+
+        currentTime = datetime.now()
+
+        """c.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTimeUnix) ASC")
+
+        datalist = list(c.fetchall())"""
+
+        self.my_logger.debug('TV Controller')
+
+        for row in datalist:
+
+            timeB = datetime.strptime(row[8], '%I:%M:%S %p')
+
+            if currentTime.hour == timeB.hour:
+
+                if currentTime.minute == timeB.minute:
+
+                    if currentTime.second == timeB.second:
+
+                        print("Starting Media: " + row[3])
+                        print(row)
+
+                        self.play_media(row[11], row[6], row[3])
+
+                        self.write_schedule_to_file(
+                            self.get_html_from_daily_schedule(
+                                timeB,
+                                self.get_show_photo(
+                                    row[11], 
+                                    row[6] if row[11] == "TV Shows" else row[3]
+                                ),
+                                datalist
+                            )
+                        )
+
+                        """Generate / write XML to file
+                        """
+                        self.write_xml_to_file(
+                            self.get_xml_from_daily_schedule(
+                                timeB,
+                                self.get_show_photo(
+                                    row[11], 
+                                    row[6] if row[11] == "TV Shows" else row[3]
+                                ),
+                                datalist
+                            )
+                        )
+
+                        self.my_logger.debug('Trying to play: ' + row[3])
+
+                        break
+
+            datalistLengthMonitor += 1
+
+            if datalistLengthMonitor >= len(datalist):
+
+                self.check_for_end_time(datalist)
+
+    def make_xml_schedule(self, datalist):
+
+        print "+++++ ", "Writing XML / HTML to file."
+
+        self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+        self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
