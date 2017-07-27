@@ -88,7 +88,7 @@ class PseudoChannelCommercial():
 
     def get_commercials_to_place_between_media(self, last_ep, now_ep):
 
-        print last_ep.end_time, now_ep.start_time
+        #print last_ep.end_time, now_ep.start_time
 
         prev_item_end_time = datetime.strptime(last_ep.end_time.strftime('%Y-%m-%d %H:%M:%S.%f'), '%Y-%m-%d %H:%M:%S.%f')
 
@@ -110,7 +110,7 @@ class PseudoChannelCommercial():
 
         new_commercial_start_time = prev_item_end_time 
 
-        print "here", time_diff.seconds
+        #print "here", time_diff.seconds
 
         while curr_item_start_time > new_commercial_start_time and (count) < len(self.commercials)*100:
 

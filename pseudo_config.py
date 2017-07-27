@@ -61,3 +61,5 @@ plexLibraries = {
 useGoogleCalendar = True
 
 useCommercialInjection = True
+
+dailyUpdateTime = "12:00 AM"

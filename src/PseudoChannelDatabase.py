@@ -10,7 +10,7 @@ class PseudoChannelDatabase():
 
         self.db = db
 
-        self.conn = sqlite3.connect(self.db)
+        self.conn = sqlite3.connect(self.db, check_same_thread=False)
 
         self.cursor = self.conn.cursor()
 
@@ -298,6 +298,8 @@ class PseudoChannelDatabase():
         self.cursor.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTime) ASC")
 
         datalist = list(self.cursor.fetchall())
+
+        print "##### Getting Daily Schedule from DB."
 
         return datalist
 

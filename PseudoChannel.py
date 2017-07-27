@@ -23,6 +23,11 @@ import textwrap
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
+import sched
+
+from threading import Timer
+import signal
+
 from time import sleep
 
 import pseudo_config as config
@@ -38,6 +43,10 @@ class PseudoChannel():
     USING_GOOGLE_CALENDAR = config.useGoogleCalendar
 
     USING_COMMERCIAL_INJECTION = config.useCommercialInjection
+
+    DAILY_UPDATE_TIME = config.dailyUpdateTime
+
+    APP_TIME_FORMAT_STR = '%I:%M:%S %p'
 
     def __init__(self):
 
@@ -246,7 +255,7 @@ class PseudoChannel():
                     title = titlelist[1]
 
                     # s.strftime('%I:%M'), event["summary"]
-                    natural_start_time = self.translate_time(s.strftime('%I:%M:%S %p'))
+                    natural_start_time = self.translate_time(s.strftime(self.APP_TIME_FORMAT_STR))
 
                     natural_end_time = 0
 
@@ -401,7 +410,7 @@ class PseudoChannel():
 
         try:
 
-            return datetime.datetime.strptime(timestr, '%I:%M %p').strftime('%I:%M:%S %p')
+            return datetime.datetime.strptime(timestr, '%I:%M %p').strftime(self.APP_TIME_FORMAT_STR)
 
         except ValueError as e:
 
@@ -409,7 +418,7 @@ class PseudoChannel():
 
         try:
 
-            return datetime.datetime.strptime(timestr, '%I:%M:%S %p').strftime('%I:%M:%S %p')
+            return datetime.datetime.strptime(timestr, '%I:%M:%S %p').strftime(self.APP_TIME_FORMAT_STR)
 
         except ValueError as e:
 
@@ -417,7 +426,7 @@ class PseudoChannel():
 
         try:
 
-            return datetime.datetime.strptime(timestr, '%H:%M').strftime('%I:%M:%S %p')
+            return datetime.datetime.strptime(timestr, '%H:%M').strftime(self.APP_TIME_FORMAT_STR)
 
         except ValueError as e:
 
@@ -459,7 +468,7 @@ class PseudoChannel():
 
         time1 = prevEndTime.strftime('%I:%M:%S %p')
 
-        timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M:%S %p').strftime('%I:%M:%S %p')
+        timeB = datetime.datetime.strptime(intendedStartTime, '%I:%M:%S %p').strftime(self.APP_TIME_FORMAT_STR)
 
         print "++++ Previous End Time: ", time1, "Intended start time: ", timeB
 
@@ -524,7 +533,7 @@ class PseudoChannel():
 
                 theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
 
-                tempTimeTwoStr = datetime.datetime.strptime(time1, '%I:%M:%S %p').strftime('%H:%M')
+                tempTimeTwoStr = datetime.datetime.strptime(time1, self.APP_TIME_FORMAT_STR).strftime('%H:%M')
 
                 formatted_time_two = datetime.datetime.strptime(tempTimeTwoStr, '%H:%M')
 
@@ -731,7 +740,7 @@ class PseudoChannel():
 
                     if previous_episode != None:
 
-                        natural_start_time = datetime.datetime.strptime(entry.natural_start_time, '%I:%M:%S %p')
+                        natural_start_time = datetime.datetime.strptime(entry.natural_start_time, self.APP_TIME_FORMAT_STR)
 
                         natural_end_time = entry.natural_end_time
 
@@ -774,7 +783,7 @@ class PseudoChannel():
 
                             print "++++ New start time:", new_starttime
 
-                            entry.start_time = datetime.datetime.strptime(new_starttime, '%I:%M:%S %p').strftime('%I:%M:%S %p')
+                            entry.start_time = datetime.datetime.strptime(new_starttime, self.APP_TIME_FORMAT_STR).strftime('%I:%M:%S %p')
 
                             entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
 
@@ -811,6 +820,12 @@ class PseudoChannel():
         commercials_to_inject = self.commercials.get_commercials_to_inject()
 
         print commercials_to_inject
+
+    def run(self):
+
+        """print datetime.datetime.now()
+        threading.Timer(1, self.run()).start()"""
+        pass
 
     def make_xml_schedule(self):
 
@@ -1010,17 +1025,73 @@ if __name__ == '__main__':
 
     if args.run:
 
-        try:
-
-            print banner
-            print "+++++ To run this in the background:"
-            print "+++++", "screen -d -m bash -c 'python PseudoChannel.py -r; exec sh'"
+        print banner
+        print "+++++ To run this in the background:"
+        print "+++++", "screen -d -m bash -c 'python PseudoChannel.py -r; exec sh'"
+        
+        """Every minute on the minute check the DB startTimes of all media to 
+           determine whether or not to play. Also, check the now_time to
+           see if it's midnight (or 23.59), if so then generate a new daily_schedule
             
-            """Every minute on the minute check the DB startTimes of all media to 
-               determine whether or not to play. Also, check the now_time to
-               see if it's midnight (or 23.59), if so then generate a new daily_schedule
-                
-            """
+        """
+
+        s = sched.scheduler(time, sleep)
+
+        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+        daily_update_time = datetime.datetime.strptime(
+            pseudo_channel.translate_time(
+                pseudo_channel.DAILY_UPDATE_TIME
+            )
+            , pseudo_channel.APP_TIME_FORMAT_STR) 
+
+        try:
+        
+            def run_task():
+
+                now = datetime.datetime.now()
+
+                now_time = now.time().replace(microsecond=0)
+
+                #print time(11,59,00), now_time
+
+                if now_time == time(
+                        daily_update_time.hour,
+                        daily_update_time.minute,
+                        daily_update_time.second
+                    ):
+
+                    if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+                        pseudo_channel.update_schedule_from_google_calendar()
+
+                    else:
+
+                         pass
+                        
+                    pseudo_channel.generate_daily_schedule()
+
+                    pseudo_channel.make_xml_schedule()
+
+                pseudo_channel.controller.tv_controller(the_daily_schedule)
+
+                t = Timer(1, run_task, ())
+
+                t.start()
+
+                print '{}'.format(datetime.datetime.now(), end="\r")
+
+        except KeyboardInterrupt:
+
+                print('Manual break by user')
+
+        run_task()
+
+   
+
+        """try:
+
+            
             while True:
 
                 now = datetime.datetime.now()
@@ -1057,7 +1128,7 @@ if __name__ == '__main__':
 
             pseudo_channel.exit_app()
 
-            del pseudo_channel
+            del pseudo_channel"""
         
 
 
