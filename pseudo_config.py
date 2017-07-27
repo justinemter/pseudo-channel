@@ -7,6 +7,7 @@
     
     2) add this line to the newly created file:
 
+    baseurl = 'the url to your server'
     token = 'your plex token'
 
     3) Edit the "basurl" variable below to point to your Plex server
@@ -40,7 +41,7 @@ except ImportError as e:
     print "+++++ Cannot find plex_token file. Make sure you create a plex_token.py file with the appropriate data."
     raise e
 
-baseurl = 'http://media.home:32400'
+baseurl = plex_token.baseurl
 token = plex_token.token
 gkey = plex_token.gkey
 
