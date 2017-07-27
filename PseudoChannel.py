@@ -23,8 +23,6 @@ import textwrap
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
-import sched
-
 from threading import Timer
 import signal
 
@@ -40,6 +38,7 @@ class PseudoChannel():
     PLEX = PlexServer(config.baseurl, config.token)
     MEDIA = []
     GKEY = config.gkey
+
     USING_GOOGLE_CALENDAR = config.useGoogleCalendar
 
     USING_COMMERCIAL_INJECTION = config.useCommercialInjection
@@ -48,11 +47,18 @@ class PseudoChannel():
 
     APP_TIME_FORMAT_STR = '%I:%M:%S %p'
 
+    DEBUG = config.debug_mode
+
     def __init__(self):
 
         self.db = PseudoChannelDatabase("pseudo-channel.db")
 
-        self.controller = PseudoDailyScheduleController(config.baseurl, config.token, config.plexClients)
+        self.controller = PseudoDailyScheduleController(
+            config.baseurl, 
+            config.token, 
+            config.plexClients,
+            self.DEBUG
+        )
 
     """Database functions.
 
@@ -1035,15 +1041,14 @@ if __name__ == '__main__':
             
         """
 
-        s = sched.scheduler(time, sleep)
-
         the_daily_schedule = pseudo_channel.db.get_daily_schedule()
 
         daily_update_time = datetime.datetime.strptime(
             pseudo_channel.translate_time(
                 pseudo_channel.DAILY_UPDATE_TIME
-            )
-            , pseudo_channel.APP_TIME_FORMAT_STR) 
+            ),
+            pseudo_channel.APP_TIME_FORMAT_STR
+        ) 
 
         try:
         
@@ -1059,7 +1064,7 @@ if __name__ == '__main__':
                         daily_update_time.hour,
                         daily_update_time.minute,
                         daily_update_time.second
-                    ):
+                ):
 
                     if pseudo_channel.USING_GOOGLE_CALENDAR:
 

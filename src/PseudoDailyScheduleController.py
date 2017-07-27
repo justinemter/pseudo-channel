@@ -13,7 +13,7 @@ import logging.handlers
 
 class PseudoDailyScheduleController():
 
-    def __init__(self, server, token, clients):
+    def __init__(self, server, token, clients, debugMode = False):
 
         self.PLEX = PlexServer(server, token)
 
@@ -22,6 +22,8 @@ class PseudoDailyScheduleController():
         self.TOKEN = token
 
         self.PLEX_CLIENTS = clients
+
+        self.DEBUG = debugMode
 
         self.my_logger = logging.getLogger('MyLogger')
         self.my_logger.setLevel(logging.DEBUG)
@@ -72,6 +74,10 @@ class PseudoDailyScheduleController():
         with tag('schedule', currently_playing_bg_image=bgImageURL if bgImageURL != None else ''):
 
             for row in datalist:
+
+                if str(row[11]) == "Commercials" and self.DEBUG == False:
+
+                    continue
 
                 timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
@@ -183,6 +189,10 @@ class PseudoDailyScheduleController():
                             numberIncrease = 0
 
                             for row in datalist:
+
+                                if str(row[11]) == "Commercials" and self.DEBUG == False:
+
+                                    continue
 
                                 numberIncrease += 1
 
