@@ -77,7 +77,7 @@ class GoogleCalendar():
 
         now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 
-        end = (datetime.datetime.now() + datetime.timedelta(days=1))
+        end = (datetime.datetime.utcnow() + datetime.timedelta(hours=24))
 
         end = end.isoformat() + 'Z' # 'Z' indicates UTC time
 
