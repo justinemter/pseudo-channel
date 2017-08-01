@@ -59,10 +59,10 @@ plexLibraries = {
     "Commercials" : ["Commercials"],
 }
 
-useGoogleCalendar = True
+useGoogleCalendar = False
 
 useCommercialInjection = True
 
-dailyUpdateTime = "12:00 AM"
+dailyUpdateTime = "11:59 PM"
 
 debug_mode = False
