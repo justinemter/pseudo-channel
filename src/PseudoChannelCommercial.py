@@ -5,7 +5,6 @@ import random
 import copy
 from datetime import datetime
 from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 from src import Commercial
 
 class PseudoChannelCommercial():
