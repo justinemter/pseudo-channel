@@ -11,11 +11,14 @@ from src import Commercial
 class PseudoChannelCommercial():
 
     MIN_DURATION_FOR_COMMERCIAL = 10 #seconds
+    COMMERCIAL_PADDING_IN_SECONDS = 0
     daily_schedule = []
 
-    def __init__(self, commercials):
+    def __init__(self, commercials, commercialPadding):
 
         self.commercials = commercials
+
+        self.COMMERCIAL_PADDING_IN_SECONDS = commercialPadding
 
     def get_commercials_to_inject(self):
 
@@ -86,6 +89,16 @@ class PseudoChannelCommercial():
     def timedelta_milliseconds(self, td):
         return td.days*86400000 + td.seconds*1000 + td.microseconds/1000
 
+    def pad_the_commercial_dur(self, commercial):
+
+        commercial_as_list = list(commercial)
+
+        commercial_as_list[4] = int(commercial_as_list[4]) + (self.COMMERCIAL_PADDING_IN_SECONDS * 1000)
+
+        commercial = tuple(commercial_as_list)
+
+        return commercial
+
     def get_commercials_to_place_between_media(self, last_ep, now_ep):
 
         #print last_ep.end_time, now_ep.start_time
@@ -114,7 +127,12 @@ class PseudoChannelCommercial():
 
         while curr_item_start_time > new_commercial_start_time and (count) < len(self.commercials)*100:
 
-            random_commercial = self.get_random_commercial()
+            random_commercial_without_pad = self.get_random_commercial()
+
+            """
+            Padding the duration of commercials as per user specified padding.
+            """
+            random_commercial = self.pad_the_commercial_dur(random_commercial_without_pad)
 
             #new_commercial_seconds = (int(random_commercial[4])/1000)%60
 
