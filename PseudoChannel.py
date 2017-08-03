@@ -1084,7 +1084,7 @@ if __name__ == '__main__':
 
                 t.start()
 
-                print '{}'.format(datetime.datetime.now(), end="\r")
+                #print '{}'.format(datetime.datetime.now(), end="\r")
 
         except KeyboardInterrupt:
 

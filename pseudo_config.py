@@ -63,6 +63,6 @@ useGoogleCalendar = False
 
 useCommercialInjection = True
 
-dailyUpdateTime = "11:59 PM"
+dailyUpdateTime = "11:59 AM"
 
 debug_mode = False
