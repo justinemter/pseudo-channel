@@ -315,47 +315,60 @@ class PseudoDailyScheduleController():
     '''
     def play_media(self, mediaType, mediaParentTitle, mediaTitle):
 
-        if mediaType == "TV Shows":
 
-            mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
+        try: 
 
-            for item in mediaItems:
+            if mediaType == "TV Shows":
 
-            # print(part.title)
+                mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
 
-                if item.title == mediaTitle:
+                for item in mediaItems:
 
-                    for client in self.PLEX_CLIENTS:
+                # print(part.title)
+
+                    if item.title == mediaTitle:
+
+                        for client in self.PLEX_CLIENTS:
+
+                            clientItem = self.PLEX.client(client)
+
+                            clientItem.playMedia(item)
+                            
+                        break
+
+            elif mediaType == "Movies":
+
+                movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+
+                for client in self.PLEX_CLIENTS:
 
                         clientItem = self.PLEX.client(client)
 
-                        clientItem.playMedia(item)
-                        
-                    break
+                        clientItem.playMedia(movie)
 
-        elif mediaType == "Movies":
+            elif mediaType == "Commercials":
 
-            movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+                movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
 
-            for client in self.PLEX_CLIENTS:
+                for client in self.PLEX_CLIENTS:
 
-                    clientItem = self.PLEX.client(client)
+                        clientItem = self.PLEX.client(client)
 
-                    clientItem.playMedia(movie)
+                        clientItem.playMedia(movie)
 
-        elif mediaType == "Commercials":
+            else:
 
-            movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+                print("Not sure how to play {}".format(mediaType))
 
-            for client in self.PLEX_CLIENTS:
+        except Exception as e:
 
-                    clientItem = self.PLEX.client(client)
+            print e.__doc__
 
-                    clientItem.playMedia(movie)
+            print e.message
 
-        else:
+            print "There was an error trying to play the media."
 
-            print("Not sure how to play {}".format(mediaType))
+            pass
         
     '''
     *

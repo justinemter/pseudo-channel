@@ -295,11 +295,13 @@ class PseudoChannelDatabase():
 
     def get_daily_schedule(self):
 
+        print "##### Getting Daily Schedule from DB."
+
         self.cursor.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTime) ASC")
 
         datalist = list(self.cursor.fetchall())
 
-        print "##### Getting Daily Schedule from DB."
+        print "+++++ Done."
 
         return datalist
 
