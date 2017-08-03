@@ -24,17 +24,26 @@ If interested in this project, check back very soon when the beta is up. It's cl
 
 1. Download the [Python Plex API](https://github.com/pkkid/python-plexapi) & their dependencies. Also get [yattag](http://www.yattag.org/). All these dependencies can be installed via pip.
 
-2. Download this repository & edit the `pseudo_config.py` / `the pseudo_schedule.xml` to your liking. Find your Plex token [here](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token)
+2. Download this repository & create a new file named, `pseudo_config.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
 
-3. Run the `PseudoChannel.py` file with the following flags:
+```bash
+token = '<your token>'
+baseurl = 'http://192.168.1.28:32400'
+```
+*This file is important as it tells the pseudo-channel app how/where to connect to your Plex server. It should sit just outside of this /pseudo-channel/ directory.*
+
+4. Edit the `pseudo_config.py` / `the pseudo_schedule.xml` to your liking. You can specify your plex media library names within the `pseudo_config.py` file... the default assumes that you have these libraries in your Plex server named like so: "TV Shows", "Movies" & "Commercials". If you do not intend on using commercials just set the `useCommercialInjection` flag to `False`. There are a few other experimental options like using Google Calendar rather than an XML. It is an arduous process to initially set up and I've found the XML method to be the easiest method for organizing your schedule - so stick with that for now. 
+
+5. Run the `PseudoChannel.py` file with the following flags:
 
 ```bash
 % python PseudoChannel.py -u -xml -g -r
 ```
+*You can also run `-h` to view all the options. Keep in mind not all options are operational & some are experimental. Stick with the ones above and use `-c` to find the name(s) of your Plex client(s).*
 
-The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`. The `-xml` flag will update the newly created local db with your schedule from the xml file. The `-g` file will generate the daily schedule (for today). Finally, the `-r` file will run a while loop checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59. The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
+The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`, you only need to run this once in the beginning or later when you have added new media to your Plex libraries. The `-xml` flag will update the newly created local db with your schedule from the xml file - you  should run this everytime you make changes to the xml. The `-g` file will generate the daily schedule (for today) based on the xml. Finally, the `-r` file will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
 
-Features are being added to the xml but as of now there are a few. Within the XML `<time>` entry you are able to pass in various attributes to set certain values. As of now, aside from "title" and "type" which are mandatory, you can take advantage of "time-shift". This parameter accepts values in minutes and can be no lower than "1". If the attribute, "strict-time" is set to "false", then this `<time>` entry will be shifted to a new time based on the previous time with a smaller gap calculated according to the value in "time-shift". Basically, if you do not want any gaps in your schedule you would leave "strict-time" false and set "time-shift" to "1" for all `<time>` entries. However, this will create a schedule with weird start times like, "1:57 PM". Taking advantage of the "time-shift" perameter will correct this. If you set it to a value of "5", all media is shifted and hooked on to a "pretty" time that is a multiple of 5. So if used, rather then having a "Seinfeld" episode being set to "1:57 PM" it may be recalculated and scheduled for "2:00 PM". However, if you would like to make sure that "The Simpsons" will always start every weekday at "6:00 PM" then you can simply set that `<time>` entry to `srtict-time="true"`. This will ensure that despite other non-strict times shifting around, "The Simpsons" will air every weekday at the desired "6:00 PM" as scheduled. currently this functionality will result in unintended empty gaps in the schedule. Soon there will be an option for using user specified "default" media to be injected into the gaps or "commercial" injection - or both.
+Features are being added to the xml but as of now there are a few. Within the XML `<time>` entry you are able to pass in various attributes to set certain values. As of now, aside from "title" and "type" which are mandatory, you can take advantage of "time-shift". This parameter accepts values in minutes and can be no lower than "1". If the attribute, "strict-time" is set to "false", then this `<time>` entry will be shifted to a new time based on the previous time with a smaller gap calculated according to the value in "time-shift". Basically, if you do not want any gaps in your daily generated schedule you would leave "strict-time" false and set "time-shift" to "1" for all `<time>` entries. However, this will create a schedule with weird start times like, "1:57 PM". Taking advantage of the "time-shift" perameter will correct this. If you set it to a value of "5", all media is shifted and hooked on to a "pretty" time that is a multiple of 5. So if used, rather then having a "Seinfeld" episode being set to "1:57 PM" it may be recalculated and scheduled for "2:00 PM". However, if you would like to make sure that "The Simpsons" will always start every weekday at "6:00 PM" then you can simply set that `<time>` entry to `srtict-time="true"`. This will ensure that despite other non-strict times shifting around, "The Simpsons" will air every weekday at the desired "6:00 PM" as scheduled (be sure that you haven't accidentally made two time entries "strict-time" for the same day/time - this sort of thing will cause weird scheduling errors). When using "strict-time" or having the "time-shift" value > than 1 (minute), this will result in empty gaps in the schedule. Currently I have a flag in the config for "commercial injection" to fill up the gaps as much as possible with commercials from commercials in your Plex server "Commercials" library. If you do not want to use this feature or if you don't have any commercials in your Plex server, just open up that `pseudo_config.py` file and set `useCommercialInjection` to `False`.
 
 To run the app in a 'poor-mans-daemon-mode' using [screen](https://www.gnu.org/software/screen/manual/screen.html), run this:
 
@@ -45,7 +54,7 @@ To run the app in a 'poor-mans-daemon-mode' using [screen](https://www.gnu.org/s
 
 ...the previous command will keep the clock / app running in the background via the screen utility - kinda like a daemon process. 
 
-Stay tuned for a polished version / bug fixes / features and commercial injection. 
+Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
 
 
 
