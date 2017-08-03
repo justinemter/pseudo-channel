@@ -56,7 +56,7 @@ To run the app in a 'poor-mans-daemon-mode' using [screen](https://www.gnu.org/s
 
 To view the automatically generated "Daily Pseudo Schedule" index.html as seen in the image above, find it in the generated `./schedules/` directory within the project folder. The html file is generated both when the daily schedule is updated and whenever a media item from the schedule plays or ends. You can run a simple web server there to serve your schedule to your browser. Having something tangible like this makes the project a little bit more fun than just a bunch of cli commands & magic. You can manually generate the schedule anytome using, `python PseudoSchedule.py -m`.
 
-To run a simple python webserver for easily viweing the daily schedule, run this:
+To run a simple python webserver for easily viewing the daily schedule, run this:
 
 ```bash
 cd ./schedules && sudo python -m SimpleHTTPServer 80
