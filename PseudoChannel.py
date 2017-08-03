@@ -1054,6 +1054,8 @@ if __name__ == '__main__':
         
             def run_task():
 
+                global the_daily_schedule
+
                 now = datetime.datetime.now()
 
                 now_time = now.time().replace(microsecond=0)
@@ -1070,6 +1072,8 @@ if __name__ == '__main__':
 
                         pseudo_channel.update_schedule_from_google_calendar()
 
+                        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+
                     else:
 
                          pass
@@ -1077,6 +1081,8 @@ if __name__ == '__main__':
                     pseudo_channel.generate_daily_schedule()
 
                     pseudo_channel.make_xml_schedule()
+
+                    the_daily_schedule = pseudo_channel.db.get_daily_schedule()
 
                 pseudo_channel.controller.tv_controller(the_daily_schedule)
 
