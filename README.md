@@ -17,7 +17,7 @@ If interested in this project, check back very soon when the alpha is up. It's c
 ```
 *You need to run the previous command using `sudo` if not in a virtualenv.*
 
-2. In order to tell PseudoChannel.py how to connect to your Plex server, create a `pseudo_config.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
+2. In order to tell PseudoChannel.py how to connect to your Plex server, create an empty file named, `plex_token.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
 
 ```bash
 token = '<your token>'
