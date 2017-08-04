@@ -4,6 +4,8 @@ from plexapi.server import PlexServer
 from datetime import datetime
 import sqlite3
 
+import thread,SocketServer,SimpleHTTPServer
+
 from yattag import Doc
 from yattag import indent
 import os, sys
@@ -27,12 +29,17 @@ class PseudoDailyScheduleController():
 
         self.DEBUG = debugMode
 
+        self.webserverStarted = False
+
         self.my_logger = logging.getLogger('MyLogger')
         self.my_logger.setLevel(logging.DEBUG)
 
         self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
 
         self.my_logger.addHandler(self.handler)
+
+        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
+        os.chdir(web_dir)
 
     '''
     *
@@ -60,6 +67,41 @@ class PseudoDailyScheduleController():
             backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
 
         return backgroundImgURL
+
+    def start_server(self):
+
+        if self.webserverStarted == False:
+
+            PORT = 8000
+
+            class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+                def log_message(self, format, *args):
+                    return
+
+            global httpd
+            try:
+                print "Starting webserver at port: ", PORT
+                # create the httpd handler for the simplehttpserver
+                # we set the allow_reuse_address incase something hangs can still bind to port
+                class ReusableTCPServer(SocketServer.TCPServer): allow_reuse_address=True
+                # specify the httpd service on 0.0.0.0 (all interfaces) on port 80
+                httpd = ReusableTCPServer(("0.0.0.0", PORT),MyHandler)
+
+                # thread this mofo
+                thread.start_new_thread(httpd.serve_forever,())
+
+            # handle keyboard interrupts
+            except KeyboardInterrupt:
+                core.print_info("Exiting the SET web server...")
+                httpd.socket.close()
+
+            # handle the rest
+            #except Exception:
+            #    print "[*] Exiting the SET web server...\n"
+            #    httpd.socket.close()
+
+            self.webserverStarted = True
 
     def get_xml_from_daily_schedule(self, currentTime, bgImageURL, datalist):
 
@@ -316,7 +358,7 @@ class PseudoDailyScheduleController():
 
         fileName = "index.html"
 
-        writepath = './schedules/'
+        writepath = './'
 
         if not os.path.exists(writepath):
 
@@ -332,6 +374,8 @@ class PseudoDailyScheduleController():
 
             f.write(data)
 
+        self.start_server()
+
     '''
     *
     * Create 'schedules' dir & write the generated xml to .xml file.
@@ -345,7 +389,7 @@ class PseudoDailyScheduleController():
 
         fileName = "pseudo_schedule.xml"
 
-        writepath = './schedules/'
+        writepath = './'
 
         if not os.path.exists(writepath):
 
@@ -373,7 +417,7 @@ class PseudoDailyScheduleController():
 
         fileName = "pseudo_refresh.txt"
 
-        writepath = './schedules/'
+        writepath = './'
 
         first_line = ''
 
@@ -381,21 +425,33 @@ class PseudoDailyScheduleController():
 
             os.makedirs(writepath)
 
-        if os.path.exists(writepath+fileName):
-            
-            os.remove(writepath+fileName)
+        if not os.path.exists(writepath+fileName):
 
-        mode = 'a' if os.path.exists(writepath) else 'w'
+            file(writepath+fileName, 'w').close()
+
+        mode = 'r+'
 
         with open(writepath+fileName, mode) as f:
 
+            f.seek(0)
+
+            first_line = f.read()  
+
+            print first_line
+
             if first_line == '' or first_line == "0":
 
+                f.seek(0)
+                f.truncate()
                 f.write("1")
 
             else:
 
+                f.seek(0)
+                f.truncate()
                 f.write("0")
+
+            #f.close()
 
     '''
     *

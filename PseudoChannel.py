@@ -1096,7 +1096,13 @@ if __name__ == '__main__':
 
                 t = Timer(1, run_task, ())
 
-                t.start()
+                try:
+                
+                    t.start()
+                    
+                except KeyboardInterrupt:
+
+                    t.join()
 
                 #print '{}'.format(datetime.datetime.now(), end="\r")
 
