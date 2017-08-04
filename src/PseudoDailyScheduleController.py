@@ -176,18 +176,22 @@ class PseudoDailyScheduleController():
                                             dataType: "text",  // jQuery will infer this, but you can set explicitly
                                             success: function( data, textStatus, jqXHR ) {
                                                 newFlag = data; 
+
+                                                if(refreshFlag != ''){
                                                 
-                                                if (refreshFlag == "0" && newFlag == "1"){
+                                                    if (refreshFlag != newFlag){
 
-                                                    location.reload();
+                                                        location.reload();
 
-                                                } else if (refreshFlag == "1" && newFlag == "0") {
+                                                    } else {
 
-                                                    location.reload();
+                                                        //do nothing
+
+                                                    }
 
                                                 } else {
-
-                                                    //do nothing
+    
+                                                    refreshFlag = newFlag
 
                                                 }
 
