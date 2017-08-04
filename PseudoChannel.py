@@ -49,6 +49,8 @@ class PseudoChannel():
 
     COMMERCIAL_PADDING_IN_SECONDS = config.commercialPadding
 
+    CONTROLLER_SERVER_PATH = config.controllerServerPath
+
     DEBUG = config.debug_mode
 
     def __init__(self):
@@ -59,6 +61,7 @@ class PseudoChannel():
             config.baseurl, 
             config.token, 
             config.plexClients,
+            self.CONTROLLER_SERVER_PATH,
             self.DEBUG
         )
 
@@ -1086,8 +1089,6 @@ if __name__ == '__main__':
                          pass
                         
                     pseudo_channel.generate_daily_schedule()
-
-                    pseudo_channel.make_xml_schedule()
 
                     the_daily_schedule = pseudo_channel.db.get_daily_schedule()
 

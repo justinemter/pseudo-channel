@@ -13,7 +13,7 @@ import logging.handlers
 
 class PseudoDailyScheduleController():
 
-    def __init__(self, server, token, clients, debugMode = False):
+    def __init__(self, server, token, clients, controllerServerPath = '', debugMode = False):
 
         self.PLEX = PlexServer(server, token)
 
@@ -22,6 +22,8 @@ class PseudoDailyScheduleController():
         self.TOKEN = token
 
         self.PLEX_CLIENTS = clients
+
+        self.CONTROLLER_SERVER_PATH = controllerServerPath
 
         self.DEBUG = debugMode
 
@@ -150,7 +152,58 @@ class PseudoDailyScheduleController():
                     text(time + " - Daily Pseudo Schedule")
 
                 doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-                doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
+                doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
+                doc.asis('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>')
+
+                doc.asis("""
+                            <script>
+                            $(function(){
+
+                                var refreshFlag = ''
+                                """
+                                +"""var controllerServerPath ='"""+self.CONTROLLER_SERVER_PATH+
+                                """'
+
+                                if(controllerServerPath != ''){
+    
+
+                                    window.setInterval(function(){
+      
+                                    $.ajax({
+                                            url: controllerServerPath+"pseudo_refresh.txt",
+                                            async: true,   // asynchronous request? (synchronous requests are discouraged...)
+                                            cache: false,   // with this, you can force the browser to not make cache of the retrieved data
+                                            dataType: "text",  // jQuery will infer this, but you can set explicitly
+                                            success: function( data, textStatus, jqXHR ) {
+                                                newFlag = data; 
+                                                
+                                                if (refreshFlag == "0" && newFlag == "1"){
+
+                                                    location.reload();
+
+                                                } else if (refreshFlag == "1" && newFlag == "0") {
+
+                                                    location.reload();
+
+                                                } else {
+
+                                                    //do nothing
+
+                                                }
+
+                                            }
+                                        });
+                                    }, 1000);
+
+                                } else {
+    
+                                    setTimeout(function() {location.reload();}, 30000);
+
+                                }
+
+                            });
+                            </script>
+                            """)
 
                 if bgImageURL != None:
                     doc.asis('<style>body{ background:transparent!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
@@ -304,6 +357,42 @@ class PseudoDailyScheduleController():
 
             f.write(data)
 
+
+    '''
+    *
+    * Write 0 or 1 to file for the ajax in the schedule.html to know when to refresh
+    * @param data: xml string
+    * @return null
+    *
+    '''
+    def write_refresh_bool_to_file(self):
+
+        fileName = "pseudo_refresh.txt"
+
+        writepath = './schedules/'
+
+        first_line = ''
+
+        if not os.path.exists(writepath):
+
+            os.makedirs(writepath)
+
+        if os.path.exists(writepath+fileName):
+            
+            os.remove(writepath+fileName)
+
+        mode = 'a' if os.path.exists(writepath) else 'w'
+
+        with open(writepath+fileName, mode) as f:
+
+            if first_line == '' or first_line == "0":
+
+                f.write("1")
+
+            else:
+
+                f.write("0")
+
     '''
     *
     * Trigger "playMedia()" on the Python Plex API for specified media.
@@ -407,6 +496,8 @@ class PseudoDailyScheduleController():
                         self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
                         self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
 
+                        self.write_refresh_bool_to_file()
+
                         break
     '''
     *
@@ -453,6 +544,8 @@ class PseudoDailyScheduleController():
                             )
                         )
 
+                        self.write_refresh_bool_to_file()
+
                         """Generate / write XML to file
                         """
                         self.write_xml_to_file(
@@ -480,5 +573,6 @@ class PseudoDailyScheduleController():
 
         print "+++++ ", "Writing XML / HTML to file."
 
+        self.write_refresh_bool_to_file()
         self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
         self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))

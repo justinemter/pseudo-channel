@@ -66,6 +66,12 @@ useCommercialInjection = True
 # How many seconds to pad commercials between each other / other media
 commercialPadding = 5
 
+# Run a web server at the ./schedules directory and put the path here (i.e. http://192.168.1.28:8000/)
+# Make sure to have trailing slash.
+# If you would rather not deal with this, just leave an empty string...the schedule will still work,
+# but will refresh every 30 seconds. 
+controllerServerPath = "http://localhost:8000/"
+
 dailyUpdateTime = "12:00 AM"
 
 debug_mode = False
