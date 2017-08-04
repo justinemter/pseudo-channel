@@ -1106,7 +1106,9 @@ if __name__ == '__main__':
 
                     t.join()
 
-                #print '{}'.format(datetime.datetime.now(), end="\r")
+                if pseudo_channel.DEBUG:
+                    
+                    print '{}'.format(datetime.datetime.now(), end="\r")
 
         except KeyboardInterrupt:
 

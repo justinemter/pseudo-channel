@@ -8,3 +8,4 @@ pseudo-tv.db-journal
 old/
 pseudo-channel.db
 *.db-journal
+env/
