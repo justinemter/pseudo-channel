@@ -63,6 +63,9 @@ useGoogleCalendar = False
 
 useCommercialInjection = True
 
+# How many seconds to pad commercials between each other / other media
+commercialPadding = 5
+
 dailyUpdateTime = "12:00 AM"
 
 debug_mode = False

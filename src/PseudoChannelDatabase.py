@@ -153,7 +153,7 @@ class PseudoChannelDatabase():
     def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID):
         unix = int(time.time())
         try:
-            self.cursor.execute("REPLACE INTO shows "
+            self.cursor.execute("INSERT OR IGNORE INTO shows "
                       "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
                       (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
             self.conn.commit()
@@ -295,11 +295,13 @@ class PseudoChannelDatabase():
 
     def get_daily_schedule(self):
 
+        print "##### Getting Daily Schedule from DB."
+
         self.cursor.execute("SELECT * FROM daily_schedule ORDER BY datetime(startTime) ASC")
 
         datalist = list(self.cursor.fetchall())
 
-        print "##### Getting Daily Schedule from DB."
+        print "+++++ Done."
 
         return datalist
 

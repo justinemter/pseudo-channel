@@ -47,6 +47,8 @@ class PseudoChannel():
 
     APP_TIME_FORMAT_STR = '%I:%M:%S %p'
 
+    COMMERCIAL_PADDING_IN_SECONDS = config.commercialPadding
+
     DEBUG = config.debug_mode
 
     def __init__(self):
@@ -573,7 +575,8 @@ class PseudoChannel():
 
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
-                self.db.get_commercials()
+                self.db.get_commercials(),
+                self.COMMERCIAL_PADDING_IN_SECONDS
             )
 
         schedule = self.db.get_schedule()
@@ -816,7 +819,7 @@ class PseudoChannel():
 
     def run_commercial_injection(self):
 
-        print "#### Running commercial injection."
+        """print "#### Running commercial injection."
 
         self.commercials = PseudoChannelCommercial(
             self.db.get_commercials(),
@@ -825,7 +828,9 @@ class PseudoChannel():
 
         commercials_to_inject = self.commercials.get_commercials_to_inject()
 
-        print commercials_to_inject
+        print commercials_to_inject"""
+
+        pass
 
     def run(self):
 
