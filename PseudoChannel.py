@@ -817,6 +817,8 @@ class PseudoChannel():
 
                         previous_episode = entry
 
+                self.make_xml_schedule()
+
     def run_commercial_injection(self):
 
         """print "#### Running commercial injection."
