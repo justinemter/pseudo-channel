@@ -64,16 +64,14 @@ To run the app in a 'poor-mans-daemon-mode' using [screen](https://www.gnu.org/s
 
 ...the previous command will keep the clock / app running in the background via the screen utility - kinda like a daemon process. 
 
-To view the automatically generated "Daily Pseudo Schedule" index.html as seen in the image above, find it in the generated `./schedules/` directory within the project folder. The html file is generated both when the daily schedule is updated and whenever a media item from the schedule plays or ends. You can run a simple web server there to serve your schedule to your browser. Having something tangible like this makes the project a little bit more fun than just a bunch of cli commands & magic. You can manually generate the schedule anytome using, `python PseudoSchedule.py -m`.
+To view the automatically generated "Daily Pseudo Schedule" index.html as seen in the image above, find it in the generated `./schedules/` directory within the project folder. The html file is generated both when the daily schedule is updated and whenever a media item from the schedule plays or ends (you can manually generate it with the `-m` flag). 
 
-To run a simple python webserver for easily viewing the daily schedule, run this:
+If you configured your `controllerServerPath` variable in the `pseudo_config.py` file, you can view your schedule by pointing your browser here:
 
 ```bash
-% cd ./schedules && sudo python -m SimpleHTTPServer 80
+http://192.168.1.28:8000
 ```
-*you can also use the `screen` solution above to make this server run in the background.*
-
-You can now view the schedule by pointing your browser to the controller IP, `http://19.168.1.28`. If for some reason that port is already in use, you can switch the `80` to something else. Try, switching it to `8000` in the above command and point your browser to `http://192.168.1.28:8000`. 
+*Where `192.168.1.28` is the IP of your controller & `8000` is the port - both perameters are configured in the `pseudo_config.py` file.*
 
 Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
 
