@@ -37,11 +37,25 @@ baseurl = 'http://192.168.1.28:32400'
 5. Run the `PseudoChannel.py` file with the following flags:
 
 ```bash
-% python PseudoChannel.py -u -xml -g -r
+% python PseudoChannel.py -u -xml -g -m -r
 ```
 *You can also run `-h` to view all the options. Keep in mind not all options are operational & some are experimental. Stick with the ones above and use `-c` to find the name(s) of your Plex client(s).*
 
 The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`, you only need to run this once in the beginning or later when you have added new media to your Plex libraries. The `-xml` flag will update the newly created local db with your schedule from the xml file - you  should run this everytime you make changes to the xml. The `-g` file will generate the daily schedule (for today) based on the xml. Finally, the `-r` file will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
+
+You can run `% python PseudoChannel.py` with the following options. The order is important (i.e. `% python PseudoChannel.py -u -xml -g -m -r`):
+
+| Flag                    | Description   | 
+| ------------------------|--------------| 
+| -u, --update            | Manually update (or create if not exists) the local db when new media is added to your Plex server. |
+| -xml, --xml             | After making any edits your .xml schedule. Run this to populate the local db. |  
+| -g, --generate_schedule | Manually generate the daily schedule. This is useful for testing / first run. |
+| -r, --run               | Run PsuedoChannel.py. |
+| -c, --show_clients      | Show connected Plex clients. |
+| -s, --show_schedule     | Output the generated "Daily Schedule" to your terminal. |
+| -m, --make_html         | Manually generate both html / xml docs based on the "Daily Schedule". |
+
+## Futher Info:
 
 Features are being added to the xml but as of now there are a few. Within the XML `<time>` entry you are able to pass in various attributes to set certain values. As of now, aside from "title" and "type" which are mandatory, you can take advantage of "time-shift". This parameter accepts values in minutes and can be no lower than "1". If the attribute, "strict-time" is set to "false", then this `<time>` entry will be shifted to a new time based on the previous time with a smaller gap calculated according to the value in "time-shift". Basically, if you do not want any gaps in your daily generated schedule you would leave "strict-time" false and set "time-shift" to "1" for all `<time>` entries. However, this will create a schedule with weird start times like, "1:57 PM". Taking advantage of the "time-shift" perameter will correct this. If you set it to a value of "5", all media is shifted and hooked on to a "pretty" time that is a multiple of 5. So if used, rather then having a "Seinfeld" episode being set to "1:57 PM" it may be recalculated and scheduled for "2:00 PM". However, if you would like to make sure that "The Simpsons" will always start every weekday at "6:00 PM" then you can simply set that `<time>` entry to `srtict-time="true"`. This will ensure that despite other non-strict times shifting around, "The Simpsons" will air every weekday at the desired "6:00 PM" as scheduled (be sure that you haven't accidentally made two time entries "strict-time" for the same day/time - this sort of thing will cause weird scheduling errors). When using "strict-time" or having the "time-shift" value > than 1 (minute), this will result in empty gaps in the schedule. Currently I have a flag in the config for "commercial injection" to fill up the gaps as much as possible with commercials from commercials in your Plex server "Commercials" library. If you do not want to use this feature or if you don't have any commercials in your Plex server, just open up that `pseudo_config.py` file and set `useCommercialInjection` to `False`.
 
