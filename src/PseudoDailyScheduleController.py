@@ -208,57 +208,58 @@ class PseudoDailyScheduleController():
                 doc.asis('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>')
 
                 doc.asis("""
-                            <script>
-                            $(function(){
+        <script>
+        $(function(){
 
-                                var refreshFlag = ''
-                                """
-                                +"""var controllerServerPath ='"""+self.CONTROLLER_SERVER_PATH+':'+self.CONTROLLER_SERVER_PORT+
-                                """'
+            var refreshFlag = '';
+            """
+            +"""var controllerServerPath ='"""+self.CONTROLLER_SERVER_PATH+":"+self.CONTROLLER_SERVER_PORT+"""';
 
-                                if(controllerServerPath != ''){
-    
+            if(controllerServerPath != ''){
 
-                                    window.setInterval(function(){
-      
-                                    $.ajax({
-                                            url: controllerServerPath+"pseudo_refresh.txt",
-                                            async: true,   // asynchronous request? (synchronous requests are discouraged...)
-                                            cache: false,   // with this, you can force the browser to not make cache of the retrieved data
-                                            dataType: "text",  // jQuery will infer this, but you can set explicitly
-                                            success: function( data, textStatus, jqXHR ) {
-                                                newFlag = data; 
+                console.log("here");
 
-                                                if(refreshFlag != ''){
-                                                
-                                                    if (refreshFlag != newFlag){
+                window.setInterval(function(){
 
-                                                        location.reload();
+                $.ajax({
+                        url: controllerServerPath+"/pseudo_refresh.txt",
+                        async: true,   // asynchronous request? (synchronous requests are discouraged...)
+                        cache: false,   // with this, you can force the browser to not make cache of the retrieved data
+                        dataType: "text",  // jQuery will infer this, but you can set explicitly
+                        success: function( data, textStatus, jqXHR ) {
+                            newFlag = data; 
 
-                                                    } else {
+                            if(refreshFlag != ''){
+                            
+                                if (refreshFlag != newFlag){
 
-                                                        //do nothing
-
-                                                    }
-
-                                                } else {
-    
-                                                    refreshFlag = newFlag
-
-                                                }
-
-                                            }
-                                        });
-                                    }, 1000);
+                                    location.reload();
 
                                 } else {
-    
-                                    setTimeout(function() {location.reload();}, 30000);
+
+                                    //do nothing
+                                    console.log("skip");
 
                                 }
 
-                            });
-                            </script>
+                            } else {
+
+                                refreshFlag = newFlag;
+
+                            }
+
+                        }
+                    });
+                }, 1000);
+
+            } else {
+
+                setTimeout(function() {location.reload();}, 30000);
+
+            }
+
+        });
+        </script>
                             """)
 
                 if bgImageURL != None:
