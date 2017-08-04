@@ -50,6 +50,7 @@ class PseudoChannel():
     COMMERCIAL_PADDING_IN_SECONDS = config.commercialPadding
 
     CONTROLLER_SERVER_PATH = config.controllerServerPath
+    CONTROLLER_SERVER_PORT = config.controllerServerPort
 
     DEBUG = config.debug_mode
 
@@ -62,6 +63,7 @@ class PseudoChannel():
             config.token, 
             config.plexClients,
             self.CONTROLLER_SERVER_PATH,
+            self.CONTROLLER_SERVER_PORT,
             self.DEBUG
         )
 

@@ -15,7 +15,14 @@ import logging.handlers
 
 class PseudoDailyScheduleController():
 
-    def __init__(self, server, token, clients, controllerServerPath = '', debugMode = False):
+    def __init__(self, 
+                 server, 
+                 token, 
+                 clients, 
+                 controllerServerPath = '', 
+                 controllerServerPort = '8000', 
+                 debugMode = False
+                 ):
 
         self.PLEX = PlexServer(server, token)
 
@@ -26,6 +33,8 @@ class PseudoDailyScheduleController():
         self.PLEX_CLIENTS = clients
 
         self.CONTROLLER_SERVER_PATH = controllerServerPath
+
+        self.CONTROLLER_SERVER_PORT = controllerServerPort
 
         self.DEBUG = debugMode
 
@@ -38,6 +47,7 @@ class PseudoDailyScheduleController():
 
         self.my_logger.addHandler(self.handler)
 
+        """Changing dir to the schedules dir."""
         web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
         os.chdir(web_dir)
 
@@ -72,7 +82,7 @@ class PseudoDailyScheduleController():
 
         if self.webserverStarted == False:
 
-            PORT = 8000
+            PORT = int(self.CONTROLLER_SERVER_PORT)
 
             class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
@@ -203,7 +213,7 @@ class PseudoDailyScheduleController():
 
                                 var refreshFlag = ''
                                 """
-                                +"""var controllerServerPath ='"""+self.CONTROLLER_SERVER_PATH+
+                                +"""var controllerServerPath ='"""+self.CONTROLLER_SERVER_PATH+':'+self.CONTROLLER_SERVER_PORT+
                                 """'
 
                                 if(controllerServerPath != ''){
