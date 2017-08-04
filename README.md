@@ -20,24 +20,29 @@ If interested in this project, check back very soon when the beta is up. It's cl
 
 ## How to Use (in the case someone stumbles across this and wants to try it before its polished):
 
-- The instructions below are all for configuring the "controller" device (i.e. a laptop or raspberry pi running linux). The "client" device should be a Raspberry Pi running Rasplex hooked up to your TV via HDMI - although I'm sure other devices work great too (never tried). 
+- The instructions below are all for configuring the **"controller"** device (i.e. a laptop or raspberry pi running linux). This is the device this app runs on to control the Plex client. The **"client"** device should be a Raspberry Pi running Rasplex hooked up to your TV via HDMI - although I'm sure other devices work great too (never tried). 
 
-1. Download the [Python Plex API](https://github.com/pkkid/python-plexapi) & their dependencies. Also get [yattag](http://www.yattag.org/). All these dependencies can be installed via pip.
+1. PseudoChannel uses Python 2.7. The recommended method of setting up most python environments is to use [virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/). This keeps all your pip packages / python versions seperated per project basis. I find this method extremely useful but also somewhat unintuitive, especially at first. Whether you choose to use "virtualenv" to isolate your project environment or not, you can install all the PseudoChannel.py dependencies by running the following command after downloading this repository:
 
-2. Download this repository & create a new file named, `pseudo_config.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
+```bash
+% pip install -r requirements.txt
+```
+*You need to run the previous command using `sudo` if not in a virtualenv.*
+
+2. In order to tell PseudoChannel.py how to connect to your Plex server, create a `pseudo_config.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
 
 ```bash
 token = '<your token>'
 baseurl = 'http://192.168.1.28:32400'
 ```
-*This file is important as it tells the pseudo-channel app how/where to connect to your Plex server. It should sit just outside of this /pseudo-channel/ directory.*
+*This file is important as it tells PseudoChannel.py how/where to connect to your Plex server. It should sit just outside of this /pseudo-channel/ directory.*
 
-4. Edit the `pseudo_config.py` / `the pseudo_schedule.xml` to your liking. You can specify your plex media library names within the `pseudo_config.py` file... the default assumes that you have these libraries in your Plex server named like so: "TV Shows", "Movies" & "Commercials". If you do not intend on using commercials just set the `useCommercialInjection` flag to `False`. There are a few other experimental options like using Google Calendar rather than an XML. It is an arduous process to initially set up and I've found the XML method to be the easiest method for organizing your schedule - so stick with that for now. 
+3. Edit the `pseudo_config.py` / `the pseudo_schedule.xml` to your liking. You can specify your plex media library names within the `pseudo_config.py` file... the default assumes that you have these libraries in your Plex server named like so: "TV Shows", "Movies" & "Commercials". If you do not intend on using commercials just set the `useCommercialInjection` flag to `False`. There are a few other experimental options like using Google Calendar rather than an XML. It is an arduous process to initially set up and I've found the XML method to be the easiest method for organizing your schedule - so stick with that for now. 
 
-5. Run the `PseudoChannel.py` file with the following flags:
+4. Run the `PseudoChannel.py` file with the following flags:
 
 ```bash
-% python PseudoChannel.py -u -xml -g -m -r
+% python PseudoChannel.py -u -xml -g -r
 ```
 *You can also run `-h` to view all the options. Keep in mind not all options are operational & some are experimental. Stick with the ones above and use `-c` to find the name(s) of your Plex client(s).*
 
