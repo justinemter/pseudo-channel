@@ -1077,31 +1077,6 @@ if __name__ == '__main__':
 
             now = now.replace(year=1900, month=1, day=1)
 
-            now_for_update = now.replace(microsecond=0)
-
-
-            if now_for_update == time(
-                    daily_update_time.hour,
-                    daily_update_time.minute,
-                    daily_update_time.second
-            ):
-
-                if pseudo_channel.USING_GOOGLE_CALENDAR:
-
-                    pseudo_channel.update_schedule_from_google_calendar()
-
-                    the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-                else:
-
-                     pass
-                    
-                pseudo_channel.generate_daily_schedule()
-
-                the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-            """------------------"""
-
             time_diff = next_start_time - now
 
             if time_diff.total_seconds() > 0:
@@ -1132,49 +1107,33 @@ if __name__ == '__main__':
 
             print "+++++ Done."
 
-            
-        #the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-        def run_task():
-
-            global the_daily_schedule
-
-            now = datetime.datetime.now()
-
-            now_time = now.time().replace(microsecond=0)
-
-            #print time(11,59,00), now_time
-
-            if now_time == time(
-                    daily_update_time.hour,
-                    daily_update_time.minute,
-                    daily_update_time.second
-            ):
-
-                if pseudo_channel.USING_GOOGLE_CALENDAR:
-
-                    pseudo_channel.update_schedule_from_google_calendar()
-
-                    the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-                else:
-
-                     pass
-                    
-                pseudo_channel.generate_daily_schedule()
-
-                the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-            pseudo_channel.controller.tv_controller(the_daily_schedule)
-
-            if pseudo_channel.DEBUG:
-                
-                print '{}'.format(datetime.datetime.now(), end="\r")
-
-
-        #schedule.every(1).seconds.do(run_task)
-
         generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
+
+        daily_update_time = datetime.datetime.strptime(
+            pseudo_channel.translate_time(
+                pseudo_channel.DAILY_UPDATE_TIME
+            ),
+            pseudo_channel.APP_TIME_FORMAT_STR
+        ).strftime('%H:%M')
+
+        if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+            schedule.every().day.at(daily_update_time).do(
+                pseudo_channel.update_schedule_from_google_calendar
+            ).tag('daily-update-gc')
+
+        else:
+
+             pass
+
+        def go_generate_daily_sched():
+
+            pseudo_channel.generate_daily_schedule()
+            generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
+
+        schedule.every().day.at(daily_update_time).do(
+            go_generate_daily_sched
+        ).tag('daily-update')
 
         try:
 
@@ -1185,50 +1144,4 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
 
             print(' Manual break by user')
-
-        """try:
-
-            
-            while True:
-
-                now = datetime.datetime.now()
-
-                now_time = now.time().replace(microsecond=0)
-
-                #print time(11,59,00), now_time
-
-                if now_time == time(00,00,00):
-
-                    if pseudo_channel.USING_GOOGLE_CALENDAR:
-
-                        pseudo_channel.update_schedule_from_google_calendar()
-
-                        sleep(.5)
-
-                    else:
-
-                         pass
-                        
-                    pseudo_channel.generate_daily_schedule()
-
-                    pseudo_channel.make_xml_schedule()
-
-                pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
-
-                t = datetime.datetime.utcnow()
-
-                #sleeptime = 60 - (t.second + t.microsecond/1000000.0)
-
-                sleep(.5)
-
-        except KeyboardInterrupt, e:
-
-            pseudo_channel.exit_app()
-
-            del pseudo_channel"""
         
-
-
-
-
-
