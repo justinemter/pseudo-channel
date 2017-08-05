@@ -365,15 +365,11 @@ class PseudoDailyScheduleController():
     '''
     def write_schedule_to_file(self, data):
 
-        """Changing dir to the schedules dir."""
-        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
-        os.chdir(web_dir)
-
         now = datetime.now()
 
         fileName = "index.html"
 
-        writepath = './'
+        writepath = './' if os.getcwd() == "schedules" else "./schedules"
 
         if not os.path.exists(writepath):
 
@@ -400,15 +396,11 @@ class PseudoDailyScheduleController():
     '''
     def write_xml_to_file(self, data):
 
-        """Changing dir to the schedules dir."""
-        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
-        os.chdir(web_dir)
-
         now = datetime.now()
 
         fileName = "pseudo_schedule.xml"
 
-        writepath = './'
+        writepath = './' if os.getcwd() == "schedules" else "./schedules"
 
         if not os.path.exists(writepath):
 
@@ -433,13 +425,10 @@ class PseudoDailyScheduleController():
     *
     '''
     def write_refresh_bool_to_file(self):
-        """Changing dir to the schedules dir."""
-        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
-        os.chdir(web_dir)
 
         fileName = "pseudo_refresh.txt"
 
-        writepath = './'
+        writepath = './' if os.getcwd() == "schedules" else "./schedules"
 
         first_line = ''
 
