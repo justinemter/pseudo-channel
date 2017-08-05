@@ -1,22 +1,10 @@
-# pseudo-channel - Plex Controller for Home-brewed TV Channel
-This is a python based cli-app using the python-plex-api to control a plex-client and act like a real TV channel with show scheduling, commercial breaks, movie nights, etc.
+# PseudoChannel.py - a Plex Controller for Home-Brewed TV Channels
 
 Joined by the author of [Fake TV](https://medium.com/@Fake.TV), this project aims at tackling one issue: creating a fake tv channel experience with your own media library (movies, tv shows, commercials, etc.). The idea is super simple... when you turn on your TV, rather than hopping straight to Netflix, you can choose to watch your own channel of curated media like a real channel, with randomized movie time blocks, weekend morning cartoons, 90's commercials to fill up gaps and more. We aim to add a ton of neat features but the basic idea is to have something that feels like a real TV channel. That being said it isn't supposed to "pause" nor are you supposed to intervene too much. Just like a real channel you are presented with a channel that you define once and let it go as it advances in series episodes, playing random movies where specified (defined by various parameters like genre, "Kevin Bacon", etc.). Think: weekday movie nights @ 8:00 PM. Or perhaps you want to further specify your weekly Wednesday evening movie be a movie in your Plex library that stars "Will Smith". Currently the latter feature among many others are being developed but this is the goal. PseudoChannel is built to interface with the Plex media server. So if you want to have your very own PseudoChannel, you first need to set up your home server using [Plex](https://www.plex.tv/). After that you can come back here to learn how to setup everything else. Please note that we just started this project so everything is evolving rapidly. Check back often. We aim to have a decent working "alpha" version within a week or so. This readme / the how-to guide will all be very user friendly. Although this app runs using Python and the command line, we aim to make all of it as easy as possible to understand for those who are intimidated by this sort of technology.
 
 ![Generated HTML schedule](http://i.imgur.com/uTGRYIp.png)
 
-## Features So Far:
-
-- [x] Generate Daily Schedule of TV Show episodes based on user defined TV Shows.
-- [x] Add a controller to query the local generated pseudo_tv.db to see when to trigger the next media.
-- [x] Add episode duration checking & adjust daily generated schedule based on these results...
-- [x] Generate daily html schedule (saved in ./schedules directory). Can be served via webserver.
-- [ ] Add Google Calendar integration to easily schedule your PseudoChannel.
-- [ ] Add "commercial injection" & user defined "defaults" to fill up gaps between content. 
-- [ ] Bug fixes.
-- [ ] List of features from reddit. 
-
-If interested in this project, check back very soon when the beta is up. It's close and a tiny bit more user friendly. :)
+If interested in this project, check back very soon when the alpha is up. It's close and a tiny bit more user friendly. :)
 
 ## How to Use (in the case someone stumbles across this and wants to try it before its polished):
 
@@ -29,7 +17,7 @@ If interested in this project, check back very soon when the beta is up. It's cl
 ```
 *You need to run the previous command using `sudo` if not in a virtualenv.*
 
-2. In order to tell PseudoChannel.py how to connect to your Plex server, create a `pseudo_config.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
+2. In order to tell PseudoChannel.py how to connect to your Plex server, create an empty file named, `plex_token.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
 
 ```bash
 token = '<your token>'
@@ -46,7 +34,10 @@ baseurl = 'http://192.168.1.28:32400'
 ```
 *You can also run `-h` to view all the options. Keep in mind not all options are operational & some are experimental. Stick with the ones above and use `-c` to find the name(s) of your Plex client(s).*
 
-The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`, you only need to run this once in the beginning or later when you have added new media to your Plex libraries. The `-xml` flag will update the newly created local db with your schedule from the xml file - you  should run this everytime you make changes to the xml. The `-g` file will generate the daily schedule (for today) based on the xml. Finally, the `-r` file will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
+- The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`, you only need to run this once in the beginning or later when you have added new media to your Plex libraries. 
+- The `-xml` flag will update the newly created local db with your schedule from the xml file - you  should run this everytime you make changes to the xml. 
+- The `-g` file will generate the daily schedule (for today) based on the xml. This is useful for the first run or testing (or manually advancing the daily queue forward). Running this flag say, 15 times will advance the play queue forward 15 days. It is automatically run every night at midnight to generate the daily schedule.
+- Finally, the `-r` flag will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
 
 You can run `% python PseudoChannel.py` with the following options. The order is important (i.e. `% python PseudoChannel.py -u -xml -g -m -r`):
 
@@ -73,16 +64,14 @@ To run the app in a 'poor-mans-daemon-mode' using [screen](https://www.gnu.org/s
 
 ...the previous command will keep the clock / app running in the background via the screen utility - kinda like a daemon process. 
 
-To view the automatically generated "Daily Pseudo Schedule" index.html as seen in the image above, find it in the generated `./schedules/` directory within the project folder. The html file is generated both when the daily schedule is updated and whenever a media item from the schedule plays or ends. You can run a simple web server there to serve your schedule to your browser. Having something tangible like this makes the project a little bit more fun than just a bunch of cli commands & magic. You can manually generate the schedule anytome using, `python PseudoSchedule.py -m`.
+To view the automatically generated "Daily Pseudo Schedule" index.html as seen in the image above, find it in the generated `./schedules/` directory within the project folder. The html file is generated both when the daily schedule is updated and whenever a media item from the schedule plays or ends (you can manually generate it with the `-m` flag). 
 
-To run a simple python webserver for easily viewing the daily schedule, run this:
+If you configured your `controllerServerPath` variable in the `pseudo_config.py` file, you can view your schedule by pointing your browser here:
 
 ```bash
-cd ./schedules && sudo python -m SimpleHTTPServer 80
+http://192.168.1.28:8000
 ```
-*you can also use the `screen` solution above to make this server run in the background.*
-
-You can now view the schedule by pointing your browser to the controller IP, `http://19.168.1.28`. If for some reason that port is already in use, you can switch the `80` to something else. Try, switching it to `8000` in the above command and point your browser to `http://192.168.1.28:8000`. 
+*Where `192.168.1.28` is the IP of your controller & `8000` is the port - both perameters are configured in the `pseudo_config.py` file.*
 
 Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
 
