@@ -24,6 +24,8 @@ import os, sys
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
+import schedule
+
 from threading import Timer
 import signal
 
@@ -1070,61 +1072,54 @@ if __name__ == '__main__':
             pseudo_channel.APP_TIME_FORMAT_STR
         ) 
 
-        try:
-        
-            def run_task():
+        def run_task():
 
-                global the_daily_schedule
+            global the_daily_schedule
 
-                now = datetime.datetime.now()
+            now = datetime.datetime.now()
 
-                now_time = now.time().replace(microsecond=0)
+            now_time = now.time().replace(microsecond=0)
 
-                #print time(11,59,00), now_time
+            #print time(11,59,00), now_time
 
-                if now_time == time(
-                        daily_update_time.hour,
-                        daily_update_time.minute,
-                        daily_update_time.second
-                ):
+            if now_time == time(
+                    daily_update_time.hour,
+                    daily_update_time.minute,
+                    daily_update_time.second
+            ):
 
-                    if pseudo_channel.USING_GOOGLE_CALENDAR:
+                if pseudo_channel.USING_GOOGLE_CALENDAR:
 
-                        pseudo_channel.update_schedule_from_google_calendar()
-
-                        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-                    else:
-
-                         pass
-                        
-                    pseudo_channel.generate_daily_schedule()
+                    pseudo_channel.update_schedule_from_google_calendar()
 
                     the_daily_schedule = pseudo_channel.db.get_daily_schedule()
 
-                pseudo_channel.controller.tv_controller(the_daily_schedule)
+                else:
 
-                t = Timer(1, run_task, ())
+                     pass
+                    
+                pseudo_channel.generate_daily_schedule()
 
-                try:
+                the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+            pseudo_channel.controller.tv_controller(the_daily_schedule)
+
+            if pseudo_channel.DEBUG:
                 
-                    t.start()
-                    
-                except KeyboardInterrupt:
+                print '{}'.format(datetime.datetime.now(), end="\r")
 
-                    t.join()
 
-                if pseudo_channel.DEBUG:
-                    
-                    print '{}'.format(datetime.datetime.now(), end="\r")
+        schedule.every(1).seconds.do(run_task)
+
+        try:
+
+            while True:
+                schedule.run_pending()
+                sleep(1)
 
         except KeyboardInterrupt:
 
-                print('Manual break by user')
-
-        run_task()
-
-   
+            print(' Manual break by user')
 
         """try:
 

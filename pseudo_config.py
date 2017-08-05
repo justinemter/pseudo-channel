@@ -78,4 +78,4 @@ controllerServerPort = "8000"
 
 dailyUpdateTime = "12:00 AM"
 
-debug_mode = False
+debug_mode = True
