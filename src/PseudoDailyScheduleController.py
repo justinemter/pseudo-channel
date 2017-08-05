@@ -570,6 +570,45 @@ class PseudoDailyScheduleController():
                         self.write_refresh_bool_to_file()
 
                         break
+
+    def play(self, row, datalist):
+
+        print("Starting Media: " + row[3])
+        print(row)
+
+        timeB = datetime.strptime(row[8], '%I:%M:%S %p')
+
+        self.play_media(row[11], row[6], row[3])
+
+        self.write_schedule_to_file(
+            self.get_html_from_daily_schedule(
+                timeB,
+                self.get_show_photo(
+                    row[11], 
+                    row[6] if row[11] == "TV Shows" else row[3]
+                ),
+                datalist
+            )
+        )
+
+        self.write_refresh_bool_to_file()
+
+        """Generate / write XML to file
+        """
+        self.write_xml_to_file(
+            self.get_xml_from_daily_schedule(
+                timeB,
+                self.get_show_photo(
+                    row[11], 
+                    row[6] if row[11] == "TV Shows" else row[3]
+                ),
+                datalist
+            )
+        )
+
+        self.my_logger.debug('Trying to play: ' + row[3])
+
+
     '''
     *
     * Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API

@@ -26,9 +26,6 @@ import xml.etree.ElementTree as ET
 
 import schedule
 
-from threading import Timer
-import signal
-
 from time import sleep
 
 import pseudo_config as config
@@ -1063,14 +1060,76 @@ if __name__ == '__main__':
             
         """
 
-        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
         daily_update_time = datetime.datetime.strptime(
             pseudo_channel.translate_time(
                 pseudo_channel.DAILY_UPDATE_TIME
             ),
             pseudo_channel.APP_TIME_FORMAT_STR
-        ) 
+        )
+
+        def job_that_executes_once(item, schedulelist):
+
+            print "##### Readying media: '{}'".format(item[3])
+
+            next_start_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p")
+
+            now = datetime.datetime.now()
+
+            now = now.replace(year=1900, month=1, day=1)
+
+            now_for_update = now.replace(microsecond=0)
+
+
+            if now_for_update == time(
+                    daily_update_time.hour,
+                    daily_update_time.minute,
+                    daily_update_time.second
+            ):
+
+                if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+                    pseudo_channel.update_schedule_from_google_calendar()
+
+                    the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+                else:
+
+                     pass
+                    
+                pseudo_channel.generate_daily_schedule()
+
+                the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+            """------------------"""
+
+            time_diff = next_start_time - now
+
+            if time_diff.total_seconds() > 0:
+
+
+                print "+++++ Sleeping for {} seconds before playing: '{}'".format(time_diff.total_seconds(), item[3])
+                sleep(time_diff.total_seconds())
+
+                print "Woke up!"
+
+                pseudo_channel.controller.play(item, schedulelist)
+
+            return schedule.CancelJob
+
+        def generate_memory_schedule(schedulelist):
+
+            print "##### Generating Memory Schedule."
+
+            for item in schedulelist:
+
+                trans_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p").strftime("%H:%M")
+
+                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag()
+
+            print "+++++ Done."
+
+            
+        #the_daily_schedule = pseudo_channel.db.get_daily_schedule()
 
         def run_task():
 
@@ -1109,7 +1168,9 @@ if __name__ == '__main__':
                 print '{}'.format(datetime.datetime.now(), end="\r")
 
 
-        schedule.every(1).seconds.do(run_task)
+        #schedule.every(1).seconds.do(run_task)
+
+        generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
 
         try:
 
