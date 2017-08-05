@@ -369,7 +369,7 @@ class PseudoDailyScheduleController():
 
         fileName = "index.html"
 
-        writepath = './' if os.getcwd() == "schedules" else "./schedules"
+        writepath = './' if os.path.basename(os.getcwd()) == "schedules" else "./schedules/"
 
         if not os.path.exists(writepath):
 
@@ -400,7 +400,7 @@ class PseudoDailyScheduleController():
 
         fileName = "pseudo_schedule.xml"
 
-        writepath = './' if os.getcwd() == "schedules" else "./schedules"
+        writepath = './' if os.path.basename(os.getcwd()) == "schedules" else "./schedules/"
 
         if not os.path.exists(writepath):
 
@@ -428,7 +428,7 @@ class PseudoDailyScheduleController():
 
         fileName = "pseudo_refresh.txt"
 
-        writepath = './' if os.getcwd() == "schedules" else "./schedules"
+        writepath = './' if os.path.basename(os.getcwd()) == "schedules" else "./schedules/"
 
         first_line = ''
 
