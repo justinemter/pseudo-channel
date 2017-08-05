@@ -1114,6 +1114,10 @@ if __name__ == '__main__':
 
                 pseudo_channel.controller.play(item, schedulelist)
 
+            else:
+
+                pseudo_channel.controller.play(item, schedulelist)
+
             return schedule.CancelJob
 
         def generate_memory_schedule(schedulelist):
