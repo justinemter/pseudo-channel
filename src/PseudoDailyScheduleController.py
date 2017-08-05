@@ -47,10 +47,6 @@ class PseudoDailyScheduleController():
 
         self.my_logger.addHandler(self.handler)
 
-        """Changing dir to the schedules dir."""
-        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
-        os.chdir(web_dir)
-
     '''
     *
     * Get the full image url (including plex token) from the local db.
@@ -82,6 +78,10 @@ class PseudoDailyScheduleController():
 
         if self.webserverStarted == False:
 
+            """Changing dir to the schedules dir."""
+            web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
+            os.chdir(web_dir)
+
             PORT = int(self.CONTROLLER_SERVER_PORT)
 
             class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -91,7 +91,7 @@ class PseudoDailyScheduleController():
 
             global httpd
             try:
-                print "Starting webserver at port: ", PORT
+                #print "Starting webserver at port: ", PORT
                 # create the httpd handler for the simplehttpserver
                 # we set the allow_reuse_address incase something hangs can still bind to port
                 class ReusableTCPServer(SocketServer.TCPServer): allow_reuse_address=True
@@ -365,6 +365,10 @@ class PseudoDailyScheduleController():
     '''
     def write_schedule_to_file(self, data):
 
+        """Changing dir to the schedules dir."""
+        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
+        os.chdir(web_dir)
+
         now = datetime.now()
 
         fileName = "index.html"
@@ -396,6 +400,10 @@ class PseudoDailyScheduleController():
     '''
     def write_xml_to_file(self, data):
 
+        """Changing dir to the schedules dir."""
+        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
+        os.chdir(web_dir)
+
         now = datetime.now()
 
         fileName = "pseudo_schedule.xml"
@@ -425,6 +433,9 @@ class PseudoDailyScheduleController():
     *
     '''
     def write_refresh_bool_to_file(self):
+        """Changing dir to the schedules dir."""
+        web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
+        os.chdir(web_dir)
 
         fileName = "pseudo_refresh.txt"
 

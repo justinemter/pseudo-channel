@@ -20,6 +20,7 @@ import calendar
 import itertools
 import argparse
 import textwrap
+import os, sys
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
@@ -314,6 +315,11 @@ class PseudoChannel():
 
     def update_schedule(self):
 
+        """Changing dir to the schedules dir."""
+        abspath = os.path.abspath(__file__)
+        dname = os.path.dirname(abspath)
+        os.chdir(dname)
+
         self.db.create_tables()
 
         self.db.remove_all_scheduled_items()
@@ -352,7 +358,7 @@ class PseudoChannel():
 
                         if time.attrib['type'] == key or time.attrib['type'] in value:
 
-                            title = time.attrib['title']
+                            title = time.attrib['title'] if 'title' in time.attrib else ''
 
                             natural_start_time = self.translate_time(time.text)
 
@@ -362,11 +368,13 @@ class PseudoChannel():
 
                             day_of_week = child.tag
 
-                            strict_time = time.attrib['strict-time']
+                            strict_time = time.attrib['strict-time'] if 'strict-time' in time.attrib else ''
 
-                            time_shift = time.attrib['time-shift']
+                            time_shift = time.attrib['time-shift'] if 'time-shift' in time.attrib else ''
 
-                            overlap_max = time.attrib['overlap-max']
+                            overlap_max = time.attrib['overlap-max'] if 'overlap-max' in time.attrib else ''
+
+                            seriesOffset = time.attrib['series-offset'] if 'series-offset' in time.attrib else ''
 
                             start_time_unix = self.translate_time(time.text)
 
