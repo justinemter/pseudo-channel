@@ -34,7 +34,7 @@ class PseudoDailyScheduleController():
 
         self.CONTROLLER_SERVER_PATH = controllerServerPath
 
-        self.CONTROLLER_SERVER_PORT = controllerServerPort
+        self.CONTROLLER_SERVER_PORT = controllerServerPort if controllerServerPort != '' else '80'
 
         self.DEBUG = debugMode
 
@@ -82,7 +82,7 @@ class PseudoDailyScheduleController():
 
     def start_server(self):
 
-        if self.webserverStarted == False:
+        if self.webserverStarted == False and self.CONTROLLER_SERVER_PATH != '':
 
             """Changing dir to the schedules dir."""
             web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
