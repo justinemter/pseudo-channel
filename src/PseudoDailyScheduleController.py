@@ -4,6 +4,8 @@ from plexapi.server import PlexServer
 from datetime import datetime
 import sqlite3
 
+import thread,SocketServer,SimpleHTTPServer
+
 from yattag import Doc
 from yattag import indent
 import os, sys
@@ -13,7 +15,14 @@ import logging.handlers
 
 class PseudoDailyScheduleController():
 
-    def __init__(self, server, token, clients, debugMode = False):
+    def __init__(self, 
+                 server, 
+                 token, 
+                 clients, 
+                 controllerServerPath = '', 
+                 controllerServerPort = '8000', 
+                 debugMode = False
+                 ):
 
         self.PLEX = PlexServer(server, token)
 
@@ -23,14 +32,26 @@ class PseudoDailyScheduleController():
 
         self.PLEX_CLIENTS = clients
 
+        self.CONTROLLER_SERVER_PATH = controllerServerPath
+
+        self.CONTROLLER_SERVER_PORT = controllerServerPort
+
         self.DEBUG = debugMode
 
-        self.my_logger = logging.getLogger('MyLogger')
-        self.my_logger.setLevel(logging.DEBUG)
+        self.webserverStarted = False
 
-        self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
+        try: 
 
-        self.my_logger.addHandler(self.handler)
+            self.my_logger = logging.getLogger('MyLogger')
+            self.my_logger.setLevel(logging.DEBUG)
+
+            self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
+
+            self.my_logger.addHandler(self.handler)
+
+        except:
+
+            pass
 
     '''
     *
@@ -58,6 +79,45 @@ class PseudoDailyScheduleController():
             backgroundImgURL = self.BASE_URL+backgroundImagePath.art+"?X-Plex-Token="+self.TOKEN
 
         return backgroundImgURL
+
+    def start_server(self):
+
+        if self.webserverStarted == False:
+
+            """Changing dir to the schedules dir."""
+            web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
+            os.chdir(web_dir)
+
+            PORT = int(self.CONTROLLER_SERVER_PORT)
+
+            class MyHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+                def log_message(self, format, *args):
+                    return
+
+            global httpd
+            try:
+                #print "Starting webserver at port: ", PORT
+                # create the httpd handler for the simplehttpserver
+                # we set the allow_reuse_address incase something hangs can still bind to port
+                class ReusableTCPServer(SocketServer.TCPServer): allow_reuse_address=True
+                # specify the httpd service on 0.0.0.0 (all interfaces) on port 80
+                httpd = ReusableTCPServer(("0.0.0.0", PORT),MyHandler)
+
+                # thread this mofo
+                thread.start_new_thread(httpd.serve_forever,())
+
+            # handle keyboard interrupts
+            except KeyboardInterrupt:
+                core.print_info("Exiting the SET web server...")
+                httpd.socket.close()
+
+            # handle the rest
+            #except Exception:
+            #    print "[*] Exiting the SET web server...\n"
+            #    httpd.socket.close()
+
+            self.webserverStarted = True
 
     def get_xml_from_daily_schedule(self, currentTime, bgImageURL, datalist):
 
@@ -150,7 +210,63 @@ class PseudoDailyScheduleController():
                     text(time + " - Daily Pseudo Schedule")
 
                 doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
-                doc.asis('<script>setTimeout(function() {location.reload();}, 30000);</script>')
+                doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
+                doc.asis('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>')
+
+                doc.asis("""
+        <script>
+        $(function(){
+
+            var refreshFlag = '';
+            """
+            +"""var controllerServerPath ='"""+self.CONTROLLER_SERVER_PATH+":"+self.CONTROLLER_SERVER_PORT+"""';
+
+            if(controllerServerPath != ''){
+
+                console.log("here");
+
+                window.setInterval(function(){
+
+                $.ajax({
+                        url: controllerServerPath+"/pseudo_refresh.txt",
+                        async: true,   // asynchronous request? (synchronous requests are discouraged...)
+                        cache: false,   // with this, you can force the browser to not make cache of the retrieved data
+                        dataType: "text",  // jQuery will infer this, but you can set explicitly
+                        success: function( data, textStatus, jqXHR ) {
+                            newFlag = data; 
+
+                            if(refreshFlag != ''){
+                            
+                                if (refreshFlag != newFlag){
+
+                                    location.reload();
+
+                                } else {
+
+                                    //do nothing
+                                    console.log("skip");
+
+                                }
+
+                            } else {
+
+                                refreshFlag = newFlag;
+
+                            }
+
+                        }
+                    });
+                }, 1000);
+
+            } else {
+
+                setTimeout(function() {location.reload();}, 30000);
+
+            }
+
+        });
+        </script>
+                            """)
 
                 if bgImageURL != None:
                     doc.asis('<style>body{ background:transparent!important; } html { background: url('+bgImageURL+') no-repeat center center fixed; -webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;background-size: cover;}.make-white { padding: 24px; background:rgba(255,255,255, 0.9); }</style>')
@@ -259,7 +375,7 @@ class PseudoDailyScheduleController():
 
         fileName = "index.html"
 
-        writepath = './schedules/'
+        writepath = './' if os.path.basename(os.getcwd()) == "schedules" else "./schedules/"
 
         if not os.path.exists(writepath):
 
@@ -274,6 +390,8 @@ class PseudoDailyScheduleController():
         with open(writepath+fileName, mode) as f:
 
             f.write(data)
+
+        self.start_server()
 
     '''
     *
@@ -288,7 +406,7 @@ class PseudoDailyScheduleController():
 
         fileName = "pseudo_schedule.xml"
 
-        writepath = './schedules/'
+        writepath = './' if os.path.basename(os.getcwd()) == "schedules" else "./schedules/"
 
         if not os.path.exists(writepath):
 
@@ -303,6 +421,55 @@ class PseudoDailyScheduleController():
         with open(writepath+fileName, mode) as f:
 
             f.write(data)
+
+
+    '''
+    *
+    * Write 0 or 1 to file for the ajax in the schedule.html to know when to refresh
+    * @param data: xml string
+    * @return null
+    *
+    '''
+    def write_refresh_bool_to_file(self):
+
+        fileName = "pseudo_refresh.txt"
+
+        writepath = './' if os.path.basename(os.getcwd()) == "schedules" else "./schedules/"
+
+        first_line = ''
+
+        if not os.path.exists(writepath):
+
+            os.makedirs(writepath)
+
+        if not os.path.exists(writepath+fileName):
+
+            file(writepath+fileName, 'w').close()
+
+        mode = 'r+'
+
+        with open(writepath+fileName, mode) as f:
+
+            f.seek(0)
+
+            first_line = f.read()  
+
+            if self.DEBUG:
+                print "+++++ Html refresh flag: {}".format(first_line)
+
+            if first_line == '' or first_line == "0":
+
+                f.seek(0)
+                f.truncate()
+                f.write("1")
+
+            else:
+
+                f.seek(0)
+                f.truncate()
+                f.write("0")
+
+            #f.close()
 
     '''
     *
@@ -358,7 +525,9 @@ class PseudoDailyScheduleController():
 
             else:
 
-                print("Not sure how to play {}".format(mediaType))
+                print("##### Not sure how to play {}".format(mediaType))
+
+            print "+++++ Done."
 
         except Exception as e:
 
@@ -366,7 +535,7 @@ class PseudoDailyScheduleController():
 
             print e.message
 
-            print "There was an error trying to play the media."
+            print "##### There was an error trying to play the media."
 
             pass
         
@@ -402,12 +571,61 @@ class PseudoDailyScheduleController():
 
                     if currentTime.second == endTime.second:
 
-                        print("Ok end time found")
+                        if self.DEBUG:
+                            print("Ok end time found")
 
                         self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
                         self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
 
+                        self.write_refresh_bool_to_file()
+
                         break
+
+    def play(self, row, datalist):
+
+        print "##### Starting Media: '{}'".format(row[3])
+        
+        if self.DEBUG:
+            print(row)
+
+        timeB = datetime.strptime(row[8], '%I:%M:%S %p')
+
+        self.play_media(row[11], row[6], row[3])
+
+        self.write_schedule_to_file(
+            self.get_html_from_daily_schedule(
+                timeB,
+                self.get_show_photo(
+                    row[11], 
+                    row[6] if row[11] == "TV Shows" else row[3]
+                ),
+                datalist
+            )
+        )
+
+        self.write_refresh_bool_to_file()
+
+        """Generate / write XML to file
+        """
+        self.write_xml_to_file(
+            self.get_xml_from_daily_schedule(
+                timeB,
+                self.get_show_photo(
+                    row[11], 
+                    row[6] if row[11] == "TV Shows" else row[3]
+                ),
+                datalist
+            )
+        )
+
+        try:
+            self.my_logger.debug('Trying to play: ' + row[3])
+
+        except:
+
+            pass
+
+
     '''
     *
     * Check DB / current time. If that matches a scheduled shows startTime then trigger play via Plex API
@@ -425,7 +643,13 @@ class PseudoDailyScheduleController():
 
         datalist = list(c.fetchall())"""
 
-        self.my_logger.debug('TV Controller')
+        try:
+
+            self.my_logger.debug('TV Controller')
+
+        except:
+
+            pass
 
         for row in datalist:
 
@@ -453,6 +677,8 @@ class PseudoDailyScheduleController():
                             )
                         )
 
+                        self.write_refresh_bool_to_file()
+
                         """Generate / write XML to file
                         """
                         self.write_xml_to_file(
@@ -466,7 +692,12 @@ class PseudoDailyScheduleController():
                             )
                         )
 
-                        self.my_logger.debug('Trying to play: ' + row[3])
+                        try:
+                            self.my_logger.debug('Trying to play: ' + row[3])
+
+                        except:
+
+                            pass
 
                         break
 
@@ -480,5 +711,6 @@ class PseudoDailyScheduleController():
 
         print "+++++ ", "Writing XML / HTML to file."
 
+        self.write_refresh_bool_to_file()
         self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
         self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))

@@ -1,0 +1,15 @@
+certifi==2017.7.27.1
+chardet==3.0.4
+google-api-python-client==1.6.2
+httplib2==0.10.3
+idna==2.5
+oauth2client==4.1.2
+PlexAPI==2.0.2
+pyasn1==0.3.2
+pyasn1-modules==0.0.11
+requests==2.18.3
+rsa==3.4.2
+six==1.10.0
+uritemplate==3.0.0
+urllib3==1.22
+yattag==1.8.0

@@ -66,6 +66,16 @@ useCommercialInjection = True
 # How many seconds to pad commercials between each other / other media
 commercialPadding = 5
 
+"""
+Specify the path to this controller on the network (i.e. 'http://192.168.1.28' - no trailing slash).
+Also specify the desired port to run the simple http webserver. The daily generated
+schedule will be served at "http://<your-ip>:<your-port>/" (i.e. "http://192.168.1.28:8000/"). 
+
+You can also leave the below controllerServerPath empty if you'd like to run your own webserver.
+"""
+controllerServerPath = "http://192.168.1.28"
+controllerServerPort = "8000"
+
 dailyUpdateTime = "12:00 AM"
 
-debug_mode = False
+debug_mode = True

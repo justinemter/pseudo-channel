@@ -20,11 +20,11 @@ import calendar
 import itertools
 import argparse
 import textwrap
+import os, sys
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
-from threading import Timer
-import signal
+import schedule
 
 from time import sleep
 
@@ -49,6 +49,9 @@ class PseudoChannel():
 
     COMMERCIAL_PADDING_IN_SECONDS = config.commercialPadding
 
+    CONTROLLER_SERVER_PATH = config.controllerServerPath
+    CONTROLLER_SERVER_PORT = config.controllerServerPort
+
     DEBUG = config.debug_mode
 
     def __init__(self):
@@ -59,6 +62,8 @@ class PseudoChannel():
             config.baseurl, 
             config.token, 
             config.plexClients,
+            self.CONTROLLER_SERVER_PATH,
+            self.CONTROLLER_SERVER_PORT,
             self.DEBUG
         )
 
@@ -309,6 +314,11 @@ class PseudoChannel():
 
     def update_schedule(self):
 
+        """Changing dir to the schedules dir."""
+        abspath = os.path.abspath(__file__)
+        dname = os.path.dirname(abspath)
+        os.chdir(dname)
+
         self.db.create_tables()
 
         self.db.remove_all_scheduled_items()
@@ -347,7 +357,7 @@ class PseudoChannel():
 
                         if time.attrib['type'] == key or time.attrib['type'] in value:
 
-                            title = time.attrib['title']
+                            title = time.attrib['title'] if 'title' in time.attrib else ''
 
                             natural_start_time = self.translate_time(time.text)
 
@@ -357,11 +367,13 @@ class PseudoChannel():
 
                             day_of_week = child.tag
 
-                            strict_time = time.attrib['strict-time']
+                            strict_time = time.attrib['strict-time'] if 'strict-time' in time.attrib else ''
 
-                            time_shift = time.attrib['time-shift']
+                            time_shift = time.attrib['time-shift'] if 'time-shift' in time.attrib else ''
 
-                            overlap_max = time.attrib['overlap-max']
+                            overlap_max = time.attrib['overlap-max'] if 'overlap-max' in time.attrib else ''
+
+                            seriesOffset = time.attrib['series-offset'] if 'series-offset' in time.attrib else ''
 
                             start_time_unix = self.translate_time(time.text)
 
@@ -817,6 +829,8 @@ class PseudoChannel():
 
                         previous_episode = entry
 
+                self.make_xml_schedule()
+
     def run_commercial_injection(self):
 
         """print "#### Running commercial injection."
@@ -1046,108 +1060,90 @@ if __name__ == '__main__':
             
         """
 
-        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
+        daily_update_time = datetime.datetime.strptime(
+            pseudo_channel.translate_time(
+                pseudo_channel.DAILY_UPDATE_TIME
+            ),
+            pseudo_channel.APP_TIME_FORMAT_STR
+        )
+
+        def job_that_executes_once(item, schedulelist):
+
+            print "##### Readying media: '{}'".format(item[3])
+
+            next_start_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p")
+
+            now = datetime.datetime.now()
+
+            now = now.replace(year=1900, month=1, day=1)
+
+            time_diff = next_start_time - now
+
+            if time_diff.total_seconds() > 0:
+
+
+                print "+++++ Sleeping for {} seconds before playing: '{}'".format(time_diff.total_seconds(), item[3])
+
+                sleep(int(time_diff.total_seconds()))
+
+                if pseudo_channel.DEBUG:
+                    print "+++++ Woke up!"
+
+                pseudo_channel.controller.play(item, schedulelist)
+
+            else:
+
+                pseudo_channel.controller.play(item, schedulelist)
+
+            return schedule.CancelJob
+
+        def generate_memory_schedule(schedulelist):
+
+            print "##### Generating Memory Schedule."
+
+            for item in schedulelist:
+
+                trans_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p").strftime("%H:%M")
+
+                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag()
+
+            print "+++++ Done."
+
+        generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
 
         daily_update_time = datetime.datetime.strptime(
             pseudo_channel.translate_time(
                 pseudo_channel.DAILY_UPDATE_TIME
             ),
             pseudo_channel.APP_TIME_FORMAT_STR
-        ) 
+        ).strftime('%H:%M')
+
+        if pseudo_channel.USING_GOOGLE_CALENDAR:
+
+            schedule.every().day.at(daily_update_time).do(
+                pseudo_channel.update_schedule_from_google_calendar
+            ).tag('daily-update-gc')
+
+        else:
+
+             pass
+
+        def go_generate_daily_sched():
+
+            pseudo_channel.generate_daily_schedule()
+            generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
+
+        schedule.every().day.at(daily_update_time).do(
+            go_generate_daily_sched
+        ).tag('daily-update')
 
         try:
-        
-            def run_task():
 
-                global the_daily_schedule
-
-                now = datetime.datetime.now()
-
-                now_time = now.time().replace(microsecond=0)
-
-                #print time(11,59,00), now_time
-
-                if now_time == time(
-                        daily_update_time.hour,
-                        daily_update_time.minute,
-                        daily_update_time.second
-                ):
-
-                    if pseudo_channel.USING_GOOGLE_CALENDAR:
-
-                        pseudo_channel.update_schedule_from_google_calendar()
-
-                        the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-                    else:
-
-                         pass
-                        
-                    pseudo_channel.generate_daily_schedule()
-
-                    pseudo_channel.make_xml_schedule()
-
-                    the_daily_schedule = pseudo_channel.db.get_daily_schedule()
-
-                pseudo_channel.controller.tv_controller(the_daily_schedule)
-
-                t = Timer(1, run_task, ())
-
-                t.start()
-
-                #print '{}'.format(datetime.datetime.now(), end="\r")
+            while True:
+                schedule.run_pending()
+                sleep(1)
 
         except KeyboardInterrupt:
 
-                print('Manual break by user')
-
-        run_task()
-
-   
-
-        """try:
-
-            
-            while True:
-
-                now = datetime.datetime.now()
-
-                now_time = now.time().replace(microsecond=0)
-
-                #print time(11,59,00), now_time
-
-                if now_time == time(00,00,00):
-
-                    if pseudo_channel.USING_GOOGLE_CALENDAR:
-
-                        pseudo_channel.update_schedule_from_google_calendar()
-
-                        sleep(.5)
-
-                    else:
-
-                         pass
-                        
-                    pseudo_channel.generate_daily_schedule()
-
-                    pseudo_channel.make_xml_schedule()
-
-                pseudo_channel.controller.tv_controller(pseudo_channel.db.get_daily_schedule())
-
-                t = datetime.datetime.utcnow()
-
-                #sleeptime = 60 - (t.second + t.microsecond/1000000.0)
-
-                sleep(.5)
-
-        except KeyboardInterrupt, e:
-
-            pseudo_channel.exit_app()
-
-            del pseudo_channel"""
+            print(' Manual break by user')
         
-
-
-
-
-
