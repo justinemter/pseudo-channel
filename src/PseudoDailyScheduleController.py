@@ -448,7 +448,8 @@ class PseudoDailyScheduleController():
 
             first_line = f.read()  
 
-            print first_line
+            if self.DEBUG:
+                print "+++++ Html refresh flag: {}".format(first_line)
 
             if first_line == '' or first_line == "0":
 
@@ -518,7 +519,9 @@ class PseudoDailyScheduleController():
 
             else:
 
-                print("Not sure how to play {}".format(mediaType))
+                print("##### Not sure how to play {}".format(mediaType))
+
+            print "+++++ Done."
 
         except Exception as e:
 
@@ -526,7 +529,7 @@ class PseudoDailyScheduleController():
 
             print e.message
 
-            print "There was an error trying to play the media."
+            print "##### There was an error trying to play the media."
 
             pass
         
@@ -562,7 +565,8 @@ class PseudoDailyScheduleController():
 
                     if currentTime.second == endTime.second:
 
-                        print("Ok end time found")
+                        if self.DEBUG:
+                            print("Ok end time found")
 
                         self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
                         self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
@@ -573,8 +577,10 @@ class PseudoDailyScheduleController():
 
     def play(self, row, datalist):
 
-        print("Starting Media: " + row[3])
-        print(row)
+        print "##### Starting Media: '{}'".format(row[3])
+        
+        if self.DEBUG:
+            print(row)
 
         timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 

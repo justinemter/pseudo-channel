@@ -1083,9 +1083,11 @@ if __name__ == '__main__':
 
 
                 print "+++++ Sleeping for {} seconds before playing: '{}'".format(time_diff.total_seconds(), item[3])
-                sleep(time_diff.total_seconds())
 
-                print "Woke up!"
+                sleep(int(time_diff.total_seconds()))
+
+                if pseudo_channel.DEBUG:
+                    print "+++++ Woke up!"
 
                 pseudo_channel.controller.play(item, schedulelist)
 
