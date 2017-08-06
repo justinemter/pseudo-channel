@@ -40,12 +40,18 @@ class PseudoDailyScheduleController():
 
         self.webserverStarted = False
 
-        self.my_logger = logging.getLogger('MyLogger')
-        self.my_logger.setLevel(logging.DEBUG)
+        try: 
 
-        self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
+            self.my_logger = logging.getLogger('MyLogger')
+            self.my_logger.setLevel(logging.DEBUG)
 
-        self.my_logger.addHandler(self.handler)
+            self.handler = logging.handlers.SysLogHandler(address = '/dev/log')
+
+            self.my_logger.addHandler(self.handler)
+
+        except:
+
+            pass
 
     '''
     *
@@ -612,7 +618,12 @@ class PseudoDailyScheduleController():
             )
         )
 
-        self.my_logger.debug('Trying to play: ' + row[3])
+        try:
+            self.my_logger.debug('Trying to play: ' + row[3])
+
+        except:
+
+            pass
 
 
     '''
@@ -632,7 +643,13 @@ class PseudoDailyScheduleController():
 
         datalist = list(c.fetchall())"""
 
-        self.my_logger.debug('TV Controller')
+        try:
+
+            self.my_logger.debug('TV Controller')
+
+        except:
+
+            pass
 
         for row in datalist:
 
@@ -675,7 +692,12 @@ class PseudoDailyScheduleController():
                             )
                         )
 
-                        self.my_logger.debug('Trying to play: ' + row[3])
+                        try:
+                            self.my_logger.debug('Trying to play: ' + row[3])
+
+                        except:
+
+                            pass
 
                         break
 
