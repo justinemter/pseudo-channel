@@ -24,7 +24,7 @@ If interested in this project, check back very soon when the beta is up. It's cl
 
 1. Download the [Python Plex API](https://github.com/pkkid/python-plexapi) & their dependencies. Also get [yattag](http://www.yattag.org/). All these dependencies can be installed via pip.
 
-2. Download this repository & create a new file named, `pseudo_config.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
+2. Download this repository & create a new file named, `plex_token.py` just outside of the project directory. Within that file add your plex server url / [plex token](https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token) like so:
 
 ```bash
 token = '<your token>'
