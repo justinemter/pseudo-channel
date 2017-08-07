@@ -1105,7 +1105,7 @@ if __name__ == '__main__':
 
                 trans_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p").strftime("%H:%M")
 
-                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag()
+                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag('daily-tasks')
 
             print "+++++ Done."
 
@@ -1130,6 +1130,7 @@ if __name__ == '__main__':
 
         def go_generate_daily_sched():
 
+            schedule.clear('daily-tasks')
             pseudo_channel.generate_daily_schedule()
             generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
 
