@@ -684,7 +684,7 @@ class PseudoChannel():
 
                         else:
 
-                            print("Cannot find Movie, {} in the local db".format(entry[3]))
+                            print str("Cannot find Movie, {} in the local db".format(entry[3])).encode('UTF-8')
 
                     elif section == "Music":
 
@@ -711,7 +711,7 @@ class PseudoChannel():
 
                         else:
 
-                            print("Cannot find Music, {} in the local db".format(entry[3]))
+                            print str("Cannot find Music, {} in the local db".format(entry[3])).encode('UTF-8')
 
                     elif section == "Video":
 
@@ -738,7 +738,7 @@ class PseudoChannel():
 
                         else:
 
-                            print("Cannot find Video, {} in the local db".format(entry[3]))
+                            print str("Cannot find Video, {} in the local db".format(entry[3])).encode('UTF-8')
 
                     else:
 
@@ -903,7 +903,7 @@ class PseudoChannel():
 
         for i , entry in enumerate(daily_schedule):
 
-            print "+++++", str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3]
+            print str("+++++ {} {} {} {} {} {}".format(str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3])).encode(sys.stdout.encoding, errors='replace')
 
     def exit_app(self):
 
@@ -1069,7 +1069,7 @@ if __name__ == '__main__':
 
         def job_that_executes_once(item, schedulelist):
 
-            print "##### Readying media: '{}'".format(item[3])
+            print str("##### Readying media: '{}'".format(item[3])).encode('UTF-8')
 
             next_start_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p")
 

@@ -583,10 +583,10 @@ class PseudoDailyScheduleController():
 
     def play(self, row, datalist):
 
-        print "##### Starting Media: '{}'".format(row[3])
+        print str("##### Starting Media: '{}'".format(row[3])).encode('UTF-8')
         
         if self.DEBUG:
-            print(row)
+            print str(row).encode('UTF-8')
 
         timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
