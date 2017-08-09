@@ -16,6 +16,7 @@ from plexapi.server import PlexServer
 import sys
 import datetime
 from datetime import time
+import logging
 import calendar
 import itertools
 import argparse
@@ -55,6 +56,8 @@ class PseudoChannel():
     DEBUG = config.debug_mode
 
     def __init__(self):
+
+        logging.basicConfig(filename="pseudo-channel.log", level=logging.INFO)
 
         self.db = PseudoChannelDatabase("pseudo-channel.db")
 
@@ -1060,7 +1063,7 @@ if __name__ == '__main__':
             
         """
 
-        
+        logging.info("+++++ Running PseudoChannel.py -r")
 
         def trigger_what_should_be_playing_now():
 
@@ -1232,6 +1235,8 @@ if __name__ == '__main__':
                 sleep(1)
 
                 if sleep_before_triggering_play_now:
+
+                    logging.info("+++++ Successfully started PseudoChannel.py")
 
                     trigger_what_should_be_playing_now()
 

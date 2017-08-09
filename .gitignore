@@ -9,3 +9,5 @@ old/
 pseudo-channel.db
 *.db-journal
 env/
+*.log
+*.pid
