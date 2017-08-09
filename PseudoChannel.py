@@ -1087,7 +1087,7 @@ if __name__ == '__main__':
 
                 if item_time == closest_media:
 
-                    print "Line 1088, Here", item
+                    #print "Line 1088, Here", item
 
                     elapsed_time = closest_media - now
 
@@ -1118,8 +1118,9 @@ if __name__ == '__main__':
 
                                 pseudo_channel.controller.play(prevItem, daily_schedule, offsetTwo)
 
-                                print "+++++ Closest media was the next media" \
-                                      "but we were in the middle of something so triggering that instead."
+                                if pseudo_channel.DEBUG:
+                                    print "+++++ Closest media was the next media " \
+                                          "but we were in the middle of something so triggering that instead."
 
                                 break
 
@@ -1198,7 +1199,7 @@ if __name__ == '__main__':
             go_generate_daily_sched
         ).tag('daily-update')
 
-        trigger_flag = 1
+        trigger_what_should_be_playing_now()
 
         try:
 
@@ -1207,12 +1208,6 @@ if __name__ == '__main__':
                 schedule.run_pending()
 
                 sleep(1)
-
-                if trigger_flag:
-
-                    trigger_what_should_be_playing_now()
-
-                    trigger_flag = 0;
 
         except KeyboardInterrupt:
 
