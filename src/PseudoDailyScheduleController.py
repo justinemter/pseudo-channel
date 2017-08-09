@@ -480,7 +480,7 @@ class PseudoDailyScheduleController():
     * @return null
     *
     '''
-    def play_media(self, mediaType, mediaParentTitle, mediaTitle):
+    def play_media(self, mediaType, mediaParentTitle, mediaTitle, offset):
 
 
         try: 
@@ -499,7 +499,7 @@ class PseudoDailyScheduleController():
 
                             clientItem = self.PLEX.client(client)
 
-                            clientItem.playMedia(item)
+                            clientItem.playMedia(item, offset=offset)
                             
                         break
 
@@ -511,7 +511,7 @@ class PseudoDailyScheduleController():
 
                         clientItem = self.PLEX.client(client)
 
-                        clientItem.playMedia(movie)
+                        clientItem.playMedia(movie, offset=offset)
 
             elif mediaType == "Commercials":
 
@@ -521,7 +521,7 @@ class PseudoDailyScheduleController():
 
                         clientItem = self.PLEX.client(client)
 
-                        clientItem.playMedia(movie)
+                        clientItem.playMedia(movie, offset=offset)
 
             else:
 
@@ -581,7 +581,7 @@ class PseudoDailyScheduleController():
 
                         break
 
-    def play(self, row, datalist):
+    def play(self, row, datalist, offset=0):
 
         print str("##### Starting Media: '{}'".format(row[3])).encode('UTF-8')
         
@@ -590,7 +590,7 @@ class PseudoDailyScheduleController():
 
         timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
-        self.play_media(row[11], row[6], row[3])
+        self.play_media(row[11], row[6], row[3], offset)
 
         self.write_schedule_to_file(
             self.get_html_from_daily_schedule(

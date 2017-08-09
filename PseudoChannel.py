@@ -1060,12 +1060,46 @@ if __name__ == '__main__':
             
         """
 
-        daily_update_time = datetime.datetime.strptime(
-            pseudo_channel.translate_time(
-                pseudo_channel.DAILY_UPDATE_TIME
-            ),
-            pseudo_channel.APP_TIME_FORMAT_STR
-        )
+        
+
+        def trigger_what_should_be_playing_now():
+
+            def nearest(items, pivot):
+                return min(items, key=lambda x: abs(x - pivot))
+
+            daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+            dates_list = [datetime.datetime.strptime(''.join(str(date[8])), "%I:%M:%S %p") for date in daily_schedule]
+
+            now = datetime.datetime.now()
+
+            now = now.replace(year=1900, month=1, day=1)
+
+            closest_media = nearest(dates_list, now)
+
+            print closest_media
+
+            for item in daily_schedule:
+
+                item_time = datetime.datetime.strptime(''.join(str(item[8])), "%I:%M:%S %p")
+
+                if item_time == closest_media:
+
+                    print "Here", item
+
+                    elapsed_time = closest_media - now
+
+                    print elapsed_time.total_seconds()
+
+                    # we need to play the content and add an offest
+                    if elapsed_time.total_seconds() < 0:
+
+                        offset = int(abs(elapsed_time.total_seconds() * 1000))
+
+                        print(offset)
+
+                        pseudo_channel.controller.play(item, daily_schedule, offset)
+                        
 
         def job_that_executes_once(item, schedulelist):
 
@@ -1137,6 +1171,8 @@ if __name__ == '__main__':
         schedule.every().day.at(daily_update_time).do(
             go_generate_daily_sched
         ).tag('daily-update')
+
+        trigger_what_should_be_playing_now()
 
         try:
 
