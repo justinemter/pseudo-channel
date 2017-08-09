@@ -1112,7 +1112,7 @@ if __name__ == '__main__':
 
                             if item_timeTwo == closest_media and prevItem != None:
 
-                                elapsed_timeTwo = closest_media - now
+                                elapsed_timeTwo = item_timeTwo - now
 
                                 offsetTwo = int(abs(elapsed_timeTwo.total_seconds() * 1000))
 
