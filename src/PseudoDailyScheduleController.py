@@ -584,6 +584,7 @@ class PseudoDailyScheduleController():
     def play(self, row, datalist, offset=0):
 
         print str("##### Starting Media: '{}'".format(row[3])).encode('UTF-8')
+        print str("##### Media Offset: '{}' seconds.".format(int(offset / 1000))).encode('UTF-8')
         
         if self.DEBUG:
             print str(row).encode('UTF-8')
