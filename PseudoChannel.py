@@ -588,6 +588,8 @@ class PseudoChannel():
 
         print("#### Generating Daily Schedule")
 
+        logging.info("##### Dropping previous daily_schedule database")
+
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
                 self.db.get_commercials(),
