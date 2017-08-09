@@ -1093,8 +1093,17 @@ if __name__ == '__main__':
 
                     print elapsed_time.total_seconds()
 
+                    try:
+                
+                        endTime = datetime.datetime.strptime(item[9], '%Y-%m-%d %H:%M:%S.%f')
+
+                    except ValueError:
+
+                        endTime = datetime.datetime.strptime(item[9], '%Y-%m-%d %H:%M:%S')
+
                     # we need to play the content and add an offest
-                    if elapsed_time.total_seconds() < 0:
+                    if elapsed_time.total_seconds() < 0 and \
+                       endTime > now:
 
                         print str("+++++ Queueing up {} to play right away.".format(item[3])).encode('UTF-8')
 
@@ -1110,7 +1119,16 @@ if __name__ == '__main__':
 
                             item_timeTwo = datetime.datetime.strptime(''.join(str(itemTwo[8])), "%I:%M:%S %p")
 
-                            if item_timeTwo == closest_media and prevItem != None:
+                            try:
+                
+                                endTime = datetime.datetime.strptime(itemTwo[9], '%Y-%m-%d %H:%M:%S.%f')
+
+                            except ValueError:
+
+                                endTime = datetime.datetime.strptime(itemTwo[9], '%Y-%m-%d %H:%M:%S')
+
+                            if item_timeTwo == closest_media and prevItem != None and \
+                               endTime > now:
 
                                 prevItem_time = datetime.datetime.strptime(''.join(str(prevItem[8])), "%I:%M:%S %p")
 
@@ -1118,11 +1136,13 @@ if __name__ == '__main__':
 
                                 offsetTwo = int(abs(elapsed_timeTwo.total_seconds() * 1000))
 
-                                pseudo_channel.controller.play(prevItem, daily_schedule, offsetTwo)
-
                                 if pseudo_channel.DEBUG:
                                     print "+++++ Closest media was the next media " \
                                           "but we were in the middle of something so triggering that instead."
+
+                                print str("+++++ Queueing up '{}' to play right away.".format(prevItem[3])).encode('UTF-8')
+
+                                pseudo_channel.controller.play(prevItem, daily_schedule, offsetTwo)
 
                                 break
 
