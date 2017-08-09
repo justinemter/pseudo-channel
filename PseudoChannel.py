@@ -1201,7 +1201,7 @@ if __name__ == '__main__':
             go_generate_daily_sched
         ).tag('daily-update')
 
-        trigger_what_should_be_playing_now()
+        sleep_before_triggering_play_now = 1
 
         try:
 
@@ -1210,6 +1210,12 @@ if __name__ == '__main__':
                 schedule.run_pending()
 
                 sleep(1)
+
+                if sleep_before_triggering_play_now:
+
+                    trigger_what_should_be_playing_now()
+
+                    sleep_before_triggering_play_now = 0
 
         except KeyboardInterrupt:
 
