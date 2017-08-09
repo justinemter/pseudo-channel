@@ -1085,7 +1085,7 @@ if __name__ == '__main__':
 
                 if item_time == closest_media:
 
-                    print "Here", item
+                    print "Line 1088, Here", item
 
                     elapsed_time = closest_media - now
 
@@ -1094,12 +1094,16 @@ if __name__ == '__main__':
                     # we need to play the content and add an offest
                     if elapsed_time.total_seconds() < 0:
 
+                        print str("+++++ Queueing up {} to play right away.".format(item[3])).encode('UTF-8')
+
                         offset = int(abs(elapsed_time.total_seconds() * 1000))
 
-                        print(offset)
-
                         pseudo_channel.controller.play(item, daily_schedule, offset)
-                        
+
+                    else:
+
+                        print "+++++ Not starting any media."
+
 
         def job_that_executes_once(item, schedulelist):
 
@@ -1172,13 +1176,19 @@ if __name__ == '__main__':
             go_generate_daily_sched
         ).tag('daily-update')
 
-        trigger_what_should_be_playing_now()
+        trigger_flag = 1
 
         try:
 
             while True:
                 schedule.run_pending()
                 sleep(1)
+
+                if trigger_flag:
+
+                    trigger_what_should_be_playing_now()
+
+                    trigger_flag = 0;
 
         except KeyboardInterrupt:
 
