@@ -798,7 +798,12 @@ class PseudoChannel():
 
                         else:
 
-                            print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+                            try:
+                                print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+
+                            except:
+
+                                pass
 
                             new_starttime = self.calculate_start_time(
                                 previous_episode.end_time,
