@@ -1079,6 +1079,8 @@ if __name__ == '__main__':
 
             print closest_media
 
+            prevItem = None
+
             for item in daily_schedule:
 
                 item_time = datetime.datetime.strptime(''.join(str(item[8])), "%I:%M:%S %p")
@@ -1100,10 +1102,30 @@ if __name__ == '__main__':
 
                         pseudo_channel.controller.play(item, daily_schedule, offset)
 
-                    else:
+                        break
 
-                        print "+++++ Not starting any media."
+                    elif elapsed_time.total_seconds() >= 0:
 
+                        for itemTwo in daily_schedule:
+
+                            item_timeTwo = datetime.datetime.strptime(''.join(str(itemTwo[8])), "%I:%M:%S %p")
+
+                            if item_timeTwo == closest_media and prevItem != None:
+
+                                elapsed_timeTwo = closest_media - now
+
+                                offsetTwo = int(abs(elapsed_timeTwo.total_seconds() * 1000))
+
+                                pseudo_channel.controller.play(prevItem, daily_schedule, offsetTwo)
+
+                                print "+++++ Closest media was the next media" \
+                                      "but we were in the middle of something so triggering that instead."
+
+                                break
+
+                            prevItem = itemTwo
+
+                        
 
         def job_that_executes_once(item, schedulelist):
 
@@ -1181,7 +1203,9 @@ if __name__ == '__main__':
         try:
 
             while True:
+
                 schedule.run_pending()
+
                 sleep(1)
 
                 if trigger_flag:
