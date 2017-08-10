@@ -11,3 +11,4 @@ pseudo-channel.db
 env/
 *.log
 *.pid
+*.json

@@ -24,6 +24,8 @@ import textwrap
 import os, sys
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
+import json
+from pprint import pprint
 
 import schedule
 
@@ -915,6 +917,39 @@ class PseudoChannel():
 
             print str("+++++ {} {} {} {} {} {}".format(str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3])).encode(sys.stdout.encoding, errors='replace')
 
+    def write_json_to_file(self, data):
+
+        fileName = "pseudo-schedule.json"
+
+        writepath = './'
+
+        if os.path.exists(writepath+fileName):
+            
+            os.remove(writepath+fileName)
+
+        mode = 'a' if os.path.exists(writepath) else 'w'
+
+        with open(writepath+fileName, mode) as f:
+
+            f.write(data)
+
+    def export_queue(self):
+
+        shows_table = self.db.get_shows_table()
+
+        json_string = json.dumps(shows_table)
+
+        print "+++++ Exporting queue ", json_string
+
+        self.write_json_to_file(json_string)
+
+    def import_queue(self):
+
+        with open('pseudo-schedule.json') as data_file:    
+            data = json.load(data_file)
+
+        pprint(data)
+
     def exit_app(self):
 
         print " - Exiting Pseudo TV & cleaning up."
@@ -1013,12 +1048,21 @@ if __name__ == '__main__':
 
     '''
     * 
-    * Make XML / HTML Schedule: "python PseudoChannel.py -i"
+    * Export queue: "python PseudoChannel.py -e"
     *
     '''
-    parser.add_argument('-i', '--inject_commercials',
+    parser.add_argument('-e', '--export_queue',
                          action='store_true',
-                         help='Squeeze commercials in any media gaps if possible.')
+                         help='Exports the current queue for episodes.')
+
+    '''
+    * 
+    * Import queue: "python PseudoChannel.py -i"
+    *
+    '''
+    parser.add_argument('-i', '--import_queue',
+                         action='store_true',
+                         help='Imports the current queue for episodes.')
 
     globals().update(vars(parser.parse_args()))
 
@@ -1054,9 +1098,13 @@ if __name__ == '__main__':
 
         pseudo_channel.make_xml_schedule()
 
-    if args.inject_commercials:
+    if args.export_queue:
 
-        pseudo_channel.run_commercial_injection()
+        pseudo_channel.export_queue()
+
+    if args.import_queue:
+
+        pseudo_channel.import_queue()
 
     if args.run:
 

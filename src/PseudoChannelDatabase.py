@@ -282,6 +282,14 @@ class PseudoChannelDatabase():
 
         Getters, etc.
     """
+    def get_shows_table(self):
+
+        sql = "SELECT lastEpisodetitle FROM shows"
+
+        self.cursor.execute(sql)
+
+        return self.cursor.fetchall()
+
     def get_media(self, title, mediaType):
 
         media = mediaType
