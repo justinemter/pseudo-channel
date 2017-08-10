@@ -59,8 +59,6 @@ plexLibraries = {
     "Commercials" : ["Commercials"],
 }
 
-useGoogleCalendar = False
-
 useCommercialInjection = True
 
 # How many seconds to pad commercials between each other / other media
@@ -76,6 +74,15 @@ You can also leave the below controllerServerPath empty if you'd like to run you
 controllerServerPath = "http://192.168.1.28"
 controllerServerPort = "8000"
 
+"""
+When the schedule updates every 24 hours, it's possible that it will interrupt any shows / movies that were 
+playing from the previous day. To fix this, the app saves a "cached" schedule from the previous day to 
+override any media that is trying to play while the previous day is finishing.
+"""
+useDailyOverlapCache = True
+
 dailyUpdateTime = "12:00 AM"
 
 debug_mode = True
+
+useGoogleCalendar = False

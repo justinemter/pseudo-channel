@@ -55,6 +55,8 @@ class PseudoChannel():
     CONTROLLER_SERVER_PATH = config.controllerServerPath
     CONTROLLER_SERVER_PORT = config.controllerServerPort
 
+    USE_OVERRIDE_CACHE = config.useDailyOverlapCache
+
     DEBUG = config.debug_mode
 
     def __init__(self):
@@ -960,6 +962,52 @@ class PseudoChannel():
 
             self.db.import_shows_table_by_row(row[2], row[3], row[4], row[5], row[6], row[7])
 
+    def get_daily_schedule_cache_as_json(self):
+
+        data = []
+
+        try:
+            with open('../.pseudo-cache/daily-schedule.json') as data_file:    
+                data = json.load(data_file)
+
+            #pprint(data)
+
+        except IOError:
+
+            print ("----- Having issues opening the pseudo-cache file.")
+
+        return data
+
+    def save_daily_schedule_as_json(self):
+
+        daily_schedule_table = self.db.get_daily_schedule()
+
+        json_string = json.dumps(daily_schedule_table)
+
+        print "+++++ Saving Daily Schedule Cache "
+
+        self.save_file(json_string, 'daily-schedule.json', '../.pseudo-cache/')
+
+    def save_file(self, data, filename, path="./"):
+
+        fileName = filename
+
+        writepath = path
+
+        if not os.path.exists(writepath):
+
+            os.makedirs(writepath)
+
+        if os.path.exists(writepath+fileName):
+            
+            os.remove(writepath+fileName)
+
+        mode = 'a' if os.path.exists(writepath) else 'w'
+
+        with open(writepath+fileName, mode) as f:
+
+            f.write(data)
+
     def exit_app(self):
 
         print " - Exiting Pseudo TV & cleaning up."
@@ -1252,11 +1300,70 @@ if __name__ == '__main__':
 
             print "##### Generating Memory Schedule."
 
+            now = datetime.datetime.now()
+
+            now = now.replace(year=1900, month=1, day=1)
+
+            pseudo_cache = pseudo_channel.get_daily_schedule_cache_as_json()
+
+            prev_end_time_to_watch_for = None
+
+            if pseudo_channel.USE_OVERRIDE_CACHE:
+                
+                for cached_item in pseudo_cache:
+
+                    prev_start_time = datetime.datetime.strptime(cached_item[8], "%I:%M:%S %p")
+
+                    try:
+                        
+                        prev_end_time = datetime.datetime.strptime(cached_item[9], '%Y-%m-%d %H:%M:%S.%f')
+
+                    except ValueError:
+
+                        prev_end_time = datetime.datetime.strptime(cached_item[9], '%Y-%m-%d %H:%M:%S')
+
+                    """If update time is in between the prev media start / stop then there is overlap"""
+                    if prev_start_time < now and prev_end_time > now:
+
+                        try:
+
+                            print "+++++ It looks like there is update schedule overlap", cached_item[3]
+
+                        except:
+
+                            pass
+
+                        prev_end_time_to_watch_for = prev_end_time
+
             for item in schedulelist:
 
                 trans_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p").strftime("%H:%M")
 
-                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag('daily-tasks')
+                new_start_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p")
+
+                if prev_end_time_to_watch_for == None:
+
+                    schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag('daily-tasks')
+
+                else:
+
+                    """If prev end time is more then the start time of this media, skip it"""
+                    if prev_end_time_to_watch_for > new_start_time:
+
+                        try:
+                            
+                            print "Skipping scheduling item do to cached overlap.", item[3]
+
+                        except:
+
+                            pass
+
+                        continue
+
+                    else:
+
+                        schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag('daily-tasks')
+
 
             print "+++++ Done."
 
@@ -1280,6 +1387,9 @@ if __name__ == '__main__':
              pass
 
         def go_generate_daily_sched():
+
+            """Saving current daily schedule as cached .json"""
+            pseudo_channel.save_daily_schedule_as_json()
 
             schedule.clear('daily-tasks')
             pseudo_channel.generate_daily_schedule()
