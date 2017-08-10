@@ -1296,7 +1296,7 @@ if __name__ == '__main__':
 
             return schedule.CancelJob
 
-        def generate_memory_schedule(schedulelist):
+        def generate_memory_schedule(schedulelist, isforupdate=False):
 
             print "##### Generating Memory Schedule."
 
@@ -1308,8 +1308,8 @@ if __name__ == '__main__':
 
             prev_end_time_to_watch_for = None
 
-            if pseudo_channel.USE_OVERRIDE_CACHE:
-                
+            if pseudo_channel.USE_OVERRIDE_CACHE and isforupdate:
+
                 for cached_item in pseudo_cache:
 
                     prev_start_time = datetime.datetime.strptime(cached_item[8], "%I:%M:%S %p")
@@ -1393,7 +1393,7 @@ if __name__ == '__main__':
 
             schedule.clear('daily-tasks')
             pseudo_channel.generate_daily_schedule()
-            generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
+            generate_memory_schedule(pseudo_channel.db.get_daily_schedule(), True)
 
         schedule.every().day.at(daily_update_time).do(
             go_generate_daily_sched
