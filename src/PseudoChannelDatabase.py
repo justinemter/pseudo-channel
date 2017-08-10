@@ -101,6 +101,10 @@ class PseudoChannelDatabase():
 
         pass
 
+    def drop_daily_schedule(self):
+
+        pass
+
     def remove_all_scheduled_items(self):
 
         sql = "DELETE FROM schedule WHERE id > -1"
@@ -111,7 +115,7 @@ class PseudoChannelDatabase():
 
     def remove_all_daily_scheduled_items(self):
 
-        sql = "DELETE FROM daily_schedule WHERE id > -1"
+        sql = "DELETE FROM daily_schedule"
 
         self.cursor.execute(sql)
 
@@ -255,7 +259,10 @@ class PseudoChannelDatabase():
 
     def add_media_to_daily_schedule(self, media):
 
-        print "#### Adding media to db", media.title, media.start_time
+        try:
+            print str("#### Adding media to db: {} {}".format(media.title, media.start_time)).encode('UTF-8')
+        except:
+            print "----- Not outputting media info due to ascii code issues."
 
         self.add_daily_schedule_to_db(
                 0,

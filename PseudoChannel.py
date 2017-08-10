@@ -16,6 +16,7 @@ from plexapi.server import PlexServer
 import sys
 import datetime
 from datetime import time
+import logging
 import calendar
 import itertools
 import argparse
@@ -55,6 +56,8 @@ class PseudoChannel():
     DEBUG = config.debug_mode
 
     def __init__(self):
+
+        logging.basicConfig(filename="pseudo-channel.log", level=logging.INFO)
 
         self.db = PseudoChannelDatabase("pseudo-channel.db")
 
@@ -585,6 +588,8 @@ class PseudoChannel():
 
         print("#### Generating Daily Schedule")
 
+        logging.info("##### Dropping previous daily_schedule database")
+
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
                 self.db.get_commercials(),
@@ -684,7 +689,7 @@ class PseudoChannel():
 
                         else:
 
-                            print("Cannot find Movie, {} in the local db".format(entry[3]))
+                            print str("Cannot find Movie, {} in the local db".format(entry[3])).encode('UTF-8')
 
                     elif section == "Music":
 
@@ -711,7 +716,7 @@ class PseudoChannel():
 
                         else:
 
-                            print("Cannot find Music, {} in the local db".format(entry[3]))
+                            print str("Cannot find Music, {} in the local db".format(entry[3])).encode('UTF-8')
 
                     elif section == "Video":
 
@@ -738,7 +743,7 @@ class PseudoChannel():
 
                         else:
 
-                            print("Cannot find Video, {} in the local db".format(entry[3]))
+                            print str("Cannot find Video, {} in the local db".format(entry[3])).encode('UTF-8')
 
                     else:
 
@@ -793,7 +798,12 @@ class PseudoChannel():
 
                         else:
 
-                            print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+                            try:
+                                print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
+
+                            except:
+
+                                pass
 
                             new_starttime = self.calculate_start_time(
                                 previous_episode.end_time,
@@ -903,7 +913,7 @@ class PseudoChannel():
 
         for i , entry in enumerate(daily_schedule):
 
-            print "+++++", str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3]
+            print str("+++++ {} {} {} {} {} {}".format(str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3])).encode(sys.stdout.encoding, errors='replace')
 
     def exit_app(self):
 
@@ -1060,16 +1070,99 @@ if __name__ == '__main__':
             
         """
 
-        daily_update_time = datetime.datetime.strptime(
-            pseudo_channel.translate_time(
-                pseudo_channel.DAILY_UPDATE_TIME
-            ),
-            pseudo_channel.APP_TIME_FORMAT_STR
-        )
+        logging.info("+++++ Running PseudoChannel.py -r")
+
+        def trigger_what_should_be_playing_now():
+
+            def nearest(items, pivot):
+                return min(items, key=lambda x: abs(x - pivot))
+
+            daily_schedule = pseudo_channel.db.get_daily_schedule()
+
+            dates_list = [datetime.datetime.strptime(''.join(str(date[8])), "%I:%M:%S %p") for date in daily_schedule]
+
+            now = datetime.datetime.now()
+
+            now = now.replace(year=1900, month=1, day=1)
+
+            closest_media = nearest(dates_list, now)
+
+            print closest_media
+
+            prevItem = None
+
+            for item in daily_schedule:
+
+                item_time = datetime.datetime.strptime(''.join(str(item[8])), "%I:%M:%S %p")
+
+                if item_time == closest_media:
+
+                    #print "Line 1088, Here", item
+
+                    elapsed_time = closest_media - now
+
+                    print elapsed_time.total_seconds()
+
+                    try:
+                
+                        endTime = datetime.datetime.strptime(item[9], '%Y-%m-%d %H:%M:%S.%f')
+
+                    except ValueError:
+
+                        endTime = datetime.datetime.strptime(item[9], '%Y-%m-%d %H:%M:%S')
+
+                    # we need to play the content and add an offest
+                    if elapsed_time.total_seconds() < 0 and \
+                       endTime > now:
+
+                        print str("+++++ Queueing up {} to play right away.".format(item[3])).encode('UTF-8')
+
+                        offset = int(abs(elapsed_time.total_seconds() * 1000))
+
+                        pseudo_channel.controller.play(item, daily_schedule, offset)
+
+                        break
+
+                    elif elapsed_time.total_seconds() >= 0:
+
+                        for itemTwo in daily_schedule:
+
+                            item_timeTwo = datetime.datetime.strptime(''.join(str(itemTwo[8])), "%I:%M:%S %p")
+
+                            try:
+                
+                                endTime = datetime.datetime.strptime(itemTwo[9], '%Y-%m-%d %H:%M:%S.%f')
+
+                            except ValueError:
+
+                                endTime = datetime.datetime.strptime(itemTwo[9], '%Y-%m-%d %H:%M:%S')
+
+                            if item_timeTwo == closest_media and prevItem != None and \
+                               endTime > now:
+
+                                prevItem_time = datetime.datetime.strptime(''.join(str(prevItem[8])), "%I:%M:%S %p")
+
+                                elapsed_timeTwo = prevItem_time - now
+
+                                offsetTwo = int(abs(elapsed_timeTwo.total_seconds() * 1000))
+
+                                if pseudo_channel.DEBUG:
+                                    print "+++++ Closest media was the next media " \
+                                          "but we were in the middle of something so triggering that instead."
+
+                                print str("+++++ Queueing up '{}' to play right away.".format(prevItem[3])).encode('UTF-8')
+
+                                pseudo_channel.controller.play(prevItem, daily_schedule, offsetTwo)
+
+                                break
+
+                            prevItem = itemTwo
+
+                        
 
         def job_that_executes_once(item, schedulelist):
 
-            print "##### Readying media: '{}'".format(item[3])
+            print str("##### Readying media: '{}'".format(item[3])).encode('UTF-8')
 
             next_start_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p")
 
@@ -1105,7 +1198,7 @@ if __name__ == '__main__':
 
                 trans_time = datetime.datetime.strptime(item[8], "%I:%M:%S %p").strftime("%H:%M")
 
-                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag()
+                schedule.every().day.at(trans_time).do(job_that_executes_once, item, schedulelist).tag('daily-tasks')
 
             print "+++++ Done."
 
@@ -1130,6 +1223,7 @@ if __name__ == '__main__':
 
         def go_generate_daily_sched():
 
+            schedule.clear('daily-tasks')
             pseudo_channel.generate_daily_schedule()
             generate_memory_schedule(pseudo_channel.db.get_daily_schedule())
 
@@ -1137,11 +1231,23 @@ if __name__ == '__main__':
             go_generate_daily_sched
         ).tag('daily-update')
 
+        sleep_before_triggering_play_now = 1
+
         try:
 
             while True:
+
                 schedule.run_pending()
+
                 sleep(1)
+
+                if sleep_before_triggering_play_now:
+
+                    logging.info("+++++ Successfully started PseudoChannel.py")
+
+                    trigger_what_should_be_playing_now()
+
+                    sleep_before_triggering_play_now = 0
 
         except KeyboardInterrupt:
 

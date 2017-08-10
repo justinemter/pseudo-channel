@@ -34,7 +34,7 @@ class PseudoDailyScheduleController():
 
         self.CONTROLLER_SERVER_PATH = controllerServerPath
 
-        self.CONTROLLER_SERVER_PORT = controllerServerPort
+        self.CONTROLLER_SERVER_PORT = controllerServerPort if controllerServerPort != '' else '80'
 
         self.DEBUG = debugMode
 
@@ -82,7 +82,7 @@ class PseudoDailyScheduleController():
 
     def start_server(self):
 
-        if self.webserverStarted == False:
+        if self.webserverStarted == False and self.CONTROLLER_SERVER_PATH != '':
 
             """Changing dir to the schedules dir."""
             web_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'schedules'))
@@ -480,7 +480,7 @@ class PseudoDailyScheduleController():
     * @return null
     *
     '''
-    def play_media(self, mediaType, mediaParentTitle, mediaTitle):
+    def play_media(self, mediaType, mediaParentTitle, mediaTitle, offset):
 
 
         try: 
@@ -499,7 +499,7 @@ class PseudoDailyScheduleController():
 
                             clientItem = self.PLEX.client(client)
 
-                            clientItem.playMedia(item)
+                            clientItem.playMedia(item, offset=offset)
                             
                         break
 
@@ -511,7 +511,7 @@ class PseudoDailyScheduleController():
 
                         clientItem = self.PLEX.client(client)
 
-                        clientItem.playMedia(movie)
+                        clientItem.playMedia(movie, offset=offset)
 
             elif mediaType == "Commercials":
 
@@ -521,7 +521,7 @@ class PseudoDailyScheduleController():
 
                         clientItem = self.PLEX.client(client)
 
-                        clientItem.playMedia(movie)
+                        clientItem.playMedia(movie, offset=offset)
 
             else:
 
@@ -581,16 +581,17 @@ class PseudoDailyScheduleController():
 
                         break
 
-    def play(self, row, datalist):
+    def play(self, row, datalist, offset=0):
 
-        print "##### Starting Media: '{}'".format(row[3])
+        print str("##### Starting Media: '{}'".format(row[3])).encode('UTF-8')
+        print str("##### Media Offset: '{}' seconds.".format(int(offset / 1000))).encode('UTF-8')
         
         if self.DEBUG:
-            print(row)
+            print str(row).encode('UTF-8')
 
         timeB = datetime.strptime(row[8], '%I:%M:%S %p')
 
-        self.play_media(row[11], row[6], row[3])
+        self.play_media(row[11], row[6], row[3], offset)
 
         self.write_schedule_to_file(
             self.get_html_from_daily_schedule(
