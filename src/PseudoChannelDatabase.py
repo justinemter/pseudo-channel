@@ -121,6 +121,14 @@ class PseudoChannelDatabase():
 
         self.conn.commit()
 
+    def clear_shows_table(self):
+
+        sql = "DELETE FROM shows"
+
+        self.cursor.execute(sql)
+
+        self.conn.commit()
+
     """Database functions.
 
         Setters, etc.
@@ -278,13 +286,26 @@ class PseudoChannelDatabase():
                 media.plex_media_id
             )
 
+    def import_shows_table_by_row(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID):
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO shows "
+                      "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                      (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
     """Database functions.
 
         Getters, etc.
     """
     def get_shows_table(self):
 
-        sql = "SELECT lastEpisodetitle FROM shows"
+        sql = "SELECT * FROM shows"
 
         self.cursor.execute(sql)
 

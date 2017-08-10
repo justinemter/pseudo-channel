@@ -945,10 +945,20 @@ class PseudoChannel():
 
     def import_queue(self):
 
+        """Dropping previous shows table before adding the imported data"""
+
+        self.db.clear_shows_table()
+
         with open('pseudo-schedule.json') as data_file:    
             data = json.load(data_file)
 
         pprint(data)
+
+        for row in data:
+
+            print row
+
+            self.db.import_shows_table_by_row(row[2], row[3], row[4], row[5], row[6], row[7])
 
     def exit_app(self):
 
