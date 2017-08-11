@@ -27,6 +27,7 @@ if [ ! -e $output_pid_path/$pid_file ]; then
 	nohup $python_to_use ./PseudoChannel.py -m -r > /dev/null 2>&1 & echo $! > $output_pid_path/$pid_file
 
 	echo "Started PseudoChannel.py @ Process: $!"
+	sleep .7
 	echo "Created $pid_file file in $output_pid_path dir"
 
 else
@@ -39,7 +40,7 @@ else
 	while [ -e /proc/$the_pid ]
 	do
 	    echo "PseudoChannel.py @: $the_pid is still running"
-	    sleep .6
+	    sleep .7
 	done
 	echo "PseudoChannel.py @: $the_pid has finished"
 

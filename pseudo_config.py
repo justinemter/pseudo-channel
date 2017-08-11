@@ -5,7 +5,7 @@
 
     touch ../plex_token.py
     
-    2) add this line to the newly created file:
+    2) add these lines to the newly created file:
 
     baseurl = 'the url to your server'
     token = 'your plex token'
@@ -20,7 +20,7 @@
 
     "Movies" : ["Films"],
 
-    6) For Google Calendar integration add your "gkey" to the "plex_token.py" file 
+    6) *Skip this feature for now* For Google Calendar integration add your "gkey" to the "plex_token.py" file 
     ...(https://docs.simplecalendar.io/find-google-calendar-id/):
 
     gkey = "the key"
@@ -61,7 +61,7 @@ plexLibraries = {
 
 useCommercialInjection = True
 
-# How many seconds to pad commercials between each other / other media
+"""How many seconds to pad commercials between each other / other media"""
 commercialPadding = 5
 
 """
@@ -83,6 +83,8 @@ useDailyOverlapCache = True
 
 dailyUpdateTime = "12:00 AM"
 
+"""Debug mode will give you more output in your terminal to help problem solve issues.s"""
 debug_mode = True
 
+"""---"""
 useGoogleCalendar = False

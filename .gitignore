@@ -12,3 +12,4 @@ env/
 *.log
 *.pid
 *.json
+.cache/
