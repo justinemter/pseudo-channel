@@ -31,20 +31,6 @@
     
 """
 
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# import ../plex_token.py
-
-try:
-    import plex_token as plex_token
-except ImportError as e:
-    print "+++++ Cannot find plex_token file. Make sure you create a plex_token.py file with the appropriate data."
-    raise e
-
-baseurl = plex_token.baseurl
-token = plex_token.token
-gkey = plex_token.gkey
-
 '''
 *
 * List of plex clients to use (add multiple clients to control multiple TV's)
@@ -83,8 +69,34 @@ useDailyOverlapCache = True
 
 dailyUpdateTime = "12:00 AM"
 
-"""Debug mode will give you more output in your terminal to help problem solve issues.s"""
+"""Debug mode will give you more output in your terminal to help problem solve issues."""
 debug_mode = True
 
 """---"""
 useGoogleCalendar = False
+
+"""When to delete / remake the pseudo-channel.log - right at midnight, (i.e. 'friday') """
+rotateLog = "friday"
+
+
+"""
+##### Do not edit below this line. 
+
+Below is logic to grab your Plex 'token' & Plex 'baseurl'. If you are following along and have created a 'plex_token.py'
+file as instructed, you do not need to edit below this line. 
+
+"""
+
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# import ../plex_token.py
+
+try:
+    import plex_token as plex_token
+except ImportError as e:
+    print "+++++ Cannot find plex_token file. Make sure you create a plex_token.py file with the appropriate data."
+    raise e
+
+baseurl = plex_token.baseurl
+token = plex_token.token
+gkey = plex_token.gkey

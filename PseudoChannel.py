@@ -59,6 +59,8 @@ class PseudoChannel():
 
     DEBUG = config.debug_mode
 
+    ROTATE_LOG = config.rotateLog
+
     def __init__(self):
 
         logging.basicConfig(filename="pseudo-channel.log", level=logging.INFO)
@@ -1008,6 +1010,18 @@ class PseudoChannel():
 
             f.write(data)
 
+    def rotate_log(self):
+
+        try:
+            os.remove('../pseudo-channel.log')
+        except OSError:
+            pass
+
+        try:
+            os.remove('./pseudo-channel.log')
+        except OSError:
+            pass
+
     def exit_app(self):
 
         print " - Exiting Pseudo TV & cleaning up."
@@ -1175,6 +1189,9 @@ if __name__ == '__main__':
            see if it's midnight (or 23.59), if so then generate a new daily_schedule
             
         """
+        """Every <user specified day> rotate log"""
+        dayToRotateLog = pseudo_channel.ROTATE_LOG.lower()
+        schedule.every().friday.at("00:00").do(pseudo_channel.rotate_log)
 
         logging.info("+++++ Running PseudoChannel.py -r")
 
