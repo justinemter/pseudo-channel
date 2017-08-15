@@ -596,6 +596,10 @@ class PseudoChannel():
 
         logging.info("##### Dropping previous daily_schedule database")
 
+        self.db.remove_all_daily_scheduled_items()
+
+        sleep(1)
+
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
                 self.db.get_commercials(),
@@ -763,8 +767,6 @@ class PseudoChannel():
                 print "+++++ Finished processing time entries, recreating daily_schedule"
 
                 previous_episode = None
-
-                self.db.remove_all_daily_scheduled_items()
 
                 for entry in self.MEDIA:
 
