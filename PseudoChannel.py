@@ -26,6 +26,8 @@ from xml.dom import minidom
 import xml.etree.ElementTree as ET
 import json
 from pprint import pprint
+import random
+import re
 
 import schedule
 
@@ -384,6 +386,8 @@ class PseudoChannel():
 
                             seriesOffset = time.attrib['series-offset'] if 'series-offset' in time.attrib else ''
 
+                            xtra = time.attrib['xtra'] if 'xtra' in time.attrib else ''
+
                             start_time_unix = self.translate_time(time.text)
 
                             print "Adding: ", time.tag, section, time.text, time.attrib['title']
@@ -400,6 +404,7 @@ class PseudoChannel():
                                 strict_time, # strictTime
                                 time_shift, # timeShift
                                 overlap_max, # overlapMax
+                                xtra, # xtra kargs (i.e. 'director=director')
                             )
 
     def drop_db(self):
@@ -672,7 +677,31 @@ class PseudoChannel():
 
                         if str(entry[3]).lower() == "random":
 
-                            the_movie = self.db.get_random_movie()
+                            if(entry[13] != ''):
+
+                                movies = self.PLEX.library.section('Movies')
+
+                                movies_list = []
+
+                                try:
+
+                                    thestr = entry[13]
+                                    regex = re.compile(r"\b(\w+)\s*:\s*([^:]*)(?=\s+\w+\s*:|$)")
+                                    d = dict(regex.findall(thestr))
+                                    for movie in movies.search(None, **d):
+                                        movies_list.append(movie)
+
+                                    the_movie = self.db.get_movie(random.choice(movies_list).title)
+
+                                except:
+
+                                    print("For some reason, I've failed getting movie with xtra args.")
+
+                                    the_movie = self.db.get_random_movie()
+
+                            else:
+
+                                the_movie = self.db.get_random_movie()
 
                         else:
 

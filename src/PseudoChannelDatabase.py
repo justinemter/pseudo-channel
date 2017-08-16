@@ -52,7 +52,7 @@ class PseudoChannelDatabase():
                   'schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
                   'mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, '
                   'endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER, section TEXT, '
-                  'strictTime TEXT, timeShift TEXT, overlapMax TEXT)')
+                  'strictTime TEXT, timeShift TEXT, overlapMax TEXT, xtra TEXT)')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
@@ -202,13 +202,25 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_schedule_to_db(self, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax):
+    def add_schedule_to_db(self, 
+                           mediaID, 
+                           title, 
+                           duration, 
+                           startTime, 
+                           endTime, 
+                           dayOfWeek, 
+                           startTimeUnix, 
+                           section, 
+                           strictTime, 
+                           timeShift, 
+                           overlapMax,
+                           xtra):
         unix = int(time.time())
         try:
             self.cursor.execute("REPLACE INTO  schedule "
-                "(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax))
+                "(unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax, xtra) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                (unix, mediaID, title, duration, startTime, endTime, dayOfWeek, startTimeUnix, section, strictTime, timeShift, overlapMax, xtra))
             self.conn.commit()
         # Catch the exception
         except Exception as e:
