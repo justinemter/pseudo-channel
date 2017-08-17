@@ -90,7 +90,7 @@
 		<time title="new girl" type="series" strict-time="false" time-shift="5" overlap-max="">7:00 PM</time>
 		<time title="new girl" type="series" strict-time="false" time-shift="5" overlap-max="">7:30 PM</time>
 
-		<time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="" xtra='actor:tom cruise genre:action contentRating:r'>7:45 PM</time>
+		<time title="random" type="movie" strict-time="false" time-shift="5" overlap-max="" xtra='actor:mike myers genre:comedy contentRating:PG-13'>7:45 PM</time>
 
 		
 		<time title="the trip" type="series" strict-time="false" time-shift="5" overlap-max="">8:30 PM</time>

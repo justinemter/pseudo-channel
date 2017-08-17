@@ -601,7 +601,13 @@ class PseudoChannel():
 
         logging.info("##### Dropping previous daily_schedule database")
 
-        self.db.remove_all_daily_scheduled_items()
+
+        """A fix for the duplicate entries problem that comes up occasionally."""
+        self.db.drop_daily_schedule_table()
+
+        sleep(1)
+
+        self.db.create_daily_schedule_table()
 
         sleep(1)
 

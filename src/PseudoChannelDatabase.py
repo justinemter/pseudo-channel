@@ -101,9 +101,23 @@ class PseudoChannelDatabase():
 
         pass
 
-    def drop_daily_schedule(self):
+    def drop_daily_schedule_table(self):
 
-        pass
+        sql = "DROP TABLE IF EXISTS daily_schedule"
+
+        self.cursor.execute(sql)
+
+        self.conn.commit()
+
+    def create_daily_schedule_table(self):
+
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS '
+                  'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
+                  'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
+                  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
+                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT)')
+
+        self.conn.commit()
 
     def remove_all_scheduled_items(self):
 
