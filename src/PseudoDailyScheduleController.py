@@ -9,6 +9,7 @@ import thread,SocketServer,SimpleHTTPServer
 from yattag import Doc
 from yattag import indent
 import os, sys
+import socket
 
 import logging
 import logging.handlers
@@ -111,6 +112,9 @@ class PseudoDailyScheduleController():
             except KeyboardInterrupt:
                 core.print_info("Exiting the SET web server...")
                 httpd.socket.close()
+
+            except socket.error, exc:
+                print "Caught exception socket.error : %s" % exc 
 
             # handle the rest
             #except Exception:
