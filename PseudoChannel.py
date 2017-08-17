@@ -694,6 +694,9 @@ class PseudoChannel():
                                     thestr = entry[13]
                                     regex = re.compile(r"\b(\w+)\s*:\s*([^:]*)(?=\s+\w+\s*:|$)")
                                     d = dict(regex.findall(thestr))
+                                    # turn values into list
+                                    for key, val in d.iteritems():
+                                        d[key] = val.split(',')
                                     for movie in movies.search(None, **d):
                                         movies_list.append(movie)
 
