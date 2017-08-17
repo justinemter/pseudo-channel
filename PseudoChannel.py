@@ -378,9 +378,9 @@ class PseudoChannel():
 
                             day_of_week = child.tag
 
-                            strict_time = time.attrib['strict-time'] if 'strict-time' in time.attrib else ''
+                            strict_time = time.attrib['strict-time'] if 'strict-time' in time.attrib else 'false'
 
-                            time_shift = time.attrib['time-shift'] if 'time-shift' in time.attrib else ''
+                            time_shift = time.attrib['time-shift'] if 'time-shift' in time.attrib else '1'
 
                             overlap_max = time.attrib['overlap-max'] if 'overlap-max' in time.attrib else ''
 

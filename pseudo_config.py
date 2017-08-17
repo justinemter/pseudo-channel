@@ -41,7 +41,6 @@ plexClients = ['RasPlex']
 plexLibraries = {
     "TV Shows" : ["TV Shows"],
     "Movies"   : ["Movies"],
-    "Music"    : ["Music"],
     "Commercials" : ["Commercials"],
 }
 
