@@ -38,7 +38,7 @@
 * List of plex clients to use (add multiple clients to control multiple TV's)
 *
 '''
-plexClients = ['RasPlex2']
+plexClients = ['RasPlex']
 
 plexLibraries = {
     "TV Shows" : ["TV Shows"],
