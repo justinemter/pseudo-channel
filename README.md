@@ -31,15 +31,15 @@ baseurl = 'http://192.168.1.28:32400'
 ```bash
 % python PseudoChannel.py -u -xml -g -m -r
 ```
-*You can also run `-h` to view all the options. Keep in mind not all options are operational & some are experimental. Stick with the ones above and use `-c` to find the name(s) of your Plex client(s).*
+*You can also run `-h` to view all the options. Use `-c` to find the name(s) of your Plex client(s) to add to the config.*
 
 - The `-u` flag will prepare & update (& create if not exists) the local `pseudo-channel.db`, you only need to run this once in the beginning or later when you have added new media to your Plex libraries. 
 - The `-xml` flag will update the newly created local db with your schedule from the xml file - you  should run this everytime you make changes to the xml. 
 - The `-g` file will generate the daily schedule (for today) based on the xml. This is useful for the first run or testing (or manually advancing the daily queue forward). Running this flag say, 15 times will advance the play queue forward 15 days. It is automatically run every night at midnight to generate the daily schedule.
 - The `-m` flag makes both the .html/.xml files and starts a simple html web server in the `./schedules` directory.
-- Finally, the `-r` flag will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). The xml schedule is a bit tempermental at the moment so if you see errors, check your entries there first. Make sure all of your movie names / TV Series names are correct. 
+- Finally, the `-r` flag will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). If you see errors, check your entries in the xml first. Check your times, check for overlaps & make sure your are using ascii characters to replace foreign characters like umlauts and '&' characters, etc. Make sure all of your movie names / TV Series names are correct. 
 
-You can run `% python PseudoChannel.py` with the following options. The order is important (i.e. `% python PseudoChannel.py -u -xml -g -m -r`):
+You can run `% python PseudoChannel.py` with the following options. The order is important depending on what you are doing (i.e. `% python PseudoChannel.py -u -xml -g -m -r`):
 
 | Flag                    | Description   | 
 | ------------------------|--------------| 
