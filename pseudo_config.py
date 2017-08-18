@@ -20,7 +20,9 @@
 
     "Movies" : ["Films"],
 
-    6) *Skip this feature for now* For Google Calendar integration add your "gkey" to the "plex_token.py" file 
+    6) *Skip this feature for now* 
+
+    For Google Calendar integration add your "gkey" to the "plex_token.py" file 
     ...(https://docs.simplecalendar.io/find-google-calendar-id/):
 
     gkey = "the key"
@@ -36,7 +38,7 @@
 * List of plex clients to use (add multiple clients to control multiple TV's)
 *
 '''
-plexClients = ['RasPlex']
+plexClients = ['RasPlex2']
 
 plexLibraries = {
     "TV Shows" : ["TV Shows"],
@@ -68,18 +70,22 @@ useDailyOverlapCache = True
 
 dailyUpdateTime = "12:00 AM"
 
-"""Debug mode will give you more output in your terminal to help problem solve issues."""
-debug_mode = True
-
 """---"""
 useGoogleCalendar = False
 
 """When to delete / remake the pseudo-channel.log - right at midnight, (i.e. 'friday') """
 rotateLog = "friday"
 
+"""Debug mode will give you more output in your terminal to help problem solve issues."""
+debug_mode = True
+
+
+
+
+
 
 """
-##### Do not edit below this line. 
+##### Do not edit below this line---------------------------------------------------------------
 
 Below is logic to grab your Plex 'token' & Plex 'baseurl'. If you are following along and have created a 'plex_token.py'
 file as instructed, you do not need to edit below this line. 

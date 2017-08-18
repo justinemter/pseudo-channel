@@ -24,7 +24,7 @@ by adding a '<time></time>' block within the part of the week you want it to be 
 below I have "Looney Tunes" scheduled to play "everyday" starting at "6:00 AM", whereas I have "Garfield &#38; Friends"
 playing only on "weekday" mornings scheduled for after Looney Tunes starting at "8:00 AM". Also notice that
 "Garfield &#38; Friends" below is actually written as, "Garfield &#38; Friends". This is especially important
-to those new to editing XML. In XML, "UTF-8", you are forbidden from using certain characters like the "&#38;"
+to those new to editing XML. In XML, "UTF-8", you are forbidden from using certain characters like the and
 character. It is important to convert your titles to XML friendly text (this is also important for non-english characters).
 You can find all of this information by googling "xml ascii character conversion".
 
@@ -36,7 +36,7 @@ to either "series" or "movie". The attribute "strict-time" can either be "true" 
 whether or not the particular "<time>" block will be scheduled for the exact time you specify or if it will 
 shift around to fill up gaps. This is useful as sometimes episodes are as short as 5 minutes (cartoons) while
 other episodes that are normally ~25 minutes are an hour or so long. Setting "strict-time" to "false" will
-tell the app to movie that time block closer to the previous episode. The corrisponding, "time-shift" attribute
+tell the app to shift that time block closer to the previous episode. The corresponding, "time-shift" attribute
 tells the app how to shift the item. Its value can be "1" or more and will help the scheduler determine when to schedule the 
 shifting time according to that value. So for instance, if you'd like no gaps between your content, then you want 
 to set "strict-time='false'" and "time-shift='1'". However if you want your content to shift but would rather
@@ -48,7 +48,7 @@ nearest multiple of "5". You could use "15" or "30" too for even prettier times.
 
 Well, since the app is supposed to work like a real TV Channel, you aren't supposed to have that kind of
 control. If you want to watch "Billy Madison" then why not just turn on your Plex TV app and play it? Instead
-here you want to always use "random" tor the "title=" value. But let's say you have a ton of Adam Sandler
+here you want to always use "random" tor the "title=" value of movie content. But let's say you have a ton of Adam Sandler
 movies and want to schedule a "random" Adam Sandler movie on Saturday afternoon? That makes more sense, that way
 you aren't playing the same movie every Saturday afternoon! For movies specifically, you have a new 
 attribute called "xtra". There you can add various parameters to narrow in on the random movie type you
@@ -63,12 +63,11 @@ The available "xtra" paramters are as follows (http://python-plexapi.readthedocs
 * duplicate: Display or hide duplicate items (True, False). [movie]
 * actor: List of actors to search ([actor_or_id, ...]). [movie]
 * collection: List of collections to search within ([collection_or_id, ...]). [all]
-* contentRating: List of content ratings to search within ([rating_or_key, ...]). [movie,tv]
+* contentRating: List of content ratings to search within ([rating_or_key, ...]). [movie]
 * country: List of countries to search within ([country_or_key, ...]). [movie,music]
 * decade: List of decades to search within ([yyy0, ...]). [movie]
 * director: List of directors to search ([director_or_id, ...]). [movie]
 * genre: List Genres to search within ([genere_or_id, ...]). [all]
-* network: List of TV networks to search within ([resolution_or_key, ...]). [tv]
 * resolution: List of video resolutions to search within ([resolution_or_key, ...]). [movie]
 * studio: List of studios to search within ([studio_or_key, ...]). [music]
 * year: List of years to search within ([yyyy, ...]). [all]
@@ -83,7 +82,7 @@ or whatever you can come up with. All you have to do is set the commercial flag 
 file to tell the app to use "commercial injection" and make sure you have a "Commercials" library in your
 plex media library. In that library, fill it with as many commercials or short videos as you can. The more
 the better! I have close to a thousand commercials in mine - this helps the app fill up the gaps with a 
-wide variety of video content of different durations. (hint: use a tool like 'youtube-dl' to download full 
+wide variety of video content of varied durations. (hint: use a tool like 'youtube-dl' to download full 
 playlists from yourtube. You can fill up your "Commercials" library quick). Once you have your commercials library
 setup, make sure to run, "python PseudoChannel.py -u" once more to update your local db with your new commercials
 library. Commercials will now be "injected" to fill up gaps upon the next days schedule (or you can manually
@@ -101,7 +100,8 @@ using the XML ascii character "&#38;". Well you cannot do that. I usually like t
 open in a tab while making my XML. That way for each "series" title I can double check the library to make sure I 
 am using the series title exactly as Plex is. 
 
-Ok, that is it. If you have questions feel free to e-mail me at justin@pseudochannel.tv. Have fun!
+Ok, that is it. If you have questions feel free to e-mail me at justin@pseudochannel.tv or open an 'issue' on the 
+github repository. Have fun!
 
 Cheers!
 
