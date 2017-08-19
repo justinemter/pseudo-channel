@@ -54,6 +54,8 @@ else
 
 	echo "Deleted $OUTPUT_PID_FILE file in $OUTPUT_PID_PATH dir"
 
+	echo "kill: $the_pid"
+
 	kill "$the_pid"
 
 	COUNTER=1
