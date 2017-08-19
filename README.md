@@ -80,6 +80,4 @@ http://192.168.1.28:8000
 
 Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
 
-
-
-
+Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
