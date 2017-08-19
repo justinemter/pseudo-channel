@@ -68,7 +68,7 @@ else
 
 	    sleep .7
 
-	    $COUNTER=$[$COUNTER +1]
+	    COUNTER=$[$COUNTER +1]
 
 	    if [ $COUNTER -eq 20 ]; then
 
