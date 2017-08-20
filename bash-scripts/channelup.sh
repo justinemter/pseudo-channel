@@ -35,10 +35,14 @@ CHANNEL_DIR_INCREMENT_SYMBOL="_"
 
 #----END EDITABLE VARS-------
 
+FIRST_RUN=false
+
 # If the previous channel txt file doesn't exist already create it (first run?)
 if [ ! -e "$OUTPUT_PREV_CHANNEL_PATH/$OUTPUT_PREV_CHANNEL_FILE" ]; then
 
 	echo 1 > "$OUTPUT_PREV_CHANNEL_PATH/$OUTPUT_PREV_CHANNEL_FILE"
+
+	FIRST_RUN=true
 
 fi
 
@@ -97,9 +101,18 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
 	# Finally let's trigger the startstop script in both the previous channel and the next channel dirs.
 	# This will stop the previous channels playback & trigger the next channels playback
-	"$OUTPUT_PREV_CHANNEL_PATH"/"$PREV_CHANNEL_DIR"/"$SCRIPT_TO_EXECUTE"
+
+	if [ "$FIRST_RUN" = false ]; then
+		cd "$OUTPUT_PREV_CHANNEL_PATH"/"$PREV_CHANNEL_DIR" && ./"$SCRIPT_TO_EXECUTE"
+		cd ../"$NEXT_CHANNEL" && ./"$SCRIPT_TO_EXECUTE"
+	else
+
+		cd "$OUTPUT_PREV_CHANNEL_PATH"/"$NEXT_CHANNEL" && ./"$SCRIPT_TO_EXECUTE"
+
+	fi
+
 	sleep 1
-	"$OUTPUT_PREV_CHANNEL_PATH"/"$NEXT_CHANNEL"/"$SCRIPT_TO_EXECUTE"
+	
 
 fi
 

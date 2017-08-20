@@ -110,30 +110,25 @@ Cheers!
 	<everyday> 
 		<!-- The first item is set to: strict-time=true - this isn't necessary but helps organize the schedule -->
 		<time title="Frasier" type="series" strict-time="true" time-shift="1" >1:00 AM</time>
-		<time title="Frasier" type="series" strict-time="false" time-shift="5" >1:20 AM</time>
 		<!-- 
 			 I am incrementing the start times by about 20 minutes. Since times will shift with a
 			 5 minute "time-shift", the app will adjust the schedule according to the episode
 			 duration / time-shift value.
 		-->
-		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >1:40 AM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >1:30 AM</time>
 		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >2:00 AM</time>
 
-		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >2:20 AM</time>
-		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >2:40 AM</time>
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >2:30 AM</time>
 
 		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >3:00 AM</time>
 
 		<time title="Cheers" type="series" strict-time="false" time-shift="5" >4:00 AM</time>
 
-		<time title="The Three Stooges" type="series" strict-time="false" time-shift="5" >4:00 AM</time>
-		<time title="The Three Stooges" type="series" strict-time="false" time-shift="5" >4:20 AM</time>
+		<time title="The Three Stooges" type="series" strict-time="false" time-shift="5" >4:30 AM</time>
 
-		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >4:40 AM</time>
 		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >5:00 AM</time>
 
-		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >5:20 AM</time>
-		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >5:40 AM</time>
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >5:30 AM</time>
 		<!--
 			The following is a good example of content that is extremely short. Looney Tunes cartoons are around
 		    5 minutes in length per episode. Althrough sometimes they are as much as 25 minutes long. 
@@ -166,56 +161,52 @@ Cheers!
 		<!--
 			Here is an example of using the xtra attr to specify a saturday late-afternoon 80's movie block.
 		-->
-		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="decade:1980">4:40 PM</time>
+		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="decade:1980">5:00 PM</time>
 
-		<time title="Elementary" type="show" strict-time="false" time-shift="5" >6:00 PM</time>
+		<time title="Elementary" type="show" strict-time="false" time-shift="5" >7:00 PM</time>
 
-		<time title="True Detective" type="show" strict-time="false" time-shift="5" >7:00 PM</time>
 	</saturdays>
 	<sundays>
 		<!--
 			Here is an example of using the xtra attr to specify a sunday late-afternoon romantic comedy movie block.
 		-->
-		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="genre:comedy,romance">4:40 PM</time>
+		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="genre:comedy,romance">5:00 PM</time>
 
-		<time title="Sherlock" type="show" strict-time="false" time-shift="5" >6:00 PM</time>
+		<time title="Sherlock" type="show" strict-time="false" time-shift="5" >7:00 PM</time>
 
-		<time title="Band of Brothers" type="show" strict-time="false" time-shift="5" >7:00 PM</time>
 	</sundays>
 	<weekends>
 		<time title="The Smurfs" type="series" strict-time="false" time-shift="5" >7:00 AM</time>
 
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >7:20 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >7:30 AM</time>
 
-		<time title="Batman" type="series" strict-time="false" time-shift="5" >7:40 AM</time>
 		<time title="Batman" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
 
-		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="genre:comedy">8:20 AM</time>
+		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="genre:comedy">8:30 AM</time>
 
 		<time title="The Adventures of Pete &#38; Pete" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
 
-		<time title="Gilligan's Island" type="series" strict-time="false" time-shift="5" >10:20 AM</time>
+		<time title="Gilligan's Island" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
 
-		<time title="The Jetsons" type="series" strict-time="false" time-shift="5" >10:40 AM</time>
+		<time title="The Jetsons" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
 
-		<time title="Blossom" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
-		<time title="Blossom" type="series" strict-time="false" time-shift="5" >11:20 AM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >11:30 AM</time>
 
-		<time title="Clarissa Explains It All" type="series" strict-time="false" time-shift="5" >11:40 AM</time>
+		<time title="Clarissa Explains It All" type="series" strict-time="false" time-shift="5" >12:00 AM</time>
 
-		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="genre:action decade:1990,1980,1970,1960">12:00 PM</time>
+		<time title="random" type="movie" strict-time="false" time-shift="5" xtra="genre:action decade:1990,1980,1970,1960">12:30 PM</time>
 
-		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:40 PM</time>
 		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
 
-		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:20 PM</time>
-		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:40 PM</time>
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
 
 		<time title="Monk" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
 
-		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
 
-		<time title="Arrested Development" type="series" strict-time="false" time-shift="5" >4:20 PM</time>
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+
+		<time title="Arrested Development" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
 
 		<!-- 
 			Here I am leaving some room for saturdays/sundays specific content. I will keep strict-time false for all my
@@ -228,13 +219,12 @@ Cheers!
 
 		<time title="Daria" type="show" strict-time="false" time-shift="5" >9:00 PM</time>
 
-		<time title="The Scooby-Doo Show" type="show" strict-time="false" time-shift="5" >9:20 PM</time>
+		<time title="The Scooby-Doo Show" type="show" strict-time="false" time-shift="5" >9:30 PM</time>
 
-		<time title="The Flintstones" type="show" strict-time="false" time-shift="5" >9:40 PM</time>
 		<time title="The Flintstones" type="show" strict-time="false" time-shift="5" >10:00 PM</time>
 
-		<time title="Happy Days" type="show" strict-time="false" time-shift="5" >10:20 PM</time>
-		<time title="Happy Days" type="show" strict-time="false" time-shift="5" >10:40 PM</time>
+		<time title="Happy Days" type="show" strict-time="false" time-shift="5" >10:30 PM</time>
+
 	</weekends>
 	<weekdays>
 		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
