@@ -390,6 +390,17 @@ class PseudoDailyScheduleController():
             print "##### There was an error trying to play the media."
             pass
         
+    def stop_media(self):
+
+        try:
+            self.my_logger.debug('Trying to stop media.')
+            for client in self.PLEX_CLIENTS:
+                clientItem = self.PLEX.client(client)
+                clientItem.stop(mtype='video')
+                self.my_logger.debug('Done.')
+        except Exception as e:
+            self.my_logger.debug('stop_media - except.', e)
+            pass
     '''
     *
     * If tv_controller() does not find a "startTime" for scheduled media, search for an "endTime" match for now time.

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import signal
 import datetime
 from datetime import time
 import logging
@@ -682,9 +683,16 @@ class PseudoChannel():
         except OSError:
             pass
 
+    def signal_term_handler(self, signal, frame):
+
+        logging.info('+++++ got SIGTERM')
+        self.controller.stop_media()
+        self.exit_app()
+        sys.exit(0)
+
     def exit_app(self):
 
-        print " - Exiting Pseudo TV & cleaning up."
+        logging.info(' - Exiting Pseudo TV & cleaning up.')
         for i in self.MEDIA:
             del i
         self.MEDIA = None
@@ -936,6 +944,9 @@ if __name__ == '__main__':
             go_generate_daily_sched
         ).tag('daily-update')
         sleep_before_triggering_play_now = 1
+
+        '''When the process is killed, stop any currently playing media & cleanup'''
+        signal.signal(signal.SIGTERM, pseudo_channel.signal_term_handler)
 
         try:
             while True:
