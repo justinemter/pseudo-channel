@@ -104,4 +104,4 @@ except ImportError as e:
 
 baseurl = plex_token.baseurl
 token = plex_token.token
-gkey = plex_token.gkey
+gkey = '' #plex_token.gkey
