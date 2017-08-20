@@ -8,7 +8,8 @@
 
 #---- 
 # To Use:
-# If you added new content to your Plex Library, just make this file executable and run ./updatechannels.sh
+# If you added new content to your Plex Library, just make this file executable move it
+# to where the plex_token.py file is and run ./updatechannels.sh
 #----
 
 # Make sure that each channel dir ends with a "_" + an incrementing number as seen above.
