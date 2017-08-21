@@ -76,7 +76,7 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
     	NEXT_CHANNEL_NUM=$i
 
     	if [[ ${i} == *"$PREV_CHANNEL"* ]]; then
-  			echo "+++++ Found previous channel, incrementing by 1."
+  			echo "+++++ Found previous channel, decreasing by 1."
   			PREV_CHANNEL_FOUND=true
   			PREV_CHANNEL_DIR=${CHANNEL_DIR_ARR[i-1]}
   			continue
