@@ -5,6 +5,7 @@ import sys
 import signal
 import datetime
 from datetime import time
+from time import mktime as mktime
 import logging
 import calendar
 import itertools
@@ -165,79 +166,6 @@ class PseudoChannel():
                                 bar_length = 40
                             )
 
-    def update_schedule_from_google_calendar(self):
-
-        self.gcal = GoogleCalendar(self.GKEY)
-        events = self.gcal.get_entries()
-        self.db.create_tables()
-        self.db.remove_all_scheduled_items()
-        scheduled_days_list = [
-            "mondays",
-            "tuesdays",
-            "wednesdays",
-            "thursdays",
-            "fridays",
-            "saturdays",
-            "sundays",
-            "weekdays",
-            "weekends",
-            "everyday"
-        ]
-        section_dict = {
-            "TV Shows" : ["series", "shows", "tv", "episodes", "tv shows", "show"],
-            "Movies"   : ["movie", "movies", "films", "film"],
-            "Videos"   : ["video", "videos", "vid"],
-            "Music"    : ["music", "songs", "song", "tune", "tunes"]
-        }
-        weekday_dict = {
-            "0" : ["mondays", "weekdays", "everyday"],
-            "1" : ["tuesdays", "weekdays", "everyday"],
-            "2" : ["wednesdays", "weekdays", "everyday"],
-            "3" : ["thursdays", "weekdays", "everyday"],
-            "4" : ["fridays", "weekdays", "everyday"],
-            "5" : ["saturdays", "weekends", "everyday"],
-            "6" : ["sundays", "weekends", "everyday"],
-        }
-        for event in events:
-            titlelist = [x.strip() for x in event['summary'].split(',')]
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            s = datetime.datetime.strptime(start,"%Y-%m-%dT%H:%M:%S-07:00")
-            weekno = s.weekday()
-            for key, value in section_dict.items():
-                if str(titlelist[0]).lower() == key or str(titlelist[0]).lower() in value:
-                    print "Adding {} to schedule.".format(titlelist[1])
-                    title = titlelist[1]
-                    # s.strftime('%I:%M'), event["summary"]
-                    natural_start_time = self.translate_time(s.strftime(self.APP_TIME_FORMAT_STR))
-                    natural_end_time = 0
-                    section = key
-                    for dnum, daylist in weekday_dict.items():
-                        #print int(weekno), int(dnum)
-                        if int(weekno) == int(dnum):
-                            day_of_week = daylist[0]
-                    strict_time = titlelist[2] if len(titlelist) > 2 else "true"
-                    #strict_time = "true"
-                    time_shift = "5"
-                    overlap_max = ""
-                    print natural_start_time
-                    start_time_unix = datetime.datetime.strptime(
-                            self.translate_time(natural_start_time), 
-                            '%I:%M:%S %p').strftime('%Y-%m-%d %H:%M:%S')
-                    #print "Adding: ", time.tag, section, time.text, time.attrib['title']
-                    self.db.add_schedule_to_db(
-                        0, # mediaID
-                        title, # title
-                        0, # duration
-                        natural_start_time, # startTime
-                        natural_end_time, # endTime
-                        day_of_week, # dayOfWeek
-                        start_time_unix, # startTimeUnix
-                        section, # section
-                        strict_time, # strictTime
-                        time_shift, # timeShift
-                        overlap_max, # overlapMax
-                    )
-
     def update_schedule(self):
 
         """Changing dir to the schedules dir."""
@@ -281,7 +209,18 @@ class PseudoChannel():
                             overlap_max = time.attrib['overlap-max'] if 'overlap-max' in time.attrib else ''
                             seriesOffset = time.attrib['series-offset'] if 'series-offset' in time.attrib else ''
                             xtra = time.attrib['xtra'] if 'xtra' in time.attrib else ''
-                            start_time_unix = self.translate_time(time.text)
+                            
+                            # start_time_unix = self.translate_time(time.text)
+
+                            now = datetime.datetime.now()
+
+                            start_time_unix = mktime(
+                                datetime.datetime.strptime(
+                                    self.translate_time(natural_start_time), 
+                                    self.APP_TIME_FORMAT_STR).replace(day=now.day, month=now.month, year=now.year).timetuple()
+                                )
+
+
                             print "Adding: ", time.tag, section, time.text, time.attrib['title']
                             self.db.add_schedule_to_db(
                                 0, # mediaID
