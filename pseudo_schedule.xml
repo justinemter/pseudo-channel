@@ -109,26 +109,6 @@ Cheers!
 <schedule>
 	<everyday> 
 		<!-- The first item is set to: strict-time=true - this isn't necessary but helps organize the schedule -->
-		<time title="Frasier" type="series" strict-time="true" time-shift="1" >1:00 AM</time>
-		<!-- 
-			 I am incrementing the start times by about 20 minutes. Since times will shift with a
-			 5 minute "time-shift", the app will adjust the schedule according to the episode
-			 duration / time-shift value.
-		-->
-		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >1:30 AM</time>
-		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >2:00 AM</time>
-
-		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >2:30 AM</time>
-
-		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >3:00 AM</time>
-
-		<time title="Cheers" type="series" strict-time="false" time-shift="5" >4:00 AM</time>
-
-		<time title="The Three Stooges" type="series" strict-time="false" time-shift="5" >4:30 AM</time>
-
-		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >5:00 AM</time>
-
-		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >5:30 AM</time>
 		<!--
 			The following is a good example of content that is extremely short. Looney Tunes cartoons are around
 		    5 minutes in length per episode. Althrough sometimes they are as much as 25 minutes long. 
@@ -176,6 +156,11 @@ Cheers!
 
 	</sundays>
 	<weekends>
+		<!-- 
+			 I am incrementing the start times by about 30 minutes. Since times will shift with a
+			 5 minute "time-shift", the app will adjust the schedule according to the episode
+			 duration / time-shift value.
+		-->
 		<time title="The Smurfs" type="series" strict-time="false" time-shift="5" >7:00 AM</time>
 
 		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >7:30 AM</time>
@@ -272,8 +257,23 @@ Cheers!
 		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
 
 		
-		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
-		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
-		<time title="Blossom" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
+
+		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
+
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
+
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
+
+		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+
+		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
+
+		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
 	</weekdays>
 </schedule>

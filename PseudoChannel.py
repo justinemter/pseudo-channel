@@ -311,6 +311,7 @@ class PseudoChannel():
             *
             '''
             timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
+            #print timeset
             timeSetToUse = None
             for time in timeset:
                 theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
@@ -326,6 +327,7 @@ class PseudoChannel():
             *
             '''
             timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
+            print timeset
             for time in timeset:
                 theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
                 tempTimeTwoStr = datetime.datetime.strptime(time1, self.APP_TIME_FORMAT_STR).strftime('%H:%M')
