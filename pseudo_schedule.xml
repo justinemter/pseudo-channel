@@ -242,30 +242,38 @@ Cheers!
 		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
 		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
 
-		<time title="the it crowd" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
-		<time title="the it crowd" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
+		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
 
-		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
-		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
 
-		<time title="friends" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
-		<time title="friends" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
 
-		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
-		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
 
-		<time title="Futurama" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
 
-		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
-		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
 
-		<time title="new girl" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
-		<time title="new girl" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
 
-		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>7:45 PM</time>
+		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
+
+		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+
+		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
+
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >8:00 PM</time>
+
+		<time title="new girl" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
+
+		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
 
 		
-		<time title="the trip" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
-		<time title="the trip" type="series" strict-time="false" time-shift="5" >9:00 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
 	</weekdays>
 </schedule>
