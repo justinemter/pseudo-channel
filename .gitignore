@@ -11,3 +11,6 @@ pseudo-channel.db
 env/
 *.log
 *.pid
+*.json
+.cache/
+.prevplaying

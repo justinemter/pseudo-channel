@@ -5,7 +5,7 @@
 
     touch ../plex_token.py
     
-    2) add this line to the newly created file:
+    2) add these lines to the newly created file:
 
     baseurl = 'the url to your server'
     token = 'your plex token'
@@ -20,7 +20,9 @@
 
     "Movies" : ["Films"],
 
-    6) For Google Calendar integration add your "gkey" to the "plex_token.py" file 
+    6) *Skip this feature for now* 
+
+    For Google Calendar integration add your "gkey" to the "plex_token.py" file 
     ...(https://docs.simplecalendar.io/find-google-calendar-id/):
 
     gkey = "the key"
@@ -29,6 +31,65 @@
 
     useGoogleCalendar
     
+"""
+
+'''
+*
+* List of plex clients to use (add multiple clients to control multiple TV's)
+*
+'''
+plexClients = ['RasPlex']
+
+plexLibraries = {
+    "TV Shows" : ["TV Shows"],
+    "Movies"   : ["Movies"],
+    "Commercials" : ["Commercials"],
+}
+
+useCommercialInjection = True
+
+"""How many seconds to pad commercials between each other / other media"""
+commercialPadding = 5
+
+"""
+Specify the path to this controller on the network (i.e. 'http://192.168.1.28' - no trailing slash).
+Also specify the desired port to run the simple http webserver. The daily generated
+schedule will be served at "http://<your-ip>:<your-port>/" (i.e. "http://192.168.1.28:8000/"). 
+
+You can also leave the below controllerServerPath empty if you'd like to run your own webserver.
+"""
+controllerServerPath = "http://192.168.1.28"
+controllerServerPort = "8000"
+
+"""
+When the schedule updates every 24 hours, it's possible that it will interrupt any shows / movies that were 
+playing from the previous day. To fix this, the app saves a "cached" schedule from the previous day to 
+override any media that is trying to play while the previous day is finishing.
+"""
+useDailyOverlapCache = True
+
+dailyUpdateTime = "12:00 AM"
+
+"""---"""
+useGoogleCalendar = False
+
+"""When to delete / remake the pseudo-channel.log - right at midnight, (i.e. 'friday') """
+rotateLog = "friday"
+
+"""Debug mode will give you more output in your terminal to help problem solve issues."""
+debug_mode = True
+
+
+
+
+
+
+"""
+##### Do not edit below this line---------------------------------------------------------------
+
+Below is logic to grab your Plex 'token' & Plex 'baseurl'. If you are following along and have created a 'plex_token.py'
+file as instructed, you do not need to edit below this line. 
+
 """
 
 import os, sys
@@ -43,39 +104,4 @@ except ImportError as e:
 
 baseurl = plex_token.baseurl
 token = plex_token.token
-gkey = plex_token.gkey
-
-'''
-*
-* List of plex clients to use (add multiple clients to control multiple TV's)
-*
-'''
-plexClients = ['RasPlex']
-
-plexLibraries = {
-    "TV Shows" : ["TV Shows"],
-    "Movies"   : ["Movies"],
-    "Music"    : ["Music"],
-    "Commercials" : ["Commercials"],
-}
-
-useGoogleCalendar = False
-
-useCommercialInjection = True
-
-# How many seconds to pad commercials between each other / other media
-commercialPadding = 5
-
-"""
-Specify the path to this controller on the network (i.e. 'http://192.168.1.28' - no trailing slash).
-Also specify the desired port to run the simple http webserver. The daily generated
-schedule will be served at "http://<your-ip>:<your-port>/" (i.e. "http://192.168.1.28:8000/"). 
-
-You can also leave the below controllerServerPath empty if you'd like to run your own webserver.
-"""
-controllerServerPath = "http://192.168.1.28"
-controllerServerPort = "8000"
-
-dailyUpdateTime = "12:00 AM"
-
-debug_mode = True
+gkey = '' #plex_token.gkey
