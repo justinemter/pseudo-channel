@@ -81,3 +81,19 @@ http://192.168.1.28:8000
 Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
 
 Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
+
+## Known Issues/Workarounds
+
+By far, the most issues result from XML errors. It's important to make sure that all XML `<time>` entries are properly formatted and that you do not squeeze in too many `<time>` entries in your daily schedule. A good example of too many time entries is when you try and fill up a full 24 hours with daily content. Since PseudoChannel.py generates a new daily scedule every 24 hours, it will overwrite the previous 24 hours with the new content. So, if you were watching a movie that was scheduled to start at `11:00 PM`, the app will generate a new daily schedule when the clock hits `12:00 AM`. However, I added some logic that should allow any previous playing media to finish before beginning the next days schedule. It's best to try and avoid overfilling your schedule. 
+
+### Problem Solving 
+
+The best way to pinpoint errors and wonky-ness is to run the app in your console using: `python PseudoChannel.py -r`. Although there is a `.log` file that is generated in the working directory, the output from running the app manually is more verbose. Also, it is important open up `psuedo_config.py` and change, `debug_mode` from `False` to `True`. This will not only show more verbose output when running PseudoChannel.py, but will also show all scheduled content (including commercials) in the generated daily schedule .html. 
+
+#### Inspecting the Database. 
+
+If you'd like to dig deeper I recommend using a database inspector utility like, [sqlitebrowser](http://sqlitebrowser.org/). The app generates a local sqlite db called, `psuedo-channel.db` located in the root of the project directory. There are a few tables to look at, the `daily_schedule` table and the `schedule` table. The former is the where all the daily generated time entries are placed and the latter is where the XML time entries are stored. 
+
+## Contact Mark Or Me 
+
+We set up [discord](https://discordapp.com/channels/337829296867377154/337829296867377154) channel where you can ping Mark and I with any issues you may run into. You can find us there or file an "issue" here in this repo. 
