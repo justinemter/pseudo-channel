@@ -89,6 +89,10 @@ http://192.168.1.28:8000
 ```
 *Where `192.168.1.28` is the IP of your controller & `8000` is the port - both perameters are configured in the `pseudo_config.py` file.*
 
+## Adding New TV/Movies/Commercials to Your Channel:
+
+Whenever you add new content to your Plex library, you need to run: `python PseudoChannel.py -u`. This will tell the app to check the Plex library and update the local database with new media.
+
 Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
 
 Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
@@ -105,6 +109,20 @@ The best way to pinpoint errors and wonky-ness is to run the app in your console
 
 If you'd like to dig deeper I recommend using a database inspector utility like, [sqlitebrowser](http://sqlitebrowser.org/). The app generates a local sqlite db called, `psuedo-channel.db` located in the root of the project directory. There are a few tables to look at, the `daily_schedule` table and the `schedule` table. The former is the where all the daily generated time entries are placed and the latter is where the XML time entries are stored. 
 
+#### Don't Be Afraid to Delete Your Local Database/Start Over:
+
+If for some reason you want to delete your old DB but don't want to lose your TV queue you can do the following...
+
+1) Export the TV queue by running `python PseudoChannel.py -e`. This exports the queue to a json file. 
+
+2) Delete the pseudo-channel.db file. 
+
+3) Re-generate the fresh database by running: `python PseudoChannel.py -u`
+
+4) Import the old TV queue: `python PseudoChannel.py -i`.
+
+*...this has been helpful mostly when debugging/developing, but it may be helpful for others too. Of course if you don't care about your TV queue you can skip steps, 1 & 4.*
+
 ## Contact Mark Or Me 
 
-We set up [discord](https://discordapp.com/channels/337829296867377154/337829296867377154) channel where you can ping Mark and I with any issues you may run into. You can find us there or file an "issue" here in this repo. 
+We set up [discord](https://discord.gg/7equn68) channel where you can ping Mark and I with any issues you may run into. You can find us there or file an "issue" here in this repo. 
