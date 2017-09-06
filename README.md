@@ -76,6 +76,8 @@ You are able to specify random movies in your XML schedule by adding a `<time>` 
 ```
 I have placed this time entry in the `<weekdays>` block of the XML. You can only specify `title="random"` for movie time blocks... however, you can further define parameters in the `xtra=` attribute. The `xtra` params are passed-in separated by a `:` as the delimiter as seen above. As I am using the Python Plex API to handle that logic, you can view their list of options: http://python-plexapi.readthedocs.io/en/latest/modules/library.html#plexapi.library.LibrarySection.search
 
+Furthermore, if you'd like to specify multiple values in the `xtra` params, say to schedule saturday morning kid-friendly movies, you could do something like: `xtra="contentRating:G,PG"`. This works for other parameters, like `genre`: `xtra="genre:comedy,romance"`. Just beware that if the app cannot find a single movie in your library that matches your parameters, it will just give you a random movie dismissing all the params. 
+
 ## The Automatically Generated .HTML Daily Schedule / Server
 
 To view the automatically generated "Daily Pseudo Schedule" index.html as seen in the image above, find it in the generated `./schedules/` directory within the project folder. The html file is generated both when the daily schedule is updated and whenever a media item from the schedule plays or ends (you can manually generate it with the `-m` flag). 
