@@ -97,6 +97,31 @@ Stay tuned for a polished version / bug fixes. I've also started a user friendly
 
 Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
 
+## Multi-Channel Support:
+
+You can have multpile instances of this app, specify different schedules for each instance and control it via a USB remote. Let's say you choose to have 3 channels, an all day movie channel, a 'cartoon network' channel, and a 90's channel. You would simply create a directory named something like `/channels`. Then within your `/channels` dir you would have your `plex_token.py` file and your channels named something like: `/channel_1`, `channel_2` & `channel_3`. Note: the only important naming convention here is that `_1`, `_2`, etc. is contained at the end of each directory title. Each channel directory will contain the contents of this repository, set up just as if you had a single channel. So your directory structure would look like this:
+
+```bash
+-channels/
+--plex_token.py
+--channel_1/
+---pseudo-channel.db
+---PseudoChannel.py
+---...etc.
+--channel_2/
+---pseudo-channel.db
+---PseudoChannel.py
+---...etc.
+--channel_3/
+---pseudo-channel.db
+---PseudoChannel.py
+---...etc.
+```
+
+In order to get this working with a usb remote hooked up to your Raspberry Pi, you need to configure the remotes channel buttons to trigger the corresponding bash scripts. I have placed a `channelup.sh` and a `channeldown.sh` within the projects `bash-scripts/` dir. You need to move these files to the `channels/` directory to make it work. When everything is setup properly and you have configured your remote, your channel up/channel down buttons should trigger the corresponding scripts triggering the channel to change. Lastly you need to configure a crontab so your controller automatically triggers each channel to generate a new daily schedule when the clock hits, `12:00 AM`. If you are running a single channel the the app knows to update when the clock strikes mid-night. However, if you are using this multi-channel method, the bash scripts will start / stop the corresponding channels depending on what channel you are watching. There is another bash script that you configure a crontab to trigger that will generate a new daily schedule for each channel that isn't currently running. 
+
+*This is a work in progress.*
+
 ## Known Issues/Workarounds
 
 By far, the most issues result from XML errors. It's important to make sure that all XML `<time>` entries are properly formatted and that you do not squeeze in too many `<time>` entries in your daily schedule. A good example of too many time entries is when you try and fill up a full 24 hours with daily content. Since PseudoChannel.py generates a new daily scedule every 24 hours, it will overwrite the previous 24 hours with the new content. So, if you were watching a movie that was scheduled to start at `11:00 PM`, the app will generate a new daily schedule when the clock hits `12:00 AM`. However, I added some logic that should allow any previous playing media to finish before beginning the next days schedule. It's best to try and avoid overfilling your schedule. 
