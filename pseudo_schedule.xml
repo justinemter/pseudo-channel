@@ -416,16 +416,12 @@ or open an 'issue' on the github repository. Have fun!
 
 		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
 
-		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
-
-		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
 		
 		<!--
-			Here is an example of a day specific block. TGIF 90's style. Again, I am keeping strict-time set to false
-			to maximize the content in my schedule and to avoid overlap. If you wanted to make sure your TGIF block
-			started at 8 PM on the dot, you could make room for it...
+			Here is an example of a day specific block. TGIF 90's style...
 		-->
-		<time title="Sabrina The Teenage Witch" type="series" strict-time="false" time-shift="1" >8:00 PM</time>
+		<time title="Sabrina The Teenage Witch" type="series" strict-time="true" time-shift="1" >8:00 PM</time>
 		<time title="Boy Meets World" type="series" strict-time="false" time-shift="1" >8:20 PM</time>
 		<time title="Family Matters" type="series" strict-time="false" time-shift="1" >8:40 PM</time>
 		<time title="Family Matters" type="series" strict-time="false" time-shift="1" >9:00 PM</time>
