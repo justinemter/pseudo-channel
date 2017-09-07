@@ -93,10 +93,6 @@ http://192.168.1.28:8000
 
 Whenever you add new content to your Plex library, you need to run: `python PseudoChannel.py -u`. This will tell the app to check the Plex library and update the local database with new media.
 
-Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
-
-Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
-
 ## Multi-Channel Support:
 
 You can have multpile instances of this app, specify different schedules for each instance and control it via a USB remote. Let's say you choose to have 3 channels, an all day movie channel, a 'cartoon network' channel, and a 90's channel. You would simply create a directory named something like `/channels`. Then within your `/channels` dir you would have your `plex_token.py` file and your channels named something like: `/channel_1`, `channel_2` & `channel_3`. Note: the only important naming convention here is that `_1`, `_2`, etc. is contained at the end of each directory title. Each channel directory will contain the contents of this repository, set up just as if you had a single channel. So your directory structure would look like this:
@@ -151,3 +147,9 @@ If for some reason you want to delete your old DB but don't want to lose your TV
 ## Contact Mark Or Me 
 
 We set up [discord](https://discord.gg/7equn68) channel where you can ping Mark and I with any issues you may run into. You can find us there or file an "issue" here in this repo. 
+
+Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
+
+## Special Thanks
+
+Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
