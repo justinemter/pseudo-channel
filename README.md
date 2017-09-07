@@ -124,7 +124,7 @@ By far, the most issues result from XML errors. It's important to make sure that
 
 ### Problem Solving 
 
-The best way to pinpoint errors and wonky-ness is to run the app in your console using: `python PseudoChannel.py -r`. Although there is a `.log` file that is generated in the working directory, the output from running the app manually is more verbose. Also, it is important open up `psuedo_config.py` and change, `debug_mode` from `False` to `True`. This will not only show more verbose output when running PseudoChannel.py, but will also show all scheduled content (including commercials) in the generated daily schedule .html. 
+The best way to pinpoint errors and wonky-ness is to run the app in your console using: `python PseudoChannel.py -r`. Although there is a `.log` file that is generated in the working directory, the output from running the app manually is more verbose. Also, it is important to open up `psuedo_config.py` and change, `debug_mode` from `False` to `True`. This will not only show more verbose output when running PseudoChannel.py, but will also show all scheduled content (including commercials) in the generated daily schedule .html. 
 
 #### Inspecting the Database. 
 

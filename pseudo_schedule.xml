@@ -100,10 +100,8 @@ using the XML ascii character "&#38;". Well you cannot do that. I usually like t
 open in a tab while making my XML. That way for each "series" title I can double check the library to make sure I 
 am using the series title exactly as Plex is. 
 
-Ok, that is it. If you have questions feel free to e-mail me at justin@pseudochannel.tv or open an 'issue' on the 
-github repository. Have fun!
-
-Cheers!
+Ok, that is it. If you have questions feel free to contact Mark or I on discord here: https://discord.gg/7equn68, 
+or open an 'issue' on the github repository. Have fun!
 
 -->
 <schedule>
@@ -122,11 +120,306 @@ Cheers!
 		<time title="Looney Tunes" type="series" strict-time="false" time-shift="1" >6:40 AM</time>
 		<time title="Looney Tunes" type="series" strict-time="false" time-shift="1" >6:50 AM</time>
 	</everyday>
-	<mondays></mondays>
-	<tuesdays></tuesdays>
-	<wednesdays></wednesdays>
-	<thursdays></thursdays>
+	<mondays>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:30 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:30 AM</time>
+
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
+
+		<time title="macgyver" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
+
+		<time title="boy meets world" type="series" strict-time="false" time-shift="5" >12:00 PM</time>
+
+		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
+		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
+
+		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
+
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
+
+		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
+
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
+
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
+
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
+
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
+
+		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
+
+		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+
+		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
+
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >8:00 PM</time>
+
+		<time title="new girl" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
+
+		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
+
+		
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
+
+		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
+
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
+
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
+
+		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+
+		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
+
+		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
+	</mondays>
+	<tuesdays>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:30 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:30 AM</time>
+
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
+
+		<time title="macgyver" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
+
+		<time title="boy meets world" type="series" strict-time="false" time-shift="5" >12:00 PM</time>
+
+		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
+		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
+
+		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
+
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
+
+		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
+
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
+
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
+
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
+
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
+
+		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
+
+		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+
+		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
+
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >8:00 PM</time>
+
+		<time title="new girl" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
+
+		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
+
+		
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
+
+		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
+
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
+
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
+
+		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+
+		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
+
+		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
+	</tuesdays>
+	<wednesdays>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:30 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:30 AM</time>
+
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
+
+		<time title="macgyver" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
+
+		<time title="boy meets world" type="series" strict-time="false" time-shift="5" >12:00 PM</time>
+
+		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
+		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
+
+		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
+
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
+
+		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
+
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
+
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
+
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
+
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
+
+		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
+
+		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+
+		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
+
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >8:00 PM</time>
+
+		<time title="new girl" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
+
+		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
+
+		
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
+
+		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
+
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
+
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
+
+		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+
+		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
+
+		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
+	</wednesdays>
+	<thursdays>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:30 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:30 AM</time>
+
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
+
+		<time title="macgyver" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
+
+		<time title="boy meets world" type="series" strict-time="false" time-shift="5" >12:00 PM</time>
+
+		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
+		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
+
+		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
+
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
+
+		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
+
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
+
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
+
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
+
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
+
+		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
+
+		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+
+		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
+
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >8:00 PM</time>
+
+		<time title="new girl" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
+
+		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
+
+		
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
+
+		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
+
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
+
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
+
+		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+
+		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
+
+		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
+	</thursdays>
 	<fridays>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:30 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:00 AM</time>
+		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:30 AM</time>
+
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
+		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
+
+		<time title="macgyver" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
+
+		<time title="boy meets world" type="series" strict-time="false" time-shift="5" >12:00 PM</time>
+
+		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
+		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
+
+		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
+
+		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
+
+		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
+
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
+
+		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
+
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
+		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
+
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
+		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
+
+		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
+
+		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
+
+		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
+
+		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
+		
 		<!--
 			Here is an example of a day specific block. TGIF 90's style. Again, I am keeping strict-time set to false
 			to maximize the content in my schedule and to avoid overlap. If you wanted to make sure your TGIF block
@@ -136,6 +429,28 @@ Cheers!
 		<time title="Boy Meets World" type="series" strict-time="false" time-shift="1" >8:20 PM</time>
 		<time title="Family Matters" type="series" strict-time="false" time-shift="1" >8:40 PM</time>
 		<time title="Family Matters" type="series" strict-time="false" time-shift="1" >9:00 PM</time>
+
+		<!-- - -->
+		
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
+		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
+		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
+
+		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
+
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
+		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
+
+		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
+
+		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
+
+		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
+
+		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
+
+		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
+		
 	</fridays>
 	<saturdays>
 		<!--
@@ -212,68 +527,6 @@ Cheers!
 
 	</weekends>
 	<weekdays>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:00 AM</time>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >8:30 AM</time>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:00 AM</time>
-		<time title="Garfield &#38; Friends" type="series" strict-time="false" time-shift="5" >9:30 AM</time>
-
-		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:00 AM</time>
-		<time title="talespin" type="series" strict-time="false" time-shift="5" >10:30 AM</time>
-
-		<time title="macgyver" type="series" strict-time="false" time-shift="5" >11:00 AM</time>
-
-		<time title="boy meets world" type="series" strict-time="false" time-shift="5" >12:00 PM</time>
-
-		<time title="full house" type="series" strict-time="false" time-shift="5" >12:30 PM</time>
-		<time title="full house" type="series" strict-time="false" time-shift="5" >1:00 PM</time>
-
-		<time title="The Wonder Years" type="series" strict-time="false" time-shift="5" >1:30 PM</time>
-
-		<time title="The Simpsons" type="series" strict-time="false" time-shift="5" >2:00 PM</time>
-
-		<time title="Monk" type="series" strict-time="false" time-shift="5" >2:30 PM</time>
-
-		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >3:00 PM</time>
-
-		<time title="The Fresh Prince of Bel-Air" type="series" strict-time="false" time-shift="5" >3:30 PM</time>
-
-		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:00 PM</time>
-		<time title="the office (us)" type="series" strict-time="false" time-shift="5" >4:30 PM</time>
-
-		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:00 PM</time>
-		<time title="Roseanne" type="series" strict-time="false" time-shift="5" >5:30 PM</time>
-
-		<time title="seinfeld" type="series" strict-time="false" time-shift="5" >6:00 PM</time>
-
-		<time title="Parker Lewis Can&#39;t Lose" type="series" strict-time="false" time-shift="5" >6:30 PM</time>
-
-		<time title="Futurama" type="series" strict-time="false" time-shift="5" >7:00 PM</time>
-
-		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >7:30 PM</time>
-		<time title="Saved by the Bell" type="series" strict-time="false" time-shift="5" >8:00 PM</time>
-
-		<time title="new girl" type="series" strict-time="false" time-shift="5" >8:30 PM</time>
-
-		<time title="random" type="movie" strict-time="false" time-shift="5"  xtra='actor:mike myers genre:comedy contentRating:PG-13'>9:00 PM</time>
-
 		
-		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:30 PM</time>
-		<time title="Married... with Children" type="series" strict-time="false" time-shift="5" >9:40 PM</time>
-		<time title="Blossom" type="series" strict-time="false" time-shift="5" >10:00 PM</time>
-
-		<time title="Frasier" type="series" strict-time="false" time-shift="1" >10:20 PM</time>
-
-		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:30 PM</time>
-		<time title="Mad About You" type="series" strict-time="false" time-shift="5" >10:40 PM</time>
-
-		<time title="M*A*S*H" type="series" strict-time="false" time-shift="5" >10:50 PM</time>
-
-		<time title="Beverly Hills, 90210" type="series" strict-time="false" time-shift="5" >11:00 PM</time>
-
-		<time title="Cheers" type="series" strict-time="false" time-shift="5" >11:20 PM</time>
-
-		<time title="Three&#39;s Company" type="series" strict-time="false" time-shift="5" >11:30 PM</time>
-
-		<time title="The Brady Bunch" type="series" strict-time="false" time-shift="5" >11:40 PM</time>
 	</weekdays>
 </schedule>
