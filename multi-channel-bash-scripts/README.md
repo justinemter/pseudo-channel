@@ -7,7 +7,7 @@ schedule.
 
 3) Use, "updatechannels.sh" to update each channels' local db with newly added Plex library items. 
 
-All of these scripts need to be placed one level up from all the channels directories. Your directory structure should look something like this:
+All of these scripts need to be placed in the "./channels/" dir. Your directory structure should look something like this:
 
 ```bash
 -channels/
