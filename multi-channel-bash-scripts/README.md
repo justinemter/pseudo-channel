@@ -7,6 +7,8 @@ schedule.
 
 3) Use, "updatechannels.sh" to update each channels' local db with newly added Plex library items. 
 
+4) Use, "manual.sh" to manually trigger a particular channel... i.e. `./manual.sh 9`, to switch to channel 9.
+
 All of these scripts need to be placed in the "./channels/" dir. Your directory structure should look something like this:
 
 ```bash
