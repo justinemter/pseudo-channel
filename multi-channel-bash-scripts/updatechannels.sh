@@ -36,6 +36,13 @@ if [ -d "$VIRTUAL_ENV_DIR" ]; then
 
 fi
 
+# If virtualenv specified & exists at root of project, using that version of python instead.
+if [ -d "../$VIRTUAL_ENV_DIR" ]; then
+
+	PYTHON_TO_USE="../$VIRTUAL_ENV_DIR/bin/python"
+
+fi
+
 # If the file exists b
 
 # Scan the dir to see how many channels there are, store them in an arr.
@@ -43,10 +50,10 @@ CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_
 
 # If this script see's there are multiple channels, 
 # then loop through each channel and run the updates
-if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
+if [ "${#CHANNEL_DIR_ARR[@]}" -gt 0 ]; then
 
 	# If virtualenv specified & exists, using that version of python instead.
-	if [ -d ./"$channel"/"$VIRTUAL_ENV_DIR" ]; then
+	if [ -d "./$channel/$VIRTUAL_ENV_DIR" ]; then
 
 		PYTHON_TO_USE=./"$channel"/"$VIRTUAL_ENV_DIR/bin/python"
 
@@ -57,9 +64,9 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 	for channel in "${CHANNEL_DIR_ARR[@]}"
 	do
 		
-		echo "+++++ Trying to update: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
+		echo "+++++ Trying to update: $PYTHON_TO_USE $channel/$SCRIPT_TO_EXECUTE_PLUS_ARGS"
 		# If the running.pid file doesn't exists, create it, start PseudoChannel.py and add the PID to it.
-		"$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
+		"$PYTHON_TO_USE" "$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
 
 		sleep 1
 
