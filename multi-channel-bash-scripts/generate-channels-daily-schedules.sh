@@ -47,18 +47,23 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
 	for channel in "${CHANNEL_DIR_ARR[@]}"
 	do
+
+		# If the .pid file exists for this channel, skip it because it will update while running.
+		if [ ! -f "$channel/running.pid" ]
 		
-		echo "+++++ Trying to generate daily schedule: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
+			echo "+++++ Trying to generate daily schedule: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
 
-		cd "$channel" && "./generate_daily_sched.sh"
+			cd "$channel" && "./generate_daily_sched.sh"
 
-		echo "+++++ Generated: $channel - new schedule."
+			echo "+++++ Generated: $channel - new schedule."
 
-		sleep 1
+			sleep 1
 
-		cd ../
+			cd ../
 
-		sleep 1
+			sleep 1
+
+		fi
 
 	done
 	
