@@ -40,7 +40,7 @@ fi
 CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_SYMBOL"'[[:digit:]]*' -printf "%P\n") )
 
 # If this script see's there are multiple channels, 
-# then loop through each channel and run the updates
+# then loop through each channel and run the daily schedule generator
 if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
 	echo "+++++ There are ${#CHANNEL_DIR_ARR[@]} channels detected."
@@ -48,11 +48,11 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 	for channel in "${CHANNEL_DIR_ARR[@]}"
 	do
 		
-		echo "+++++ Trying to update: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
+		echo "+++++ Trying to generate daily schedule: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
 
 		cd "$channel" && "./generate_daily_sched.sh"
 
-		echo "+++++ Updated: $channel"
+		echo "+++++ Generated: $channel - new schedule."
 
 		sleep 1
 
