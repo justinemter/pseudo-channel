@@ -32,9 +32,9 @@ if [ -d "$VIRTUAL_ENV_DIR" ]; then
 
 	PYTHON_TO_USE="$VIRTUAL_ENV_DIR/bin/python"
 
-fi
+	echo "+++++ Virtualenv found, using: $VIRTUAL_ENV_DIR/bin/python"
 
-# If the file exists b
+fi
 
 # Scan the dir to see how many channels there are, store them in an arr.
 CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_SYMBOL"'[[:digit:]]' -printf "%P\n") )
@@ -43,21 +43,20 @@ CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_
 # then loop through each channel and run the updates
 if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
-	# If virtualenv specified & exists, using that version of python instead.
-	if [ -d ./"$channel"/"$VIRTUAL_ENV_DIR" ]; then
-
-		PYTHON_TO_USE=./"$channel"/"$VIRTUAL_ENV_DIR/bin/python"
-
-	fi
-
 	echo "+++++ There are ${#CHANNEL_DIR_ARR[@]} channels detected."
 
 	for channel in "${CHANNEL_DIR_ARR[@]}"
 	do
 		
 		echo "+++++ Trying to update: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
-		# If the running.pid file doesn't exists, create it, start PseudoChannel.py and add the PID to it.
-		"$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
+
+		cd "$channel" && "./generate_daily_sched.sh"
+
+		echo "+++++ Updated: $channel"
+
+		sleep 1
+
+		cd ../
 
 		sleep 1
 
