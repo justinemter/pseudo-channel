@@ -512,7 +512,7 @@ class PseudoChannel():
                                 previous_episode.end_time,
                                 entry.natural_start_time,  
                                 previous_episode.time_shift, 
-                                previous_episode.overlap_max
+                                ""
                             )
                             print "++++ New start time:", new_starttime
                             entry.start_time = datetime.datetime.strptime(new_starttime, self.APP_TIME_FORMAT_STR).strftime('%I:%M:%S %p')
@@ -530,7 +530,7 @@ class PseudoChannel():
                     else:
                         self.db.add_media_to_daily_schedule(entry)
                         previous_episode = entry
-                self.make_xml_schedule()
+                #self.make_xml_schedule()
 
     def run_commercial_injection(self):
 
