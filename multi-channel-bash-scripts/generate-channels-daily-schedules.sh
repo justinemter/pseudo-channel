@@ -49,7 +49,7 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 	do
 
 		# If the .pid file exists for this channel, skip it because it will update while running.
-		if [ ! -f "$channel/running.pid" ]
+		if [ ! -f "$channel/running.pid" ]; then
 		
 			echo "+++++ Trying to generate daily schedule: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
 
