@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# file: channelup.sh
+# file: channeldown.sh
 
 #----
 # Simple script to cycle through multiple pseudo-channel instances - triggering start / stop.
@@ -18,7 +18,7 @@
 # ---startstop.sh
 # --pseudo-channel_3/
 # ---startstop.sh
-# --channelup.sh <--- on the same level as the 3 channels. 
+# --channeldown.sh <--- on the same level as the 3 channels. 
 #----
 
 # Make sure that each channel dir ends with a "_" + an incrementing number as seen above.
@@ -37,25 +37,28 @@ CHANNEL_DIR_INCREMENT_SYMBOL="_"
 
 FIRST_RUN=false
 
+# Scan the dir to see how many channels there are, store them in an arr.
+CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_SYMBOL"'[[:digit:]]*' -printf "%P\n") )
+
 # If the previous channel txt file doesn't exist already create it (first run?)
 if [ ! -e "$OUTPUT_PREV_CHANNEL_PATH/$OUTPUT_PREV_CHANNEL_FILE" ]; then
 
+	#FIRST_RUN_NUM=$((${#CHANNEL_DIR_ARR[@]}))
 	echo 1 > "$OUTPUT_PREV_CHANNEL_PATH/$OUTPUT_PREV_CHANNEL_FILE"
+
+	echo "First run: $FIRST_RUN_NUM"
 
 	FIRST_RUN=true
 
 fi
-
-# If the file exists b
-
-# Scan the dir to see how many channels there are, store them in an arr.
-CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_SYMBOL"'[[:digit:]]' -printf "%P\n") )
 
 # If this script see's there are multiple channels, 
 # then read file, get prevchannel, increment, and trigger next channel:
 if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
 	NEXT_CHANNEL=""
+
+	NEXT_CHANNEL_NUM=1
 
 	PREV_CHANNEL_FOUND=false
 
@@ -68,18 +71,20 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 	echo "+++++ It looks like the previous channel was: $PREV_CHANNEL"
 
 	# Now that the prevchannel is stored in a var, loop through channels and find prev channel & increment
-	for channel in "${CHANNEL_DIR_ARR[@]}"
-	do
-		if [[ $channel == *"$PREV_CHANNEL"* ]]; then
+	for ((i = ${#CHANNEL_DIR_ARR[@]};i >= 1;i--)); do
+
+    	NEXT_CHANNEL_NUM=$i
+
+    	if [[ ${i} == *"$PREV_CHANNEL"* ]]; then
   			echo "+++++ Found previous channel, incrementing by 1."
   			PREV_CHANNEL_FOUND=true
-  			PREV_CHANNEL_DIR=$channel
+  			PREV_CHANNEL_DIR=${CHANNEL_DIR_ARR[i-1]}
   			continue
 		fi
 
 		if [ "$PREV_CHANNEL_FOUND" = true ] ; then
 		    
-		    NEXT_CHANNEL=$channel
+		    NEXT_CHANNEL=${CHANNEL_DIR_ARR[i-1]}
 
 			break
 		
@@ -90,7 +95,11 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 	# If the next channel is an empty string, then we need to start the cycle over.
 	if [ -z "$NEXT_CHANNEL" ]; then
 
-		NEXT_CHANNEL=${CHANNEL_DIR_ARR[0]}
+		ARR_LENGTH=(${#CHANNEL_DIR_ARR[@]})
+		NEXT_CHANNEL=${CHANNEL_DIR_ARR[$ARR_LENGTH-1]}
+		echo "Starting cycle over."
+		echo "$PREV_CHANNEL_DIR"
+		echo "$NEXT_CHANNEL"
 
 	fi
 

@@ -508,12 +508,15 @@ class PseudoChannel():
                                 print "++++ NOT strict-time: {}".format(str(entry.title).encode(sys.stdout.encoding, errors='replace'))
                             except:
                                 pass
-                            new_starttime = self.calculate_start_time(
-                                previous_episode.end_time,
-                                entry.natural_start_time,  
-                                previous_episode.time_shift, 
-                                previous_episode.overlap_max
-                            )
+                            try:
+                                new_starttime = self.calculate_start_time(
+                                    previous_episode.end_time,
+                                    entry.natural_start_time,  
+                                    previous_episode.time_shift, 
+                                    ""
+                                )
+                            except:
+                                print("Error in calculate_start_time")
                             print "++++ New start time:", new_starttime
                             entry.start_time = datetime.datetime.strptime(new_starttime, self.APP_TIME_FORMAT_STR).strftime('%I:%M:%S %p')
                             entry.end_time = self.get_end_time_from_duration(entry.start_time, entry.duration)
@@ -530,7 +533,7 @@ class PseudoChannel():
                     else:
                         self.db.add_media_to_daily_schedule(entry)
                         previous_episode = entry
-                self.make_xml_schedule()
+                #self.make_xml_schedule()
 
     def run_commercial_injection(self):
 
@@ -729,7 +732,10 @@ if __name__ == '__main__':
     if args.google_calendar:
         pseudo_channel.update_schedule_from_google_calendar()
     if args.generate_schedule:
-        pseudo_channel.generate_daily_schedule()
+        try:
+            pseudo_channel.generate_daily_schedule()
+        except:
+            print("----- Recieved error when running generate_daily_schedule()")
     if args.show_clients:
         pseudo_channel.show_clients()
     if args.show_schedule:
@@ -878,7 +884,10 @@ if __name__ == '__main__':
             pseudo_channel.save_daily_schedule_as_json()
 
             schedule.clear('daily-tasks')
-            pseudo_channel.generate_daily_schedule()
+            try:
+                pseudo_channel.generate_daily_schedule()
+            except:
+                print("----- Recieved error when running generate_daily_schedule()")
             generate_memory_schedule(pseudo_channel.db.get_daily_schedule(), True)
 
         schedule.every().day.at(daily_update_time).do(
