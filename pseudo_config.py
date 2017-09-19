@@ -70,19 +70,11 @@ useDailyOverlapCache = True
 
 dailyUpdateTime = "12:00 AM"
 
-"""---"""
-useGoogleCalendar = False
-
 """When to delete / remake the pseudo-channel.log - right at midnight, (i.e. 'friday') """
 rotateLog = "friday"
 
 """Debug mode will give you more output in your terminal to help problem solve issues."""
 debug_mode = True
-
-
-
-
-
 
 """
 ##### Do not edit below this line---------------------------------------------------------------

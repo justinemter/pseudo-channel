@@ -28,7 +28,6 @@ from src import Episode
 from src import Music
 from src import Video
 from src import PseudoDailyScheduleController
-from src import GoogleCalendar
 from src import PseudoChannelCommercial
 import pseudo_config as config
 
@@ -40,7 +39,6 @@ class PseudoChannel():
     PLEX = PlexServer(config.baseurl, config.token)
     MEDIA = []
     GKEY = config.gkey
-    USING_GOOGLE_CALENDAR = config.useGoogleCalendar
     USING_COMMERCIAL_INJECTION = config.useCommercialInjection
     DAILY_UPDATE_TIME = config.dailyUpdateTime
     APP_TIME_FORMAT_STR = '%I:%M:%S %p'
@@ -327,7 +325,7 @@ class PseudoChannel():
             *
             '''
             timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
-            print timeset
+            #print timeset
             for time in timeset:
                 theTimeSetInterval = datetime.datetime.strptime(time, '%H:%M')
                 tempTimeTwoStr = datetime.datetime.strptime(time1, self.APP_TIME_FORMAT_STR).strftime('%H:%M')
@@ -669,14 +667,6 @@ if __name__ == '__main__':
     parser.add_argument('-xml', '--xml',
                          action='store_true', 
                          help='Update the local database with the pseudo_schedule.xml.')
-    '''
-    * 
-    * Update Schedule based on Google Cal: "python PseudoChannel.py -gc"
-    *
-    '''
-    parser.add_argument('-gc', '--google_calendar',
-                         action='store_true',
-                         help='Update the local database with entries in the google calendar.')
     parser.add_argument('-g', '--generate_schedule',
                          action='store_true', 
                          help='Generate the daily schedule.')
@@ -729,8 +719,6 @@ if __name__ == '__main__':
         pseudo_channel.update_db()
     if args.xml:
         pseudo_channel.update_schedule()
-    if args.google_calendar:
-        pseudo_channel.update_schedule_from_google_calendar()
     if args.generate_schedule:
         try:
             pseudo_channel.generate_daily_schedule()
@@ -871,12 +859,6 @@ if __name__ == '__main__':
             ),
             pseudo_channel.APP_TIME_FORMAT_STR
         ).strftime('%H:%M')
-        if pseudo_channel.USING_GOOGLE_CALENDAR:
-            schedule.every().day.at(daily_update_time).do(
-                pseudo_channel.update_schedule_from_google_calendar
-            ).tag('daily-update-gc')
-        else:
-             pass
 
         def go_generate_daily_sched():
 
@@ -884,6 +866,9 @@ if __name__ == '__main__':
             pseudo_channel.save_daily_schedule_as_json()
 
             schedule.clear('daily-tasks')
+
+            sleep(1)
+
             try:
                 pseudo_channel.generate_daily_schedule()
             except:

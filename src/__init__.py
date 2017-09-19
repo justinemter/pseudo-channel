@@ -6,5 +6,4 @@ from Media import Media
 from Music import Music
 from Video import Video
 from PseudoDailyScheduleController import PseudoDailyScheduleController
-from GoogleCalendar import GoogleCalendar
 from PseudoChannelCommercial import PseudoChannelCommercial

@@ -14,3 +14,4 @@ env/
 *.json
 .cache/
 .prevplaying
+.idea
