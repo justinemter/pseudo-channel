@@ -240,7 +240,15 @@ class PseudoDailyScheduleController():
                                     continue
                                 numberIncrease += 1
                                 with tag('tbody'):
-                                    timeB = datetime.strptime(row[8], '%I:%M:%S %p')
+                                    if currentTime != None:
+                                        currentTime = currentTime.replace(year=1900, month=1, day=1)
+                                    timeBStart = datetime.strptime(row[8], '%I:%M:%S %p')
+                                    timeBStart = timeBStart.replace(year=1900, month=1, day=1)
+                                    try:
+                                        timeBEnd = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
+                                    except:
+                                        timeBEnd = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S')
+                                    #print timeBStart
                                     if currentTime == None:
                                         with tag('tr'):
                                             with tag('th', scope='row'):
@@ -253,7 +261,14 @@ class PseudoDailyScheduleController():
                                                 text(row[3])
                                             with tag('td'):
                                                 text(row[8])
-                                    elif currentTime.hour == timeB.hour and currentTime.minute == timeB.minute:
+                                    elif currentTime.hour >= timeBStart.hour and \
+                                         currentTime.hour <= timeBEnd.hour and \
+                                         currentTime.minute >= timeBStart.minute and \
+                                         currentTime.minute <= timeBEnd.minute:
+
+                                            #if self.DEBUG:
+                                            print "+++++ Currently Playing:", row[3]
+
                                             with tag('tr', klass='bg-info'):
                                                 with tag('th', scope='row'):
                                                     text(numberIncrease)
@@ -523,9 +538,54 @@ class PseudoDailyScheduleController():
             if datalistLengthMonitor >= len(datalist):
                 self.check_for_end_time(datalist)
 
+    def manually_get_now_plating_bg_image(self, currentTime, datalist):
+
+        #print datalist[2]
+        print currentTime
+
+        increase_var = 0
+
+        for row in datalist:
+            print row[8]
+            if str(row[11]) == "Commercials":
+                continue
+            timeBStart = datetime.strptime(row[8], '%I:%M:%S %p')
+            timeBStart = timeBStart.replace(year=1900, month=1, day=1)
+            try:
+                timeBEnd = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S.%f')
+            except:
+                timeBEnd = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S')
+
+            if currentTime.hour >= timeBStart.hour and \
+               currentTime.hour <= timeBEnd.hour and \
+               currentTime.minute >= timeBStart.minute and \
+               currentTime.minute <= timeBEnd.minute:
+
+                return self.get_show_photo(
+                    row[11], 
+                    row[6] if row[11] == "TV Shows" else row[3]
+                )
+
+            else:
+
+                pass
+
+            increase_var += 1
+            
+        if len(datalist) >= increase_var:
+            print "Here"
+            return None
+
     def make_xml_schedule(self, datalist):
 
         print "+++++ ", "Writing XML / HTML to file."
+        now = datetime.now()
+        now = now.replace(year=1900, month=1, day=1)
+
+        bgImage = self.manually_get_now_plating_bg_image(now, datalist)
+
+        print bgImage
+
         self.write_refresh_bool_to_file()
-        self.write_schedule_to_file(self.get_html_from_daily_schedule(None, None, datalist))
+        self.write_schedule_to_file(self.get_html_from_daily_schedule(now, bgImage, datalist))
         self.write_xml_to_file(self.get_xml_from_daily_schedule(None, None, datalist))
