@@ -261,10 +261,8 @@ class PseudoDailyScheduleController():
                                                 text(row[3])
                                             with tag('td'):
                                                 text(row[8])
-                                    elif currentTime.hour >= timeBStart.hour and \
-                                         currentTime.hour <= timeBEnd.hour and \
-                                         currentTime.minute >= timeBStart.minute and \
-                                         currentTime.minute <= timeBEnd.minute:
+                                    elif (currentTime - timeBStart).total_seconds() >= 0 and \
+                                         (timeBEnd - currentTime).total_seconds() >= 0:
 
                                             #if self.DEBUG:
                                             print "+++++ Currently Playing:", row[3]
@@ -540,14 +538,12 @@ class PseudoDailyScheduleController():
 
     def manually_get_now_plating_bg_image(self, currentTime, datalist):
 
-        #print datalist[2]
-        print currentTime
-
         increase_var = 0
 
         for row in datalist:
-            print row[8]
-            if str(row[11]) == "Commercials":
+            #print row[8]
+            #print row[9]
+            if str(row[11]) == "Commercials" and self.DEBUG == False:
                 continue
             timeBStart = datetime.strptime(row[8], '%I:%M:%S %p')
             timeBStart = timeBStart.replace(year=1900, month=1, day=1)
@@ -556,10 +552,16 @@ class PseudoDailyScheduleController():
             except:
                 timeBEnd = datetime.strptime(row[9], '%Y-%m-%d %H:%M:%S')
 
-            if currentTime.hour >= timeBStart.hour and \
-               currentTime.hour <= timeBEnd.hour and \
-               currentTime.minute >= timeBStart.minute and \
-               currentTime.minute <= timeBEnd.minute:
+            #print ((currentTime - timeBStart).total_seconds() >= 0 and \
+            #       (timeBEnd - currentTime).total_seconds() >= 0)
+
+            #print currentTime.minute
+            #print timeBStart.minute
+
+            if (currentTime - timeBStart).total_seconds() >= 0 and \
+                   (timeBEnd - currentTime).total_seconds() >= 0:
+
+                print "+++++ Made the conditional & found item: {}".format(row[6])
 
                 return self.get_show_photo(
                     row[11], 
@@ -571,20 +573,21 @@ class PseudoDailyScheduleController():
                 pass
 
             increase_var += 1
-            
+
         if len(datalist) >= increase_var:
-            print "Here"
+            print("+++++ In 'manually_get_now_plating_bg_image()'. " 
+                  "Reached the end of the schedule. No bgImages found.")
             return None
 
     def make_xml_schedule(self, datalist):
 
-        print "+++++ ", "Writing XML / HTML to file."
+        print "##### ", "Writing XML / HTML to file."
         now = datetime.now()
         now = now.replace(year=1900, month=1, day=1)
 
         bgImage = self.manually_get_now_plating_bg_image(now, datalist)
 
-        print bgImage
+        print "+++++ The path to the bgImage: {}".format(bgImage)
 
         self.write_refresh_bool_to_file()
         self.write_schedule_to_file(self.get_html_from_daily_schedule(now, bgImage, datalist))
