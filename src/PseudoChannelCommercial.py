@@ -18,11 +18,6 @@ class PseudoChannelCommercial():
         self.commercials = commercials
         self.COMMERCIAL_PADDING_IN_SECONDS = commercialPadding
 
-    def get_commercials_to_inject(self):
-
-        self.go()
-        return None
-
     def get_random_commercial(self):
 
         random_commercial = random.choice(self.commercials)
@@ -31,30 +26,6 @@ class PseudoChannelCommercial():
              random_commercial = random.choice(self.commercials)
              random_commercial_dur_seconds = (int(random_commercial[4])/1000)%60
         return random_commercial
-
-    def go(self):
-
-        shuffled_commercial_list = copy.deepcopy(self.commercials)
-        random.shuffle(self.commercials, random.random)
-        prev_item = None
-        for entry in self.daily_schedule:
-            """First Episode"""
-            if prev_item == None:
-                prev_item = entry
-            else:
-                prev_item_end_time = datetime.datetime.strptime(prev_item[9], '%Y-%m-%d %H:%M:%S.%f')
-                curr_item_start_time = datetime.datetime.strptime(entry[8], '%I:%M:%S %p')
-                time_diff = (curr_item_start_time - prev_item_end_time)
-                days, hours, minutes = time_diff.days, time_diff.seconds // 3600, time_diff.seconds // 60 % 60
-                count = 0
-                commercial_list = []
-                commercial_dur_sum = 0
-                while int(time_diff.total_seconds()) >= commercial_dur_sum and count < len(self.commercials):
-                    random_commercial = self.get_random_commercial()
-                    commercial_list.append(random_commercial)
-                    commercial_dur_sum += int(random_commercial[4])
-                print commercial_list
-                prev_item = entry
 
     def timedelta_milliseconds(self, td):
 
@@ -79,7 +50,7 @@ class PseudoChannelCommercial():
         last_commercial = None
         time_watch = prev_item_end_time 
         new_commercial_start_time = prev_item_end_time 
-        while curr_item_start_time > new_commercial_start_time and (count) < len(self.commercials)*100:
+        while curr_item_start_time > new_commercial_start_time:
             random_commercial_without_pad = self.get_random_commercial()
             """
             Padding the duration of commercials as per user specified padding.
