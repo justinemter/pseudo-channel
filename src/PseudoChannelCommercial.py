@@ -38,6 +38,10 @@ class PseudoChannelCommercial():
         commercial = tuple(commercial_as_list)
         return commercial
 
+    def create_commercial_obj(self):
+
+        pass
+
     def get_commercials_to_place_between_media(self, last_ep, now_ep):
 
         prev_item_end_time = datetime.strptime(last_ep.end_time.strftime('%Y-%m-%d %H:%M:%S.%f'), '%Y-%m-%d %H:%M:%S.%f')
@@ -79,8 +83,62 @@ class PseudoChannelCommercial():
                 "0", # overlap_max
                 "", # plex_media_id
             )
+
+
+            
+            if new_commercial_end_time > curr_item_start_time and \
+               last_commercial != None:
+
+                dur_to_fill_up_in_millis = self.timedelta_milliseconds(curr_item_start_time - last_commercial.end_time)
+
+                if dur_to_fill_up_in_millis > self.commercials[0][4]:
+
+                    print "HERERERERE"
+
+                    commercials_reversed = self.commercials[::-1]
+
+                    for comm in commercials_reversed:
+
+                        #squeeze_comm_list_to_use.append(comm)
+
+                        # If the dur to fill up is over, then grab the last comm to use
+                        if dur_to_fill_up_in_millis >= int(comm[4]):
+
+                            print dur_to_fill_up_in_millis, "dur_to_fill_up_in_millis"
+                            print comm[4], "comm[4]"
+
+                            new_commercial_milli = int(comm[4])
+
+                            new_commercial_start_time = prev_item_end_time
+                            new_commercial_end_time = new_commercial_start_time + \
+                                                      timedelta(milliseconds=int(new_commercial_milli))
+                            commercial_dur_sum += new_commercial_milli
+                            formatted_time_for_new_commercial = new_commercial_start_time.strftime('%I:%M:%S %p')
+                            new_commercial = Commercial(
+                                "Commercials",
+                                comm[3],
+                                formatted_time_for_new_commercial, # natural_start_time
+                                new_commercial_end_time,
+                                comm[4],
+                                "everyday", # day_of_week
+                                "true", # is_strict_time
+                                "1", # time_shift 
+                                "0", # overlap_max
+                                "", # plex_media_id
+                            )
+
+                            print "USING THIS COMMERCIAL:", new_commercial.end_time
+
+                            commercial_list.append(new_commercial)
+                            return commercial_list
+
+                else:
+
+                    break
+
+            else:
+
+                commercial_list.append(new_commercial)
+
             last_commercial = new_commercial
-            if new_commercial_end_time > curr_item_start_time:
-                break
-            commercial_list.append(new_commercial)
         return commercial_list
