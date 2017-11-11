@@ -59,6 +59,8 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
 		sleep 1
 
+		rm -rf ../.pseudo-temp
+
 		cd ../
 
 		sleep 1
