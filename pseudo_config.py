@@ -76,6 +76,11 @@ rotateLog = "friday"
 """Debug mode will give you more output in your terminal to help problem solve issues."""
 debug_mode = True
 
+"""This squeezes in one last commercial to fill up the empty gaps even if the last commercial gets cutoff
+Set this to false if you don't want your commercials to get cutoff/don't mind the gap.
+"""
+useDirtyGapFix = True
+
 """
 ##### Do not edit below this line---------------------------------------------------------------
 

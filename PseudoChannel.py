@@ -48,6 +48,7 @@ class PseudoChannel():
     USE_OVERRIDE_CACHE = config.useDailyOverlapCache
     DEBUG = config.debug_mode
     ROTATE_LOG = config.rotateLog
+    USE_DIRTY_GAP_FIX = config.useDirtyGapFix
 
     def __init__(self):
 
@@ -356,7 +357,8 @@ class PseudoChannel():
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
                 self.db.get_commercials(),
-                self.COMMERCIAL_PADDING_IN_SECONDS
+                self.COMMERCIAL_PADDING_IN_SECONDS,
+                self.USE_DIRTY_GAP_FIX
             )
         schedule = self.db.get_schedule()
         weekday_dict = {

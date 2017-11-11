@@ -13,10 +13,11 @@ class PseudoChannelCommercial():
     COMMERCIAL_PADDING_IN_SECONDS = 0
     daily_schedule = []
 
-    def __init__(self, commercials, commercialPadding):
+    def __init__(self, commercials, commercialPadding, useDirtyGapFix):
 
         self.commercials = commercials
         self.COMMERCIAL_PADDING_IN_SECONDS = commercialPadding
+        self.USE_DIRTY_GAP_FIX = useDirtyGapFix
 
     def get_random_commercial(self):
 
@@ -81,6 +82,8 @@ class PseudoChannelCommercial():
             )
             last_commercial = new_commercial
             if new_commercial_end_time > curr_item_start_time:
+                if self.USE_DIRTY_GAP_FIX:
+                    commercial_list.append(new_commercial)
                 break
             commercial_list.append(new_commercial)
         return commercial_list
