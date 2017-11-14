@@ -83,44 +83,49 @@ class PseudoChannelCommercial():
             last_commercial = new_commercial
             if new_commercial_end_time > curr_item_start_time:
 
-                # If the gap is smaller than the shortest commercial, break.
-                gapToFill = curr_item_start_time - datetime.strptime(new_commercial.natural_start_time, '%I:%M:%S %p')
-                if int(self.commercials[0][4]) > self.timedelta_milliseconds(gapToFill):
-                    break
+                # Fill up gap with commercials even if the last commercial gets cutoff
+                if self.USE_DIRTY_GAP_FIX:
+                    
+                    commercial_list.append(new_commercial)
+                # Find the best fitting final commercial and break
                 else:
-                    print "===== Finding correct FINAL commercial to add to List."
 
-                    last_comm = None
-                    for comm in self.commercials:
+                    # If the gap is smaller than the shortest commercial, break.
+                    gapToFill = curr_item_start_time - datetime.strptime(new_commercial.natural_start_time, '%I:%M:%S %p')
+                    if int(self.commercials[0][4]) > self.timedelta_milliseconds(gapToFill):
 
-                        if int(comm[4]) >= self.timedelta_milliseconds(gapToFill) and last_comm != None:
+                        break
+                    else:
 
-                            random_final_comm = last_comm
+                        print "===== Finding correct FINAL commercial to add to List."
 
-                            formatted_time_for_final_commercial = datetime.strptime(new_commercial.natural_start_time, '%I:%M:%S %p').strftime('%I:%M:%S %p')
+                        last_comm = None
+                        for comm in self.commercials:
 
-                            final_commercial_end_time = datetime.strptime(new_commercial.natural_start_time, '%I:%M:%S %p') + \
-                                          timedelta(milliseconds=int(random_final_comm[4])) 
+                            if int(comm[4]) >= self.timedelta_milliseconds(gapToFill) and last_comm != None:
 
-                            final_commercial = Commercial(
-                                "Commercials",
-                                random_final_comm[3],
-                                formatted_time_for_final_commercial, # natural_start_time
-                                final_commercial_end_time,
-                                random_final_comm[4],
-                                "everyday", # day_of_week
-                                "true", # is_strict_time
-                                "1", # time_shift 
-                                "0", # overlap_max
-                                "", # plex_media_id
-                            )
+                                random_final_comm = last_comm
 
-                            commercial_list.append(final_commercial)
+                                formatted_time_for_final_commercial = datetime.strptime(new_commercial.natural_start_time, '%I:%M:%S %p').strftime('%I:%M:%S %p')
 
-                            break
+                                final_commercial_end_time = datetime.strptime(new_commercial.natural_start_time, '%I:%M:%S %p') + \
+                                              timedelta(milliseconds=int(random_final_comm[4])) 
 
-                        last_comm = comm
-
+                                final_commercial = Commercial(
+                                    "Commercials",
+                                    random_final_comm[3],
+                                    formatted_time_for_final_commercial, # natural_start_time
+                                    final_commercial_end_time,
+                                    random_final_comm[4],
+                                    "everyday", # day_of_week
+                                    "true", # is_strict_time
+                                    "1", # time_shift 
+                                    "0", # overlap_max
+                                    "", # plex_media_id
+                                )
+                                commercial_list.append(final_commercial)
+                                break
+                            last_comm = comm
                 break
             commercial_list.append(new_commercial)
         return commercial_list
