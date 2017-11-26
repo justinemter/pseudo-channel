@@ -309,6 +309,10 @@ class PseudoChannel():
             * If there is an overlap, then the overlapGap var in config will determine the next increment. If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
             *
             '''
+            #hourToUse = self.DAILY_UPDATE_TIME.split(':')[0]
+            #minuteToUse = self.DAILY_UPDATE_TIME.split(':')[1]
+            #now = datetime.datetime(1900, 1, 1, int(hourToUse), int(minuteToUse))
+            #timeset = [(now + datetime.timedelta(minutes=int(self.OVERLAP_GAP)*n)).strftime('%H:%M') for n in range((60*24)/int(self.OVERLAP_GAP))]
             timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.OVERLAP_GAP)))]
             #print timeset
             timeSetToUse = None
@@ -321,10 +325,14 @@ class PseudoChannel():
         elif (timeDiff >= 0) and (self.TIME_GAP != -1):
             '''
             *
-            * If there this value is configured, then the timeGap var in config will determine the next increment. 
+            * If this value is configured, then the timeGap var in config will determine the next increment. 
             * If it is set to "15", then the show will will bump up to the next 15 minute interval past the hour.
             *
             '''
+            #hourToUse = self.DAILY_UPDATE_TIME.split(':')[0]
+            #minuteToUse = self.DAILY_UPDATE_TIME.split(':')[1]
+            #now = datetime.datetime(1900, 1, 1, int(hourToUse), int(minuteToUse))
+            #timeset = [(now + datetime.timedelta(minutes=int(self.OVERLAP_GAP)*n)).strftime('%H:%M') for n in range((60*24)/int(self.OVERLAP_GAP))]
             timeset=[datetime.time(h,m).strftime("%H:%M") for h,m in itertools.product(xrange(0,24),xrange(0,60,int(self.TIME_GAP)))]
             #print timeset
             for time in timeset:
