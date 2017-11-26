@@ -20,7 +20,7 @@ class PseudoChannelDatabase():
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'movies(id INTEGER PRIMARY KEY AUTOINCREMENT, '
                   'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
-                  'lastPlayedDate TEXT, plexMediaID TEXT)')
+                  'lastPlayedDate TEXT, plexMediaID TEXT, lastPlayedDate TEXT)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'videos(id INTEGER PRIMARY KEY AUTOINCREMENT, '
                   'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
@@ -290,6 +290,23 @@ class PseudoChannelDatabase():
             raise e
 
     """Database functions.
+        Updaters, etc.
+    """
+    def update_shows_table_with_last_episode(self, showTitle, lastEpisodeTitle):
+
+        sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title LIKE ? COLLATE NOCASE"
+        self.cursor.execute(sql1, (lastEpisodeTitle, showTitle, ))
+        self.conn.commit()
+
+    def update_movies_table_with_last_played_date(self, movieTitle):
+
+        now = datetime.datetime.now()
+        lastPlayedDate = now.strftime('%Y-%m-%d')
+        sql = "UPDATE movies SET lastPlayedDate = ? WHERE movieTitle LIKE ? COLLATE NOCASE"
+        self.cursor.execute(sql, (lastPlayedDate, movieTitle, ))
+        self.conn.commit()
+
+    """Database functions.
         Getters, etc.
     """
     def get_shows_table(self):
@@ -351,11 +368,11 @@ class PseudoChannelDatabase():
         datalist = list(self.cursor.fetchall())
         return datalist
 
-    def update_shows_table_with_last_episode(self, showTitle, lastEpisodeTitle):
+    def get_movies(self):
 
-        sql1 = "UPDATE shows SET lastEpisodeTitle = ? WHERE title LIKE ? COLLATE NOCASE"
-        self.cursor.execute(sql1, (lastEpisodeTitle, showTitle, ))
-        self.conn.commit()
+        self.cursor.execute("SELECT * FROM movies ORDER BY date(lastPlayedDate) ASC")
+        datalist = list(self.cursor.fetchall())
+        return datalist
 
     def get_first_episode(self, tvshow):
 
