@@ -20,7 +20,7 @@ class PseudoChannelDatabase():
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'movies(id INTEGER PRIMARY KEY AUTOINCREMENT, '
                   'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, '
-                  'lastPlayedDate TEXT, plexMediaID TEXT, lastPlayedDate TEXT)')
+                  'lastPlayedDate TEXT, plexMediaID TEXT)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'videos(id INTEGER PRIMARY KEY AUTOINCREMENT, '
                   'unix INTEGER, mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT)')
@@ -302,7 +302,7 @@ class PseudoChannelDatabase():
 
         now = datetime.datetime.now()
         lastPlayedDate = now.strftime('%Y-%m-%d')
-        sql = "UPDATE movies SET lastPlayedDate = ? WHERE movieTitle LIKE ? COLLATE NOCASE"
+        sql = "UPDATE movies SET lastPlayedDate = ? WHERE title LIKE ? COLLATE NOCASE"
         self.cursor.execute(sql, (lastPlayedDate, movieTitle, ))
         self.conn.commit()
 
@@ -317,11 +317,15 @@ class PseudoChannelDatabase():
 
     def get_media(self, title, mediaType):
 
-        media = mediaType
-        sql = "SELECT * FROM "+media+" WHERE (title LIKE ?) COLLATE NOCASE"
-        self.cursor.execute(sql, ("%"+title+"%", ))
-        media_item = self.cursor.fetchone()
-        return media_item
+        print "+++++ title:", title
+        if(title is not None):
+            media = mediaType
+            sql = "SELECT * FROM "+media+" WHERE (title LIKE ?) COLLATE NOCASE"
+            self.cursor.execute(sql, ("%"+title+"%", ))
+            media_item = self.cursor.fetchone()
+            return media_item
+        else:
+            pass
 
     def get_schedule(self):
 

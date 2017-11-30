@@ -16,17 +16,108 @@ is then returned.
 For smaller movie libraries it'll be useful to calculate a reasonable
 "TIME_GAP_MONTHS".
 """
+import datetime
+import random
+from random import shuffle
+
 class PseudoChannelRandomMovie():
 
-    MOVIES = []
-    TIME_GAP_MONTHS = 6
+    MOVIES_DB = []
+    TIME_GAP_DAYS = 182
+    MOVIES_XTRA_LIST = []
 
     def __init__(self):
 
         pass
 
-    def get_random_movie(self, movies):
+    """
+    If not using "xtra" params
+    """
+    def get_random_movie(self, moviesDB):
 
-    	self.MOVIES = movies
+        self.MOVIES_DB = moviesDB
 
-    	pass
+        shuffle(self.MOVIES_DB)
+
+        for movie in self.MOVIES_DB:
+
+            if(movie[5] is not None): #lastPlayedDate is recorded
+
+                print movie[5]
+
+                now = datetime.datetime.now()
+                lastPlayedDate = datetime.datetime.strptime(movie[5], '%Y-%m-%d')
+
+                timeDelta = lastPlayedDate - now
+
+                if(timeDelta.days >= self.TIME_GAP_DAYS): 
+
+                    return movie[3]
+
+                else:
+
+                    break
+            else:
+
+                return movie[3] # No lastPlayedDate is recorded so lets use this movie
+
+    """
+    If using "xtra" args, expect a list from the Python PLEX API.
+    Loop over list titles and lookup the title against the 
+    MOVIES_DB to see the lastPlayedDate, etc.
+
+    @Returns: Movie Title (String)
+    """
+    def get_random_movie_xtra(self, moviesDB, moviesXTRAList):
+
+        self.MOVIES_DB = moviesDB
+        self.MOVIES_XTRA_LIST = moviesXTRAList
+
+        shuffle(self.MOVIES_DB)
+
+        print("get_random_movie_xtra")
+
+        for movieOne in self.MOVIES_XTRA_LIST:
+
+            print("while i < len(self.MOVIES_XTRA_LIST):")
+
+            movieTitle = movieOne.title
+
+            print("movieTitle", movieTitle)
+
+            for movie in self.MOVIES_DB:
+
+                print("for movie in self.MOVIES_DB:")
+
+                if movie[3] == movieTitle: #title match found
+
+                    if(movie[5] is not None): #lastPlayedDate is recorded
+
+                        print("I am here")
+
+                        now = datetime.datetime.now()
+                        lastPlayedDate = datetime.datetime.strptime(movie[5], '%Y-%m-%d')
+
+                        timeDelta = lastPlayedDate - now
+
+                        if(timeDelta.days >= self.TIME_GAP_DAYS): 
+
+                            print("if(timeDelta.months >= self.TIME_GAP_DAYS):")
+
+                            return movieTitle
+
+                        else:
+
+                            break
+
+                    else:
+
+                        return movieTitle # No lastPlayedDate recorded
+
+                else:
+
+                    pass
+
+        return random.choice(self.MOVIES_XTRA_LIST).title # Everything has been played, choosing something.
+
+        pass
