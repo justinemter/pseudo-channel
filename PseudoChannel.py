@@ -467,12 +467,9 @@ class PseudoChannel():
 
                                     the_movie = self.db.get_movie(random.choice(movies_list).title)
 
-                                    the_movie = self.db.get_movie(random.choice(movies_list).title)
-
                                     """Updating movies table in the db with lastPlayedDate entry"""
                                     self.db.update_movies_table_with_last_played_date(the_movie[3])
 
-<<<<<<< HEAD
                                 else:
 
                                     print("For some reason, I've failed getting movie with xtra args.")
@@ -481,14 +478,14 @@ class PseudoChannel():
                                     # Updating movies table in the db with lastPlayedDate entry
                                     self.db.update_movies_table_with_last_played_date(the_movie[3])
 
-=======
+
                                 except:
                                     print("For some reason, I've failed getting movie with xtra args.")
                                     the_movie = self.db.get_random_movie()
 
                                     """Updating movies table in the db with lastPlayedDate entry"""
                                     self.db.update_movies_table_with_last_played_date(the_movie[3])
->>>>>>> develop
+
                             else:
 
                                 """the_movie = self.db.get_movie(self.movieMagic.get_random_movie(
@@ -500,10 +497,7 @@ class PseudoChannel():
 
                                 """Updating movies table in the db with lastPlayedDate entry"""
                                 self.db.update_movies_table_with_last_played_date(the_movie[3])
-<<<<<<< HEAD
-=======
-                                
->>>>>>> develop
+
                         else:
                             the_movie = self.db.get_movie(entry[3])
                         if the_movie != None:
