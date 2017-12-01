@@ -31,6 +31,7 @@ class Episode(Media):
             time_shift, 
             overlap_max,
             plex_media_id,
+            custom_section_name,
             show_series_title, 
             episode_number, 
             season_number,
@@ -46,7 +47,8 @@ class Episode(Media):
                 is_strict_time,
                 time_shift, 
                 overlap_max,
-                plex_media_id
+                plex_media_id,
+                custom_section_name,
                 )
 
         self.show_series_title = show_series_title

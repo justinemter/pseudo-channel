@@ -372,11 +372,11 @@ class PseudoDailyScheduleController():
     * @return null
     *
     '''
-    def play_media(self, mediaType, mediaParentTitle, mediaTitle, offset):
+    def play_media(self, mediaType, mediaParentTitle, mediaTitle, offset, customSectionName):
 
         try: 
             if mediaType == "TV Shows":
-                mediaItems = self.PLEX.library.section(mediaType).get(mediaParentTitle).episodes()
+                mediaItems = self.PLEX.library.section(customSectionName).get(mediaParentTitle).episodes()
                 for item in mediaItems:
                     if item.title == mediaTitle:
                         for client in self.PLEX_CLIENTS:
@@ -384,17 +384,17 @@ class PseudoDailyScheduleController():
                             clientItem.playMedia(item, offset=offset)
                         break
             elif mediaType == "Movies":
-                movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+                movie =  self.PLEX.library.section(customSectionName).get(mediaTitle)
                 for client in self.PLEX_CLIENTS:
                         clientItem = self.PLEX.client(client)
                         clientItem.playMedia(movie, offset=offset)
             elif mediaType == "Commercials":
-                movie =  self.PLEX.library.section(mediaType).get(mediaTitle)
+                movie =  self.PLEX.library.section(customSectionName).get(mediaTitle)
                 for client in self.PLEX_CLIENTS:
                         clientItem = self.PLEX.client(client)
                         clientItem.playMedia(movie, offset=offset)
             else:
-                print("##### Not sure how to play {}".format(mediaType))
+                print("##### Not sure how to play {}".format(customSectionName))
             print "+++++ Done."
         except Exception as e:
             print e.__doc__
@@ -449,7 +449,7 @@ class PseudoDailyScheduleController():
         if self.DEBUG:
             print str(row).encode('UTF-8')
         timeB = datetime.strptime(row[8], '%I:%M:%S %p')
-        self.play_media(row[11], row[6], row[3], offset)
+        self.play_media(row[11], row[6], row[3], offset, row[13])
         self.write_schedule_to_file(
             self.get_html_from_daily_schedule(
                 timeB,
@@ -502,7 +502,7 @@ class PseudoDailyScheduleController():
                     if currentTime.second == timeB.second:
                         print("Starting Media: " + row[3])
                         print(row)
-                        self.play_media(row[11], row[6], row[3])
+                        self.play_media(row[11], row[6], row[3], row[13])
                         self.write_schedule_to_file(
                             self.get_html_from_daily_schedule(
                                 timeB,

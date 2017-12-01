@@ -109,7 +109,7 @@ class PseudoChannel():
                     if correct_lib_name == "Movies":
                         sectionMedia = self.PLEX.library.section(section.title).all()
                         for i, media in enumerate(sectionMedia):
-                            self.db.add_movies_to_db(1, media.title, media.duration, media.key)
+                            self.db.add_movies_to_db(1, media.title, media.duration, media.key, section.title)
                             self.print_progress(
                                     i + 1, 
                                     len(sectionMedia), 
@@ -124,7 +124,7 @@ class PseudoChannel():
                             backgroundImgURL = ''
                             if isinstance(backgroundImagePath.art, str):
                                 backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
-                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL, media.key)
+                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL, media.key, section.title)
                             self.print_progress(
                                     i + 1, 
                                     len(sectionMedia),
@@ -144,7 +144,8 @@ class PseudoChannel():
                                             episode.index, 
                                             episode.parentIndex, 
                                             media.title,
-                                            episode.key
+                                            episode.key,
+                                            section.title
                                         )
                                 else:
                                     self.db.add_episodes_to_db(
@@ -154,13 +155,15 @@ class PseudoChannel():
                                             episode.index, 
                                             episode.parentIndex, 
                                             media.title,
-                                            episode.key
+                                            episode.key,
+                                            section.title
                                         )
                     elif correct_lib_name == "Commercials":
+                        print "user_lib_name", section.title
                         sectionMedia = self.PLEX.library.section(section.title).all()
                         media_length = len(sectionMedia)
                         for i, media in enumerate(sectionMedia):
-                            self.db.add_commercials_to_db(3, media.title, media.duration, media.key)
+                            self.db.add_commercials_to_db(3, media.title, media.duration, media.key, section.title)
                             self.print_progress(
                                 i + 1, 
                                 media_length, 
@@ -395,6 +398,14 @@ class PseudoChannel():
                         else:
                             next_episode = self.db.get_next_episode(entry[3])
                         if next_episode != None:
+                            try:
+                                print "next_episode[9]", next_episode[9]
+                            except:
+                                pass
+                            try:
+                                customSectionName = next_episode[9]
+                            except:
+                                customSectionName = "TV Shows"
                             episode = Episode(
                                 section, # section_type
                                 next_episode[3], # title
@@ -406,41 +417,69 @@ class PseudoChannel():
                                 entry[11], # time_shift
                                 entry[12], # overlap_max
                                 next_episode[8] if len(next_episode) >= 9 else '', # plex id
+                                customSectionName, # custom lib name
                                 entry[3], # show_series_title
                                 next_episode[5], # episode_number
-                                next_episode[6] # season_number
+                                next_episode[6], # season_number
                                 )
                             self.MEDIA.append(episode)
                         else:
                             print("Cannot find TV Show Episode, {} in the local db".format(entry[3]))
                     elif section == "Movies":
                         if str(entry[3]).lower() == "random":
-                            if(entry[13] != ''):
-                                movies = self.PLEX.library.section('Movies')
-                                movies_list = []
-                                try:
-                                    thestr = entry[13]
-                                    regex = re.compile(r"\b(\w+)\s*:\s*([^:]*)(?=\s+\w+\s*:|$)")
-                                    d = dict(regex.findall(thestr))
-                                    # turn values into list
-                                    for key, val in d.iteritems():
-                                        d[key] = val.split(',')
-                                    for movie in movies.search(None, **d):
-                                        movies_list.append(movie)
+                            if(entry[13] != ''): # xtra params
 
-                                    """the_movie = self.db.get_movie(self.movieMagic.get_random_movie_xtra(
-                                            self.db.get_movies(),# Movies DB
-                                            movies_list # XTRA List
-                                        )
-                                    )"""
+                                """
+                                Using specified Movies library names
+                                """
+                                movies_list = []
+                                libs_dict = config.plexLibraries
+                                sections = self.PLEX.library.sections()
+                                for section in sections:
+                                    for correct_lib_name, user_lib_name in libs_dict.items():
+                                        if section.title.lower() in [x.lower() for x in user_lib_name]:
+                                            if correct_lib_name == "Movies":
+
+                                                pass
+
+                                                print "entry[13]", entry[13]
+                                                movies = self.PLEX.library.section(section.title)
+                                                
+                                                try:
+                                                    thestr = entry[13]
+                                                    regex = re.compile(r"\b(\w+)\s*:\s*([^:]*)(?=\s+\w+\s*:|$)")
+                                                    d = dict(regex.findall(thestr))
+                                                    # turn values into list
+                                                    for key, val in d.iteritems():
+                                                        d[key] = val.split(',')
+                                                    for movie in movies.search(None, **d):
+                                                        movies_list.append(movie)
+
+                                                    """the_movie = self.db.get_movie(self.movieMagic.get_random_movie_xtra(
+                                                            self.db.get_movies(),# Movies DB
+                                                            movies_list # XTRA List
+                                                        )
+                                                    )"""
+
+                                                except:
+
+                                                    pass
+
+                                if len(movies_list):
+
+                                    the_movie = self.db.get_movie(random.choice(movies_list).title)
 
                                     """Updating movies table in the db with lastPlayedDate entry"""
                                     self.db.update_movies_table_with_last_played_date(the_movie[3])
 
-                                    the_movie = self.db.get_movie(random.choice(movies_list).title)
-                                except:
+                                else:
+
                                     print("For some reason, I've failed getting movie with xtra args.")
                                     the_movie = self.db.get_random_movie()
+
+                                    # Updating movies table in the db with lastPlayedDate entry
+                                    self.db.update_movies_table_with_last_played_date(the_movie[3])
+
                             else:
 
                                 """the_movie = self.db.get_movie(self.movieMagic.get_random_movie(
@@ -448,10 +487,10 @@ class PseudoChannel():
                                     )
                                 )"""
 
+                                the_movie = self.db.get_random_movie()
+
                                 """Updating movies table in the db with lastPlayedDate entry"""
                                 self.db.update_movies_table_with_last_played_date(the_movie[3])
-
-                                the_movie = self.db.get_random_movie()
                         else:
                             the_movie = self.db.get_movie(entry[3])
                         if the_movie != None:
@@ -465,7 +504,8 @@ class PseudoChannel():
                             entry[10], # is_strict_time
                             entry[11], # time_shift
                             entry[12], # overlap_max
-                            the_movie[6] # plex id
+                            the_movie[6], # plex id
+                            the_movie[7] # custom lib name
                             )
                             self.MEDIA.append(movie)
                         else:
@@ -484,6 +524,7 @@ class PseudoChannel():
                             entry[11], # time_shift
                             entry[12], # overlap_max
                             the_music[6], # plex id
+                            the_music[7], # custom lib name
                             )
                             self.MEDIA.append(music)
                         else:
@@ -501,7 +542,8 @@ class PseudoChannel():
                             entry[10], # is_strict_time
                             entry[11], # time_shift
                             entry[12], # overlap_max
-                            the_video[6] # plex id
+                            the_video[6], # plex id
+                            the_video[7], # custom lib name
                             )
                             self.MEDIA.append(video)
                         else:

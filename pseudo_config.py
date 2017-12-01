@@ -42,8 +42,8 @@ plexClients = ['RasPlex']
 
 plexLibraries = {
     "TV Shows" : ["TV Shows"],
-    "Movies"   : ["Movies"],
-    "Commercials" : ["Commercials"],
+    "Movies"   : ["Films"],
+    "Commercials" : ["Commercials", "Smashing Pumpkins - Videos"],
 }
 
 useCommercialInjection = True
