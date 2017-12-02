@@ -434,14 +434,16 @@ class PseudoChannel():
                                 """
                                 movies_list = []
                                 libs_dict = config.plexLibraries
+
                                 sections = self.PLEX.library.sections()
-                                for section in sections:
+                                for theSection in sections:
                                     for correct_lib_name, user_lib_name in libs_dict.items():
-                                        if section.title.lower() in [x.lower() for x in user_lib_name]:
+                                        if theSection.title.lower() in [x.lower() for x in user_lib_name]:
+                                            print "correct_lib_name", correct_lib_name
                                             if correct_lib_name == "Movies":
 
                                                 print "entry[13]", entry[13]
-                                                movies = self.PLEX.library.section(section.title)
+                                                movies = self.PLEX.library.section(theSection.title)
                                                 
                                                 try:
                                                     thestr = entry[13]
@@ -463,7 +465,7 @@ class PseudoChannel():
 
                                                     pass
 
-                                if len(movies_list):
+                                if (len(movies_list) > 0):
 
                                     the_movie = self.db.get_movie(random.choice(movies_list).title)
 
@@ -471,15 +473,9 @@ class PseudoChannel():
                                     self.db.update_movies_table_with_last_played_date(the_movie[3])
 
                                 else:
+                                    
+                                    print "movies_list", movies_list
 
-                                    print("For some reason, I've failed getting movie with xtra args.")
-                                    the_movie = self.db.get_random_movie()
-
-                                    # Updating movies table in the db with lastPlayedDate entry
-                                    self.db.update_movies_table_with_last_played_date(the_movie[3])
-
-
-                                except:
                                     print("For some reason, I've failed getting movie with xtra args.")
                                     the_movie = self.db.get_random_movie()
 

@@ -229,6 +229,7 @@ class PseudoChannelDatabase():
             customSectionName
             ):
 
+        print "sectionType", sectionType
         print "customSectionName", customSectionName
         unix = int(time.time())
         try:
