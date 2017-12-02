@@ -376,6 +376,7 @@ class PseudoDailyScheduleController():
 
         try: 
             if mediaType == "TV Shows":
+                print "Here, Trying to play custom type: ", customSectionName
                 mediaItems = self.PLEX.library.section(customSectionName).get(mediaParentTitle).episodes()
                 for item in mediaItems:
                     if item.title == mediaTitle:
@@ -449,6 +450,9 @@ class PseudoDailyScheduleController():
         if self.DEBUG:
             print str(row).encode('UTF-8')
         timeB = datetime.strptime(row[8], '%I:%M:%S %p')
+
+        print "Here, row[13]", row[13]
+
         self.play_media(row[11], row[6], row[3], offset, row[13])
         self.write_schedule_to_file(
             self.get_html_from_daily_schedule(

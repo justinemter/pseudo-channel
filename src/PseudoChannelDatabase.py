@@ -115,7 +115,13 @@ class PseudoChannelDatabase():
     """Database functions.
         Setters, etc.
     """
-    def add_movies_to_db(self, mediaID, title, duration, plexMediaID, customSectionName):
+    def add_movies_to_db(
+        self, 
+        mediaID, 
+        title, 
+        duration, 
+        plexMediaID, 
+        customSectionName):
 
         unix = int(time.time())
         try:
@@ -129,7 +135,13 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_videos_to_db(self, mediaID, title, duration, plexMediaID, customSectionName):
+    def add_videos_to_db(
+        self, 
+        mediaID, 
+        title, 
+        duration, 
+        plexMediaID, 
+        customSectionName):
 
         unix = int(time.time())
         try:
@@ -144,7 +156,15 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_shows_to_db(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID, customSectionName):
+    def add_shows_to_db(
+        self, 
+        mediaID, 
+        title, 
+        duration, 
+        lastEpisodeTitle, 
+        fullImageURL, 
+        plexMediaID, 
+        customSectionName):
 
         unix = int(time.time())
         try:
@@ -158,7 +178,16 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_episodes_to_db(self, mediaID, title, duration, episodeNumber, seasonNumber, showTitle, plexMediaID, customSectionName):
+    def add_episodes_to_db(
+        self, 
+        mediaID, 
+        title, 
+        duration, 
+        episodeNumber, 
+        seasonNumber, 
+        showTitle, 
+        plexMediaID, 
+        customSectionName):
 
         unix = int(time.time())
         try:
@@ -172,7 +201,13 @@ class PseudoChannelDatabase():
             self.conn.rollback()
             raise e
 
-    def add_commercials_to_db(self, mediaID, title, duration, plexMediaID, customSectionName):
+    def add_commercials_to_db(
+        self, 
+        mediaID, 
+        title, 
+        duration, 
+        plexMediaID, 
+        customSectionName):
 
         unix = int(time.time())
         try:

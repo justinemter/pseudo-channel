@@ -398,14 +398,9 @@ class PseudoChannel():
                         else:
                             next_episode = self.db.get_next_episode(entry[3])
                         if next_episode != None:
-                            try:
-                                print "next_episode[9]", next_episode[9]
-                            except:
-                                pass
-                            try:
-                                customSectionName = next_episode[9]
-                            except:
-                                customSectionName = "TV Shows"
+                            
+                            customSectionName = next_episode[9]
+                            
                             episode = Episode(
                                 section, # section_type
                                 next_episode[3], # title
