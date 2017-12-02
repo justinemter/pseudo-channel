@@ -41,7 +41,7 @@
 plexClients = ['RasPlex']
 
 plexLibraries = {
-    "TV Shows" : ["TV Shows"],
+    "TV Shows" : ["TV"],
     "Movies"   : ["Films"],
     "Commercials" : ["Commercials", "Smashing Pumpkins - Videos"],
 }
