@@ -423,7 +423,7 @@ class PseudoChannelDatabase():
     def get_first_episode(self, tvshow):
 
         sql = ("SELECT id, unix, mediaID, title, duration, MIN(episodeNumber), MIN(seasonNumber), "
-                "showTitle FROM episodes WHERE ( showTitle LIKE ?) COLLATE NOCASE")
+                "showTitle, plexMediaID, customSectionName FROM episodes WHERE ( showTitle LIKE ?) COLLATE NOCASE")
         self.cursor.execute(sql, (tvshow, ))
         first_episode = self.cursor.fetchone()
         return first_episode
