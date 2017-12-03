@@ -458,7 +458,7 @@ class PseudoDailyScheduleController():
             self.get_html_from_daily_schedule(
                 timeB,
                 self.get_show_photo(
-                    row[11], 
+                    row[13], 
                     row[6] if row[11] == "TV Shows" else row[3]
                 ),
                 datalist
@@ -471,7 +471,7 @@ class PseudoDailyScheduleController():
             self.get_xml_from_daily_schedule(
                 timeB,
                 self.get_show_photo(
-                    row[11], 
+                    row[13], 
                     row[6] if row[11] == "TV Shows" else row[3]
                 ),
                 datalist
@@ -511,7 +511,7 @@ class PseudoDailyScheduleController():
                             self.get_html_from_daily_schedule(
                                 timeB,
                                 self.get_show_photo(
-                                    row[11], 
+                                    row[13], 
                                     row[6] if row[11] == "TV Shows" else row[3]
                                 ),
                                 datalist
@@ -524,7 +524,7 @@ class PseudoDailyScheduleController():
                             self.get_xml_from_daily_schedule(
                                 timeB,
                                 self.get_show_photo(
-                                    row[11], 
+                                    row[13], 
                                     row[6] if row[11] == "TV Shows" else row[3]
                                 ),
                                 datalist
@@ -539,7 +539,7 @@ class PseudoDailyScheduleController():
             if datalistLengthMonitor >= len(datalist):
                 self.check_for_end_time(datalist)
 
-    def manually_get_now_plating_bg_image(self, currentTime, datalist):
+    def manually_get_now_playing_bg_image(self, currentTime, datalist):
 
         increase_var = 0
 
@@ -567,7 +567,7 @@ class PseudoDailyScheduleController():
                 print "+++++ Made the conditional & found item: {}".format(row[6])
 
                 return self.get_show_photo(
-                    row[11], 
+                    row[13], 
                     row[6] if row[11] == "TV Shows" else row[3]
                 )
 
@@ -578,7 +578,7 @@ class PseudoDailyScheduleController():
             increase_var += 1
 
         if len(datalist) >= increase_var:
-            print("+++++ In 'manually_get_now_plating_bg_image()'. " 
+            print("+++++ In 'manually_get_now_playing_bg_image()'. " 
                   "Reached the end of the schedule. No bgImages found.")
             return None
 
@@ -588,7 +588,7 @@ class PseudoDailyScheduleController():
         now = datetime.now()
         now = now.replace(year=1900, month=1, day=1)
 
-        bgImage = self.manually_get_now_plating_bg_image(now, datalist)
+        bgImage = self.manually_get_now_playing_bg_image(now, datalist)
 
         print "+++++ The path to the bgImage: {}".format(bgImage)
 
