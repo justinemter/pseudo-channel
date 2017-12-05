@@ -124,7 +124,15 @@ class PseudoChannel():
                             backgroundImgURL = ''
                             if isinstance(backgroundImagePath.art, str):
                                 backgroundImgURL = config.baseurl+backgroundImagePath.art+"?X-Plex-Token="+config.token
-                            self.db.add_shows_to_db(2, media.title, media.duration, '', backgroundImgURL, media.key, section.title)
+                            self.db.add_shows_to_db(
+                                2, 
+                                media.title, 
+                                media.duration if media.duration else 1, 
+                                '', 
+                                backgroundImgURL, 
+                                media.key, 
+                                section.title
+                            )
                             self.print_progress(
                                     i + 1, 
                                     len(sectionMedia),
