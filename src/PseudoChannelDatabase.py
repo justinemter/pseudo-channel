@@ -40,14 +40,14 @@ class PseudoChannelDatabase():
                   'mediaID INTEGER, title TEXT, duration INTEGER, plexMediaID TEXT, customSectionName Text)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
-                  'mediaID INTEGER, title TEXT, duration INTEGER, startTime INTEGER, '
-                  'endTime INTEGER, dayOfWeek TEXT, startTimeUnix INTEGER, section TEXT, '
+                  'mediaID INTEGER, title TEXT, duration INTEGER, startTime TEXT, '
+                  'endTime TEXT, dayOfWeek TEXT, startTimeUnix INTEGER, section TEXT, '
                   'strictTime TEXT, timeShift TEXT, overlapMax TEXT, xtra TEXT)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
                   'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
-                  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
-                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT, customSectionName Text)')
+                  'showTitle TEXT, duration INTEGER, startTime TEXT, endTime TEXT, '
+                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT, customSectionName TEXT)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'app_settings(id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT)')
         #index
@@ -90,8 +90,8 @@ class PseudoChannelDatabase():
         self.cursor.execute('CREATE TABLE IF NOT EXISTS '
                   'daily_schedule(id INTEGER PRIMARY KEY AUTOINCREMENT, unix INTEGER, '
                   'mediaID INTEGER, title TEXT, episodeNumber INTEGER, seasonNumber INTEGER, '
-                  'showTitle TEXT, duration INTEGER, startTime INTEGER, endTime INTEGER, '
-                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT, customSectionName Text)')
+                  'showTitle TEXT, duration INTEGER, startTime TEXT, endTime TEXT, '
+                  'dayOfWeek TEXT, sectionType TEXT, plexMediaID TEXT, customSectionName TEXT)')
         self.conn.commit()
 
     def remove_all_scheduled_items(self):
