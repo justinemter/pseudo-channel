@@ -373,8 +373,11 @@ class PseudoChannel():
         print("#### Generating Daily Schedule")
         logging.info("##### Dropping previous daily_schedule database")
         """A fix for the duplicate entries problem that comes up occasionally."""
+        sleep(5)
+        self.db.remove_all_daily_scheduled_items()
+        sleep(5)
         self.db.drop_daily_schedule_table()
-        sleep(1)
+        sleep(5)
         self.db.create_daily_schedule_table()
         sleep(1)
         if self.USING_COMMERCIAL_INJECTION:
