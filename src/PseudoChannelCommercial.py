@@ -123,7 +123,7 @@ class PseudoChannelCommercial():
                                     "1", # time_shift 
                                     "0", # overlap_max
                                     "", # plex_media_id
-                                    random_commercial[6], # custom lib name
+                                    random_final_comm[6], # custom lib name
                                 )
                                 commercial_list.append(final_commercial)
                                 break
