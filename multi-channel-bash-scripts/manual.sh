@@ -42,7 +42,7 @@ CHANNEL_DIR_INCREMENT_SYMBOL="_"
 FIRST_RUN=false
 
 # Scan the dir to see how many channels there are, store them in an arr.
-CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_SYMBOL"'[[:digit:]]*' -printf "%P\n") )
+CHANNEL_DIR_ARR=( $(find . -maxdepth 1 -type d -name '*'"$CHANNEL_DIR_INCREMENT_SYMBOL"'[[:digit:]]*' -printf "%P\n" | sort -t_ -n) )
 
 # If the previous channel txt file doesn't exist already create it (first run?)
 if [ ! -e "$OUTPUT_PREV_CHANNEL_PATH/$OUTPUT_PREV_CHANNEL_FILE" ]; then
