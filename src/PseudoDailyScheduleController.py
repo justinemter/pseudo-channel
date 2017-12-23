@@ -19,7 +19,8 @@ class PseudoDailyScheduleController():
                  clients, 
                  controllerServerPath = '', 
                  controllerServerPort = '8000', 
-                 debugMode = False
+                 debugMode = False,
+                 htmlPseudoTitle = "Daily PseudoChannel"
                  ):
 
         self.PLEX = PlexServer(server, token)
@@ -30,6 +31,7 @@ class PseudoDailyScheduleController():
         self.CONTROLLER_SERVER_PORT = controllerServerPort if controllerServerPort != '' else '80'
         self.DEBUG = debugMode
         self.webserverStarted = False
+        self.HTML_PSEUDO_TITLE = htmlPseudoTitle
         try: 
             self.my_logger = logging.getLogger('MyLogger')
             self.my_logger.setLevel(logging.DEBUG)
@@ -217,7 +219,7 @@ class PseudoDailyScheduleController():
                     with tag('div', klass='row make-white'):
                         with tag('div'):
                             with tag('div'):
-                                line('h1', "Daily Pseudo Schedule", klass='col-12 pl-0')
+                                line('h1', self.HTML_PSEUDO_TITLE, klass='col-12 pl-0')
                             with tag('div'):
                                 line('h3', time, klass='col-12 pl-1')
                         with tag('table', klass='col-12 table table-bordered table-hover'):

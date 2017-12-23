@@ -62,6 +62,11 @@ controllerServerPath = "http://192.168.1.28"
 controllerServerPort = "8000"
 
 """
+This variable sets the title for the PseudoChannel.py html page.
+"""
+htmlPseudoTitle = "Daily PseudoChannel"
+
+"""
 When the schedule updates every 24 hours, it's possible that it will interrupt any shows / movies that were 
 playing from the previous day. To fix this, the app saves a "cached" schedule from the previous day to 
 override any media that is trying to play while the previous day is finishing.

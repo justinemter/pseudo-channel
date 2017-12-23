@@ -50,6 +50,7 @@ class PseudoChannel():
     DEBUG = config.debug_mode
     ROTATE_LOG = config.rotateLog
     USE_DIRTY_GAP_FIX = config.useDirtyGapFix
+    HTML_PSEUDO_TITLE = config.htmlPseudoTitle
 
     def __init__(self):
 
@@ -61,7 +62,8 @@ class PseudoChannel():
             config.plexClients,
             self.CONTROLLER_SERVER_PATH,
             self.CONTROLLER_SERVER_PORT,
-            self.DEBUG
+            self.DEBUG,
+            self.HTML_PSEUDO_TITLE
         )
 
         self.movieMagic = PseudoChannelRandomMovie()

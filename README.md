@@ -97,20 +97,20 @@ Whenever you add new content to your Plex library, you need to run: `python Pseu
 
 ## Multi-Channel Support:
 
-You can have multpile instances of this app, specify different schedules for each instance and control it via a USB remote. Let's say you choose to have 3 channels, an all day movie channel, a 'cartoon network' channel, and a 90's channel. You would simply create a directory named something like `/channels`. Then within your `/channels` dir you would have your `plex_token.py` file and your channels named something like: `/channel_1`, `channel_2` & `channel_3`. Note: the only important naming convention here is that `_1`, `_2`, etc. is contained at the end of each directory title. Each channel directory will contain the contents of this repository, set up just as if you had a single channel. So your directory structure would look like this:
+You can have multpile instances of this app, specify different schedules for each instance and control it via a USB remote. Let's say you choose to have 3 channels, an all day movie channel, a 'cartoon network' channel, and a 90's channel. You would simply create a directory named something like `/channels`. Then within your `/channels` dir you would have your `plex_token.py` file and your channels named something like: `/channel_1`, `channel_2` & `channel_3`. Note: the only important naming convention here is that `_01`, `_02`, etc. is contained at the end of each directory title. Each channel directory will contain the contents of this repository, set up just as if you had a single channel. So your directory structure would look like this:
 
 ```bash
 -channels/
 --plex_token.py
---channel_1/
+--channel_01/
 ---pseudo-channel.db
 ---PseudoChannel.py
 ---...etc.
---channel_2/
+--channel_02/
 ---pseudo-channel.db
 ---PseudoChannel.py
 ---...etc.
---channel_3/
+--channel_03/
 ---pseudo-channel.db
 ---PseudoChannel.py
 ---...etc.
