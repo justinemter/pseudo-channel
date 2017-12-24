@@ -468,7 +468,7 @@ class PseudoDailyScheduleController():
                     row[6] if row[11] == "TV Shows" else row[3]
                 ),
                 datalist,
-                row[6] if row[11] == "TV Shows" else row[3]
+                row[6] + " - " + row[3] if row[11] == "TV Shows" else row[3]
             )
         )
         self.write_refresh_bool_to_file()
@@ -522,7 +522,7 @@ class PseudoDailyScheduleController():
                                     row[6] if row[11] == "TV Shows" else row[3]
                                 ),
                                 datalist,
-                                row[6] if row[11] == "TV Shows" else row[3]
+                                row[6] + " - " + row[3] if row[11] == "TV Shows" else row[3]
                             )
                         )
                         self.write_refresh_bool_to_file()
@@ -617,7 +617,7 @@ class PseudoDailyScheduleController():
 
                 print "+++++ Made the conditional & found item: {}".format(row[6])
 
-                return row[6] if row[11] == "TV Shows" else row[3]
+                return row[6] + " - " + row[3] if row[11] == "TV Shows" else row[3]
 
             else:
 
