@@ -640,9 +640,9 @@ class PseudoChannel():
         for i , entry in enumerate(daily_schedule):
             print str("+++++ {} {} {} {} {} {}".format(str(i + 1)+".", entry[8], entry[11], entry[6], " - ", entry[3])).encode(sys.stdout.encoding, errors='replace')
 
-    def write_json_to_file(self, data):
+    def write_json_to_file(self, data, fileName):
 
-        fileName = "pseudo-queue.json"
+        fileName = fileName
         writepath = './'
         if os.path.exists(writepath+fileName):
             os.remove(writepath+fileName)
@@ -655,8 +655,9 @@ class PseudoChannel():
         shows_table = self.db.get_shows_table()
         json_string = json.dumps(shows_table)
         print "+++++ Exporting queue "
-        self.write_json_to_file(json_string)
+        self.write_json_to_file(json_string, "pseudo-queue.json")
         print "+++++ Done."
+        self.export_daily_schedule()
 
     def import_queue(self):
 
@@ -667,8 +668,49 @@ class PseudoChannel():
         #pprint(data)
         for row in data:
             print row
-            self.db.import_shows_table_by_row(row[2], row[3], row[4], row[5], row[6], row[7])
+            self.db.import_shows_table_by_row(
+                row[2], 
+                row[3], 
+                row[4], 
+                row[5], 
+                row[6], 
+                row[7],
+            )
         print "+++++ Done. Imported queue."
+        self.import_daily_schedule()
+
+    def export_daily_schedule(self):
+
+        daily_schedule_table = self.db.get_daily_schedule()
+        json_string = json.dumps(daily_schedule_table)
+        print "+++++ Exporting Daily Schedule "
+        self.write_json_to_file(json_string, "pseudo-daily_schedule.json")
+        print "+++++ Done."
+
+    def import_daily_schedule(self):
+
+        """Dropping previous Daily Schedule table before adding the imported data"""
+        self.db.remove_all_daily_scheduled_items()
+        with open('pseudo-daily_schedule.json') as data_file:    
+            data = json.load(data_file)
+        #pprint(data)
+        for row in data:
+            print row
+            self.db.import_daily_schedule_table_by_row(
+                row[2], 
+                row[3], 
+                row[4], 
+                row[5], 
+                row[6], 
+                row[7], 
+                row[8], 
+                row[9], 
+                row[10], 
+                row[11], 
+                row[12],
+                row[13],
+            )
+        print "+++++ Done. Imported Daily Schedule."
 
     def get_daily_schedule_cache_as_json(self):
 
@@ -799,6 +841,22 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--import_queue',
                          action='store_true',
                          help='Imports the current queue for episodes.')
+    '''
+    * 
+    * Export Daily Schedule: "python PseudoChannel.py -eds"
+    *
+    '''
+    parser.add_argument('-eds', '--export_daily_schedule',
+                         action='store_true',
+                         help='Exports the current Daily Schedule.')
+    '''
+    * 
+    * Import Daily Schedule: "python PseudoChannel.py -ids"
+    *
+    '''
+    parser.add_argument('-ids', '--import_daily_schedule',
+                         action='store_true',
+                         help='Imports the current Daily Schedule.')
     globals().update(vars(parser.parse_args()))
     args = parser.parse_args()
     if args.update:
@@ -823,6 +881,10 @@ if __name__ == '__main__':
         pseudo_channel.export_queue()
     if args.import_queue:
         pseudo_channel.import_queue()
+    if args.export_daily_schedule:
+        pseudo_channel.export_daily_schedule()
+    if args.import_daily_schedule:
+        pseudo_channel.import_daily_schedule()
     if args.run:
         print banner
         print "+++++ To run this in the background:"

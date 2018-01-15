@@ -317,13 +317,72 @@ class PseudoChannelDatabase():
                 media.custom_section_name
             )
 
-    def import_shows_table_by_row(self, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID):
+    def import_shows_table_by_row(
+            self, 
+            mediaID, 
+            title, 
+            duration, 
+            lastEpisodeTitle, 
+            fullImageURL, 
+            plexMediaID):
 
         unix = int(time.time())
         try:
             self.cursor.execute("REPLACE INTO shows "
                       "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
                       (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
+            self.conn.commit()
+        # Catch the exception
+        except Exception as e:
+            # Roll back any change if something goes wrong
+            self.conn.rollback()
+            raise e
+
+    def import_daily_schedule_table_by_row(
+            self, 
+            mediaID, 
+            title, 
+            episodeNumber, 
+            seasonNumber, 
+            showTitle, 
+            duration,
+            startTime,
+            endTime,
+            dayOfWeek,
+            sectionType,
+            plexMediaID,
+            customSectionName):
+
+        unix = int(time.time())
+        try:
+            self.cursor.execute("REPLACE INTO daily_schedule "
+                      '''(unix, 
+                          mediaID, 
+                          title, 
+                          episodeNumber, 
+                          seasonNumber, 
+                          showTitle, 
+                          duration,
+                          startTime,
+                          endTime,
+                          dayOfWeek,
+                          sectionType,
+                          plexMediaID,
+                          customSectionName
+                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                      (unix, 
+                       mediaID, 
+                       title, 
+                       episodeNumber, 
+                       seasonNumber, 
+                       showTitle, 
+                       duration,
+                       startTime,
+                       endTime,
+                       dayOfWeek,
+                       sectionType,
+                       plexMediaID,
+                       customSectionName))
             self.conn.commit()
         # Catch the exception
         except Exception as e:
