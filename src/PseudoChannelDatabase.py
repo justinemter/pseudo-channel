@@ -328,9 +328,22 @@ class PseudoChannelDatabase():
 
         unix = int(time.time())
         try:
-            self.cursor.execute("REPLACE INTO shows "
-                      "(unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                      (unix, mediaID, title, duration, lastEpisodeTitle, fullImageURL, plexMediaID))
+            self.cursor.execute('''REPLACE INTO shows
+                      (unix, 
+                       mediaID, 
+                       title, 
+                       duration, 
+                       lastEpisodeTitle, 
+                       fullImageURL, 
+                       plexMediaID
+                       ) VALUES (?, ?, ?, ?, ?, ?, ?)''', 
+                      (unix, 
+                       mediaID, 
+                       title, 
+                       duration, 
+                       lastEpisodeTitle, 
+                       fullImageURL, 
+                       plexMediaID))
             self.conn.commit()
         # Catch the exception
         except Exception as e:

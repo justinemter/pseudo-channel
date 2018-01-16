@@ -54,6 +54,8 @@ You can run `% python PseudoChannel.py` with the following options. The order is
 | -m, --make_html         | Manually generate both html / xml docs based on the "Daily Schedule". |
 | -e, --export            | Export the current queue of your "TV Shows" episodes. Useful when redoing your local DB. |
 | -i, --import            | Import the previously exported queue of your "TV Shows" episodes. |
+| -eds, --export_daily_schedule | Export the daily schedule. |
+| -ids, --import_daily_schedule | Import the daily schedule. |
 
 ## `startstop.sh` - Alternative Way of Running the Application:
 
@@ -150,7 +152,7 @@ If for some reason you want to delete your old DB but don't want to lose your TV
 
 We set up [discord](https://discord.gg/7equn68) channel where you can ping Mark and I with any issues you may run into. You can find us there or file an "issue" here in this repo. 
 
-Stay tuned for a polished version / bug fixes. I've also started a user friendly web version that hopefully will be working soon.  
+Stay tuned for a polished version / bug fixes.  
 
 ## Special Thanks
 
