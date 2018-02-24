@@ -861,8 +861,6 @@ if __name__ == '__main__':
         pseudo_channel.show_clients()
     if args.show_schedule:
         pseudo_channel.show_schedule()
-    if args.make_html:
-        pseudo_channel.make_xml_schedule()
     if args.export_queue:
         pseudo_channel.export_queue()
     if args.import_queue:
@@ -879,6 +877,8 @@ if __name__ == '__main__':
                 pseudo_channel.generate_daily_schedule()
             except:
                 print("----- Recieved error when running generate_daily_schedule()")
+    if args.make_html:
+        pseudo_channel.make_xml_schedule()
     if args.run:
         print banner
         print "+++++ To run this in the background:"
