@@ -103,8 +103,12 @@ class PseudoChannelDatabase():
     def remove_all_daily_scheduled_items(self):
 
         sql = "DELETE FROM daily_schedule"
-        self.cursor.execute(sql)
-        self.conn.commit()
+        try:
+            self.cursor.execute(sql)
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            raise e
 
     def clear_shows_table(self):
 
