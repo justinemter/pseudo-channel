@@ -857,14 +857,6 @@ if __name__ == '__main__':
         pseudo_channel.update_db()
     if args.xml:
         pseudo_channel.update_schedule()
-    if args.generate_schedule:
-        if pseudo_channel.DEBUG:
-            pseudo_channel.generate_daily_schedule()
-        else:
-            try:
-                pseudo_channel.generate_daily_schedule()
-            except:
-                print("----- Recieved error when running generate_daily_schedule()")
     if args.show_clients:
         pseudo_channel.show_clients()
     if args.show_schedule:
@@ -879,6 +871,14 @@ if __name__ == '__main__':
         pseudo_channel.export_daily_schedule()
     if args.import_daily_schedule:
         pseudo_channel.import_daily_schedule()
+    if args.generate_schedule:
+        if pseudo_channel.DEBUG:
+            pseudo_channel.generate_daily_schedule()
+        else:
+            try:
+                pseudo_channel.generate_daily_schedule()
+            except:
+                print("----- Recieved error when running generate_daily_schedule()")
     if args.run:
         print banner
         print "+++++ To run this in the background:"
