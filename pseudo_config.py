@@ -73,7 +73,7 @@ override any media that is trying to play while the previous day is finishing.
 """
 useDailyOverlapCache = True
 
-dailyUpdateTime = "11:59 PM"
+dailyUpdateTime = "12:01 AM"
 
 """When to delete / remake the pseudo-channel.log - right at midnight, (i.e. 'friday') """
 rotateLog = "friday"
