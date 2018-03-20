@@ -71,7 +71,7 @@ When the schedule updates every 24 hours, it's possible that it will interrupt a
 playing from the previous day. To fix this, the app saves a "cached" schedule from the previous day to 
 override any media that is trying to play while the previous day is finishing.
 """
-useDailyOverlapCache = True
+useDailyOverlapCache = False
 
 dailyUpdateTime = "12:01 AM"
 

@@ -732,7 +732,7 @@ class PseudoChannel():
             os.makedirs(writepath)
         if os.path.exists(writepath+fileName):
             os.remove(writepath+fileName)
-        mode = 'a' if os.path.exists(writepath) else 'w'
+        mode = 'w'
         with open(writepath+fileName, mode) as f:
             f.write(data)
 
