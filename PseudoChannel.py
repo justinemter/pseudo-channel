@@ -373,8 +373,12 @@ class PseudoChannel():
     def generate_daily_schedule(self):
 
         print("#### Generating Daily Schedule")
-        logging.info("##### Dropping previous daily_schedule database")
-        self.db.remove_all_daily_scheduled_items()
+        #logging.info("##### Dropping previous daily_schedule database")
+        #self.db.remove_all_daily_scheduled_items()
+
+        self.db.drop_daily_schedule_table()
+
+        self.db.create_daily_schedule_table()
 
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
@@ -1020,9 +1024,11 @@ if __name__ == '__main__':
                 print("----- Recieved error when running generate_daily_schedule()")
             generate_memory_schedule(pseudo_channel.db.get_daily_schedule(), True)
 
-        schedule.every().day.at(daily_update_time).do(
+        """Commenting out below and leaving all updates to be handled by cron task"""
+        """schedule.every().day.at(daily_update_time).do(
             go_generate_daily_sched
-        ).tag('daily-update')
+        ).tag('daily-update')"""
+
         sleep_before_triggering_play_now = 1
 
         '''When the process is killed, stop any currently playing media & cleanup'''

@@ -3,9 +3,10 @@
 # file: generate_daily_sched.sh
 
 #----
-# This file is meant to be setup with a crontab task to generate daily schedule (if app isn't already running).
-# You only need to use this script if using the "Power Saving / External Controller" options.
-# If you plan on running PseudoChannel.py manually using the "-r" flag then you do not need to use this file (nor should you).
+# This file is meant to be setup with a crontab task to generate daily schedule (even if app is already running).
+#
+# **This file is also used to startstop a running channel, trigger an update and restart the channel**
+#
 # If planning on using the ./startstop.sh script to save power, etc. this script needs to be used to 
 # update the daily schedule if the app is not running.
 #----
@@ -29,7 +30,7 @@ python_to_use="$(which python)"
 
 log_file=pseudo-channel.log
 
-SCRIPT_PATH=$(dirname `which $0`)
+SCRIPT_PATH=$(pwd)
 
 #----END EDITABLE VARS-------
 
@@ -37,11 +38,18 @@ if [ ! -e $SCRIPT_PATH/$pid_file ]; then
 
 	$python_to_use $SCRIPT_PATH/PseudoChannel.py -g >> $SCRIPT_PATH/$log_file
 
-	echo "+++++ PseudoChannel.py is not already running so I am generating the daily schedule." >> $SCRIPT_PATH/$log_file
+	echo "+++++ PseudoChannel.py is not already running am generating the daily schedule." >> $SCRIPT_PATH/$log_file
 
 else
 
-	
-	echo "+++++ PseudoChannel.py @: $the_pid is already running, sleeping instead." >> $SCRIPT_PATH/$log_file
+	echo "+++++ PseudoChannel.py @: $the_pid is already running, stopping channel and running daily schedule update." >> $SCRIPT_PATH/$log_file
+
+	bash $SCRIPT_PATH/startstop.sh
+
+	$python_to_use $SCRIPT_PATH/PseudoChannel.py -g >> $SCRIPT_PATH/$log_file
+
+	bash $SCRIPT_PATH/startstop.sh
+
+	echo "+++++ Successfully stopped running channel, generated daily schedule and restarted script."
 
 fi
