@@ -660,12 +660,12 @@ class PseudoChannel():
     def import_queue(self):
 
         """Dropping previous shows table before adding the imported data"""
-        self.db.clear_shows_table()
+        #self.db.clear_shows_table()
         with open('pseudo-queue.json') as data_file:    
             data = json.load(data_file)
-        #pprint(data)
+        #print(data)
         for row in data:
-            print row
+            print "lastEpisodeTitle:", row[5]
             self.db.import_shows_table_by_row(
                 row[2], 
                 row[3], 
@@ -693,7 +693,7 @@ class PseudoChannel():
             data = json.load(data_file)
         #pprint(data)
         for row in data:
-            print row
+            """print row"""
             self.db.import_daily_schedule_table_by_row(
                 row[2], 
                 row[3], 
