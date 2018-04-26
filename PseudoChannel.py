@@ -373,8 +373,12 @@ class PseudoChannel():
     def generate_daily_schedule(self):
 
         print("#### Generating Daily Schedule")
-        logging.info("##### Dropping previous daily_schedule database")
-        self.db.remove_all_daily_scheduled_items()
+        #logging.info("##### Dropping previous daily_schedule database")
+        #self.db.remove_all_daily_scheduled_items()
+
+        self.db.drop_daily_schedule_table()
+
+        self.db.create_daily_schedule_table()
 
         if self.USING_COMMERCIAL_INJECTION:
             self.commercials = PseudoChannelCommercial(
@@ -656,12 +660,12 @@ class PseudoChannel():
     def import_queue(self):
 
         """Dropping previous shows table before adding the imported data"""
-        self.db.clear_shows_table()
+        #self.db.clear_shows_table()
         with open('pseudo-queue.json') as data_file:    
             data = json.load(data_file)
-        #pprint(data)
+        #print(data)
         for row in data:
-            print row
+            print "lastEpisodeTitle:", row[5]
             self.db.import_shows_table_by_row(
                 row[2], 
                 row[3], 
@@ -689,7 +693,7 @@ class PseudoChannel():
             data = json.load(data_file)
         #pprint(data)
         for row in data:
-            print row
+            """print row"""
             self.db.import_daily_schedule_table_by_row(
                 row[2], 
                 row[3], 
@@ -732,7 +736,7 @@ class PseudoChannel():
             os.makedirs(writepath)
         if os.path.exists(writepath+fileName):
             os.remove(writepath+fileName)
-        mode = 'a' if os.path.exists(writepath) else 'w'
+        mode = 'w'
         with open(writepath+fileName, mode) as f:
             f.write(data)
 
@@ -1020,9 +1024,11 @@ if __name__ == '__main__':
                 print("----- Recieved error when running generate_daily_schedule()")
             generate_memory_schedule(pseudo_channel.db.get_daily_schedule(), True)
 
-        schedule.every().day.at(daily_update_time).do(
+        """Commenting out below and leaving all updates to be handled by cron task"""
+        """schedule.every().day.at(daily_update_time).do(
             go_generate_daily_sched
-        ).tag('daily-update')
+        ).tag('daily-update')"""
+
         sleep_before_triggering_play_now = 1
 
         '''When the process is killed, stop any currently playing media & cleanup'''
