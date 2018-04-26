@@ -67,6 +67,24 @@ Within the app directory, there is a file named, `startstop.sh`. This bash scrip
 
 When you start the application with this bash script, you can close your terminal as it will keep running in the background. Later, when you come back and want to stop it... you can just execute that file once more and it will stop the running process. Please note: It's good to test the application and your configurations using the manual process above before running this bash script. Although there is a `pseudo-channel.log` that is created within the application directory, it is easier to just view the output in your terminal window - something that won't happen when using the bash script. 
 
+## Setting Up the Generate-Daily-Schedule Cron Task
+
+Every day (usually at midnight) PseudoChannel needs to generate a new schedule. It will not do this automatically if the app is already running. This task triggers the `-g` flag which generates the new schedule for the following day. This method, as described below, only works when using the `startstop.sh` script. How it works is, it looks for a `running.pid` file in the channel directory which the `startstop.sh` script creates when the channel is run. If it exists, the script will stop the channel, run the `-g` flag, then restart the channel. If it doesn't exist, then the script will just run the `-g` flag without doing anything else. In both cases, the channel generates a new schedule for the upcoming day. Feel free to change the update times, just be sure to choose a time past midnight - so that the app knows if it is a weekend, or what weekday to generate a schedule for. If you usually watch PseudoChannel until 2:00am, set the update time to 3:00am in the crontab task. 
+
+Setup a cron task:
+```bash
+crontab -e
+```
+
+...then setup your new task to trigger the included `generate_daily_sched.sh` file:
+```bash
+0 0 * * * cd /home/pi/channel_01 && ./generate_daily_sched.sh > /dev/null 2>&1
+```
+
+This will trigger the `generate_daily_sched.sh` bash script every day at midnight. Be sure to alter the paths in the above crontab task to match your PseudoChannel's paths. 
+
+
+
 ## Futher Info:
 
 Features are being added to the xml but as of now there are a few. Within the XML `<time>` entry you are able to pass in various attributes to set certain values. As of now, aside from "title" and "type" which are mandatory, you can take advantage of "time-shift". This parameter accepts values in minutes and can be no lower than "1". If the attribute, "strict-time" is set to "false", then this `<time>` entry will be shifted to a new time based on the previous time with a smaller gap calculated according to the value in "time-shift". Basically, if you do not want any gaps in your daily generated schedule you would leave "strict-time" false and set "time-shift" to "1" for all `<time>` entries. However, this will create a schedule with weird start times like, "1:57 PM". Taking advantage of the "time-shift" perameter will correct this. If you set it to a value of "5", all media is shifted and hooked on to a "pretty" time that is a multiple of 5. So if used, rather then having a "Seinfeld" episode being set to "1:57 PM" it may be recalculated and scheduled for "2:00 PM". However, if you would like to make sure that "The Simpsons" will always start every weekday at "6:00 PM" then you can simply set that `<time>` entry to `srtict-time="true"`. This will ensure that despite other non-strict times shifting around, "The Simpsons" will air every weekday at the desired "6:00 PM" as scheduled (be sure that you haven't accidentally made two time entries "strict-time" for the same day/time - this sort of thing will cause weird scheduling errors). When using "strict-time" or having the "time-shift" value > than 1 (minute), this will result in empty gaps in the schedule. Currently I have a flag in the config for "commercial injection" to fill up the gaps as much as possible with commercials from commercials in your Plex server "Commercials" library. If you do not want to use this feature or if you don't have any commercials in your Plex server, just open up that `pseudo_config.py` file and set `useCommercialInjection` to `False`. Please check the `pseudo-channel.xml` for more information.
