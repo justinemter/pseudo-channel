@@ -9,9 +9,9 @@ Joined by the author of [Fake TV](https://medium.com/@Fake.TV), this project aim
 
 ## How to Use:
 
-- The instructions below are all for configuring the **"controller"** device (i.e. a laptop or raspberry pi running linux). This is the device this app runs on to control the Plex client. The **"client"** device should be a Raspberry Pi running Rasplex hooked up to your TV via HDMI - although I'm sure other devices work great too (never tried). 
+- The instructions below are all for configuring the **"controller"** device (i.e. a laptop or raspberry pi running linux). This is the device this app runs on to control the Plex client. The **"client"** device should be a Raspberry Pi running Rasplex hooked up to your TV via HDMI - although I'm sure other devices work great too (never tried). So for this particular setup, you will need 3 things: 1 Raspberry Pi that runs this application, 1 Raspberry Pi that runs RasPlex, and a Plex Server that serves all you movies, TV, commercials, etc. 
 
-1. PseudoChannel uses Python 2.7. The recommended method of setting up most python environments is to use [virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/). This keeps all your pip packages / python versions separated on a per project basis. I find this method extremely useful but also somewhat unintuitive, especially at first. Whether you choose to use "virtualenv" to isolate your project environment or not, you can install all the PseudoChannel.py dependencies by running the following command after downloading this repository:
+1. PseudoChannel uses Python 2.7. The recommended method of setting up most python environments is to use [virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/). This keeps all your pip packages / python versions separated on a per project basis. If you are following along and are using 1 Raspberry pi as your "controller" (like me) then there is no need for a virtualenv. Whether you choose to use "virtualenv" to isolate your project environment or not, you can install all the PseudoChannel.py dependencies by running the following command after downloading this repository:
 
 ```bash
 % pip install -r requirements.txt
@@ -39,7 +39,7 @@ baseurl = 'http://192.168.1.28:32400'
 - The `-xml` flag will update the newly created local db with your schedule from the xml file - you  should run this everytime you make changes to the xml. 
 - The `-g` file will generate the daily schedule (for today) based on the xml. This is useful for the first run or testing (or manually advancing the daily queue forward). Running this flag say, 15 times will advance the play queue forward 15 days. It is automatically run every night at midnight to generate the daily schedule.
 - The `-m` flag makes both the .html/.xml files and starts a simple html web server in the `./schedules` directory.
-- Finally, the `-r` flag will run the app, checking the time / triggering the playstate of any media that is scheduled. It will also update the daily schedule when the clock hits 11.59 (or whatever time you've configured in the config file). If you see errors, check your entries in the xml first. Check your times, check for overlaps & make sure your are using ascii characters to replace foreign characters like umlauts and '&' characters, etc. Make sure all of your movie names / TV Series names are correct. 
+- Finally, the `-r` flag will run the app, checking the time / triggering the playstate of any media that is scheduled. It does not update the daily schedule. In order to do this you need to set a crontask and use the "startstop.sh" script to run the app. Use the "-r" flag first for debugging/testing. If you see errors, check your entries in the xml first. Check your times, check for overlaps & make sure your are using ascii characters to replace foreign characters like umlauts and '&' characters, etc. Make sure all of your movie names / TV Series names are correct. 
 
 You can run `% python PseudoChannel.py` with the following options. The order is important depending on what you are doing (i.e. `% python PseudoChannel.py -u -xml -g -m -r`):
 
@@ -174,4 +174,4 @@ Stay tuned for a polished version / bug fixes.
 
 ## Special Thanks
 
-Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Mark has some excellent ideas in regard to making this thing much more usable as a "pseudo-cable" network - I think this will be in the next version as it is the 'icing on the cake' sort of feature. Anyway, enjoy! 
+Special thanks to Mark @ [Fake TV](https://medium.com/@Fake.TV). Without his creative ideas and love for TV, this "PseudoChannel" wouldn't be as cool as it is. I look forward to tinkering with this project and seeing others "unplugging" and creating their own home network. Enjoy!
