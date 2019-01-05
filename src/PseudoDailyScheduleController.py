@@ -158,6 +158,7 @@ class PseudoDailyScheduleController():
                     text(time + " - Daily Pseudo Schedule")
                 doc.asis('<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">')
                 doc.asis('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>')
+                doc.asis('<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">')
                 doc.asis("""
         <script>
         $(function(){
