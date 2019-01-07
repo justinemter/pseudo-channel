@@ -9,7 +9,8 @@ If you'd like to set up multi-channel support using PseudoChannel.py, use these 
 schedule:
 
 `30 5 * * * cd /home/justin/channels && ./stop-all-channels.sh && ./generate-channels-daily-schedules.sh > /dev/null 2>&1`
-*Updating your folder locations as necessary.*
+
+*-Updating your folder locations as necessary.*
 
 3) Use `updatechannels.sh` to update each channels' local db with newly added Plex library items. 
 
@@ -57,7 +58,8 @@ All of these scripts need to be placed in the "./channels/" dir. Your directory 
 
 `screen`
 `php -S 192.168.1.112:8080`
-*Change the IP:Port to your controller IP:Whatever port that's free/open*
+
+*-Change the IP:Port to your controller IP:Whatever port that's free/open*
 
 3) Point your browser to your IP/Port/multi-channel-viewer.php:
 
@@ -66,7 +68,8 @@ All of these scripts need to be placed in the "./channels/" dir. Your directory 
 4) If using the `multi-channel-api.php` file to interact with the bash scripts, try navigating your browser to:
 
 `http://192.168.1.112:8080/multi-channel-api.php/?command=KEY_CHANNELUP`
-*Open the multi-channel-api.php file to see the various commands. Edit as you see fit.*
+
+*-Open the multi-channel-api.php file to see the various commands. Edit as you see fit.*
 
 5) Use cURL to trigger bash scripts (from any device running cURL):
 
