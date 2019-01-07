@@ -27,19 +27,31 @@
 	<?php
 
 	$cur_dir = explode('\\', getcwd());
-	//echo $cur_dir[count($cur_dir)-1] . "<br />";
 
 	$schedules_html_paths = array();
-	$dir = $cur_dir[count($cur_dir)-1] . "/*";
-	foreach(glob(basename($dir) . '/schedules' , GLOB_ONLYDIR) as $file) 
+
+	$dirs = array_filter(glob('*'), 'is_dir');
+	//print_r( $dirs);
+
+	foreach($dirs as $file) 
 	{
-		$dirs = array_filter(glob($file), 'is_dir');
 		//echo $file."/index.html" . "<br />";
-		array_push($schedules_html_paths, $file."/index.html");
+		array_push($schedules_html_paths, $file."/schedules/index.html");
 	}
 
 	//print_r($schedules_html_paths)
 
+	?>
+
+	<?php
+	  function updateNowPlayingSchedules() {
+	    echo 'Generating new html schedules.';
+	    system("./generate-html-schedules.sh");
+	  }
+
+	  if (isset($_GET['update'])) {
+	    updateNowPlayingSchedules();
+	  }
 	?>
 
 	<div class="schedules-html-paths" data-results="<?php echo implode(",",$schedules_html_paths);; ?>"></div>   
@@ -56,6 +68,7 @@
 	  	<select id="selectNumber">
 	    	<option>Choose a Channel</option>
 	  	</select>
+	  	<a id="gen-schedules" href="?update=true">Generate Now Playing Schedules</a>
 	</form>
 
 	<script type="text/javascript">
