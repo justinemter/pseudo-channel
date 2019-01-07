@@ -57,6 +57,7 @@ All of these scripts need to be placed in the "./channels/" dir. Your directory 
 2) Start `screen` and run a simple PHP server in the `/channels` dir:
 
 `screen`
+
 `php -S 192.168.1.112:8080`
 
 *-Change the IP:Port to your controller IP:Whatever port that's free/open*
