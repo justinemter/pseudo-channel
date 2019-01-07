@@ -48,10 +48,12 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 	for channel in "${CHANNEL_DIR_ARR[@]}"
 	do
 
-		# If the .pid file exists for this channel, skip it because it the html is generated when run.
+		# If the .pid file exists for this channel, skip it because it updated the html when running.
 		if [ ! -f "$channel/running.pid" ]; then
 		
 			echo "+++++ Trying to generate HTML schedule: ""$PYTHON_TO_USE" ./"$channel"/$SCRIPT_TO_EXECUTE_PLUS_ARGS
+
+			cd "$channel" && $PYTHON_TO_USE $SCRIPT_TO_EXECUTE_PLUS_ARGS
 
 			echo "+++++ Generated: $channel - HTML schedule."
 

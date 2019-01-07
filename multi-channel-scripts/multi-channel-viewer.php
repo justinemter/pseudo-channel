@@ -46,7 +46,16 @@
 	<?php
 	  function updateNowPlayingSchedules() {
 	    echo 'Generating new html schedules.';
-	    system("./generate-html-schedules.sh");
+	    //system("./generate-html-schedules.sh");
+	    exec("./generate-html-schedules.sh",$out);
+	    /*foreach($out as $key => $value)
+		{
+
+		    echo $key." ".$value."<br>";
+
+		}*/
+		echo " Update Complete";
+
 	  }
 
 	  if (isset($_GET['update'])) {
