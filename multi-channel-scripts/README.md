@@ -1,4 +1,4 @@
-![Multi-Channel Viewer](https://i.imgur.com/MRwjI8g.jpg)
+![Multi-Channel Viewer](https://i.imgur.com/Xems6AI.jpg)
 *multi-channel-viewer.php*
 
 If you'd like to set up multi-channel support using PseudoChannel.py, use these scripts to: 
