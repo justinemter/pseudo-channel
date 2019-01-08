@@ -16,7 +16,7 @@ schedule:
 
 4) Use `update-channels-from-git.sh` to update all your channels with updates from this repo (uses the `develop` branch by default and preserves your DB, schedule XML and config).
 
-5) Use, "manual.sh" to manually trigger a particular channel... i.e. `./manual.sh 9`, to switch to channel 9.
+5) Use, "manual.sh" to manually trigger a particular channel... i.e. `./manual.sh 09`, to switch to channel 09.
 
 All of these scripts need to be placed in the "./channels/" dir. Your directory structure should look something like this:
 
