@@ -37,6 +37,8 @@
 *
 * List of plex clients to use (add multiple clients to control multiple TV's)
 *
+Passing string with the client name or dict with the client base url :
+plexClients = [{'baseurl': 'http://rasplex.local:3005'}]
 '''
 plexClients = ['RasPlex']
 
