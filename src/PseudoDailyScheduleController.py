@@ -8,6 +8,7 @@ from datetime import datetime
 import sqlite3
 import thread,SocketServer,SimpleHTTPServer
 from plexapi.server import PlexServer
+from plexapi.client import PlexClient
 from yattag import Doc
 from yattag import indent
 
@@ -380,27 +381,17 @@ class PseudoDailyScheduleController():
     *
     '''
     def play_media(self, mediaType, mediaParentTitle, mediaTitle, offset, customSectionName):
-
         try: 
             if mediaType == "TV Shows":
                 print "Here, Trying to play custom type: ", customSectionName
                 mediaItems = self.PLEX.library.section(customSectionName).get(mediaParentTitle).episodes()
                 for item in mediaItems:
                     if item.title == mediaTitle:
-                        for client in self.PLEX_CLIENTS:
-                            clientItem = self.PLEX.client(client)
-                            clientItem.playMedia(item, offset=offset)
+                        self._dispatch_play_media(media=item, offset=offset)
                         break
-            elif mediaType == "Movies":
+            elif mediaType == "Movies" or mediaType == "Commercials":
                 movie =  self.PLEX.library.section(customSectionName).get(mediaTitle)
-                for client in self.PLEX_CLIENTS:
-                        clientItem = self.PLEX.client(client)
-                        clientItem.playMedia(movie, offset=offset)
-            elif mediaType == "Commercials":
-                movie =  self.PLEX.library.section(customSectionName).get(mediaTitle)
-                for client in self.PLEX_CLIENTS:
-                        clientItem = self.PLEX.client(client)
-                        clientItem.playMedia(movie, offset=offset)
+                self._dispatch_play_media(media=movie, offset=offset)
             else:
                 print("##### Not sure how to play {}".format(customSectionName))
             print "+++++ Done."
@@ -409,7 +400,15 @@ class PseudoDailyScheduleController():
             print e.message
             print "##### There was an error trying to play the media."
             pass
-        
+
+    def _dispatch_play_media(self, media, offset):
+        for client in self.PLEX_CLIENTS:
+            if type(client) == str:
+                clientItem = self.PLEX.client(client)
+            elif type(client) == dict:
+                clientItem = PlexClient(server=self.PLEX, baseurl=client['baseurl'])
+            clientItem.playMedia(media, offset=offset)
+
     def stop_media(self):
 
         try:

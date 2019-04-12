@@ -16,3 +16,4 @@ env/
 .prevplaying
 .idea
 pseudo_schedule.xml
+venv
