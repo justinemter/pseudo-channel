@@ -1,6 +1,6 @@
 # PseudoChannel.py - Your Home-Brewed TV Channels
 
-#Update 07/08/2019 - Development for this project has moved to a new repository under "FakeTV" -> https://github.com/FakeTV/pseudo-channel
+*Update 07/08/2019 - Development for this project has moved to a new repository under "FakeTV" -> https://github.com/FakeTV/pseudo-channel
 Check out ["FakeTV"](https://github.com/FakeTV) for other projects that help create the full fake tv experience. 
 Also checkout our [discord](https://discord.gg/7equn68) for help setting things up. 
 
