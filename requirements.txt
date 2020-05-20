@@ -2,7 +2,7 @@ amqp==2.2.1
 billiard==3.5.0.3
 certifi==2017.7.27.1
 chardet==3.0.4
-httplib2==0.10.3
+httplib2==0.18.0
 idna==2.5
 kombu==4.1.0
 oauth2client==4.1.2
