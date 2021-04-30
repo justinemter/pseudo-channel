@@ -13,7 +13,7 @@ pyasn1-modules==0.0.11
 pytest==3.2.1
 pytz==2017.2
 requests==2.20.0
-rsa==3.4.2
+rsa==4.7
 schedule==0.4.3
 six==1.10.0
 uritemplate==3.0.0
